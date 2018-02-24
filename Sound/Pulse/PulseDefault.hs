@@ -12,14 +12,15 @@ import Sound.Pulse.PulseMutableMap
 
 -- These functions are used to get a default data
 --
-defaultClock :: IO Clock
+defaultClock :: Clock
 defaultClock = newClock "defaultClock" 60 Stopped
 
-defaultPlayer :: IO Player
+defaultPlayer :: Player
 defaultPlayer = newPlayer "defaultPlayer" Regular 60 [string "imp", string "freq", float 440] [[1,0,1,0], [1,1,1,1]] Pausing
 
 defaultPulseWorld :: IO PulseWorld
-defaultPulseWorld = newPulseWorld "defaultWorld" defaultClockMMap defaultPlayerMMap
+defaultPulseWorld =
+    return $ newPulseWorld "defaultWorld" defaultClockMMap defaultPlayerMMap
 --
 --
 

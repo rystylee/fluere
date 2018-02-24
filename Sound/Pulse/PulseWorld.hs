@@ -9,23 +9,23 @@ import Sound.Pulse.PulseMutableMap
 
 
 data PulseWorld = PulseWorld { worldName :: String
-                              ,wClockPulseMMap :: IO (TVar (Map String (IO Clock)))
-                              ,wPlayerPulseMMap :: IO (TVar (Map String (IO Player)))
+                              ,wClockPulseMMap :: IO (TVar (Map String Clock))
+                              ,wPlayerPulseMMap ::IO (TVar (Map String Player))
                              }
 
 
 newPulseWorld ::  String
-               -> IO (TVar (Map String (IO Clock)))
-               -> IO (TVar (Map String (IO Player)))
-               -> IO PulseWorld
-newPulseWorld wname cmmap pmmap = do
-    let world = PulseWorld { worldName = wname
-                            ,wClockPulseMMap = cmmap
-                            ,wPlayerPulseMMap = pmmap
-                           }
-    return world
+               -> IO (TVar (Map String Clock))
+               -> IO (TVar (Map String Player))
+               -> PulseWorld
+newPulseWorld wname cmmap pmmap =
+    PulseWorld { worldName = wname
+                ,wClockPulseMMap = cmmap
+                ,wPlayerPulseMMap = pmmap
+               }
 
-getClock :: IO ()
-getClock world = do
-    w <- world
-    keys $ wClockPulseMMap w
+
+--getClock :: IO 
+--getClock world = do
+--    w <- world
+--    keys $ wClockPulseMMap w

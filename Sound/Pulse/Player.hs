@@ -37,16 +37,15 @@ sleep t = threadDelay (t * 10 * 1000)
 
 
 -- Used to create a new Player
-newPlayer :: String -> PlayerType -> Int -> [Datum] -> [[Int]] -> PlayerStatus -> IO Player
-newPlayer pname ptype pbpm posc pstream pstatus = do
-    let player = Player { playerName = pname
-                         ,playerType = ptype
-                         ,playerBpm = pbpm
-                         ,playerOscMessage = posc
-                         ,playerStream = pstream
-                         ,playerStatus = pstatus
-                        }
-    return player
+newPlayer :: String -> PlayerType -> Int -> [Datum] -> [[Int]] -> PlayerStatus -> Player
+newPlayer pname ptype pbpm posc pstream pstatus =
+    Player { playerName = pname
+            ,playerType = ptype
+            ,playerBpm = pbpm
+            ,playerOscMessage = posc
+            ,playerStream = pstream
+            ,playerStatus = pstatus
+           }
 
 --newPlayerMMap :: Ord k => k -> String -> playerType -> Int -> [Datum] -> [[Int]] -> playerStatus -> IO (TVar (Map k (IO Player)))
 --newPlayerMMap key pname ptype pbpm posc pstream pstatus = 
@@ -62,18 +61,16 @@ newPlayerPulseMMap key player = newPulseMMap [(key, player)]
 --changePlayer player =
 
 -- Used to play a player
-playPlayer :: IO Player -> IO ()
+playPlayer :: Player -> IO ()
 playPlayer player = do
-    p <- player
-    if playerStatus p == Pausing
+    if playerStatus player == Pausing
         then putStrLn "Player Starts."
         else putStrLn "Player has been playing." 
 
 -- Used to pause a player
-pausePlayer :: IO Player -> IO ()
+pausePlayer :: Player -> IO ()
 pausePlayer player = do
-    p <- player
-    if playerStatus p == Playing
+    if playerStatus player == Playing
         then putStrLn "Player Pauses."
         else putStrLn "Player has been pausing." 
 
@@ -82,31 +79,31 @@ pausePlayer player = do
 -- play function is base function
 --play :: IO Player -> IO ()
 --play :: IO Player -> IO GHC.Conc.Sync.ThreadId
-play player = do
-    p <- player
-    if playerStatus p == Playing
+play player =
+    if playerStatus player == Playing
         then do
-            let ptype = playerType p
+            let ptype = playerType player
             case ptype of
                 Regular -> forkIO $ regularPlay player
                 _ -> forkIO $ putStr "Playre type error."
-        else forkIO $ putStrLn $ playerName p ++ " is pausing." 
+            play player
+        else do
+            forkIO $ putStrLn $ playerName player ++ " is pausing."
+            play player
 
 -- Play reguraly according to player's sequence
 --regularPlay :: IO Player -> IO ()
---regularPlay :: IO Player -> IO b
 regularPlay player = do
-    p <- player
-    let (bpm, stream) = (playerBpm p, playerStream p)
+    let (bpm, stream) = (playerBpm player, playerStream player)
     forM_ stream $ \stream ->
         forM_ stream $ \node ->
             if node == 1
                 then do
-                    sendToSC "s_new" (playerOscMessage p) 
-                    sleep $ bpmToSleepTime (playerBpm p)
+                    sendToSC "s_new" (playerOscMessage player) 
+                    sleep $ bpmToSleepTime (playerBpm player)
                 else 
-                    sleep $ bpmToSleepTime (playerBpm p)
-    regularPlay player
+                    sleep $ bpmToSleepTime (playerBpm player)
+    --regularPlay player
 
 {-
 playChord' :: Int -> IO ()

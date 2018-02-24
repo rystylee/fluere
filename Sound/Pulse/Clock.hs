@@ -23,10 +23,9 @@ bpmToSeconds bpm = ceiling (1 / (60 / fromIntegral bpm))
 
 
 -- Used to Create a new Clock
-newClock :: String -> Int -> ClockStatus -> IO Clock
-newClock name bpm status = do
-    let clock = Clock { clockName = name, clockBpm = bpm, clockStatus = status }
-    return clock
+newClock :: String -> Int -> ClockStatus -> Clock
+newClock name bpm status =
+    Clock { clockName = name, clockBpm = bpm, clockStatus = status }
 
 --
 newClockPulseMMap key clock = newPulseMMap [(key, clock)]
@@ -56,8 +55,7 @@ stopClock clock = do
 task :: IO ()
 task = putStrLn "clock task"
 
-loopClock :: IO Clock -> IO ()
+loopClock :: Clock -> IO ()
 loopClock clock = do
-    clock' <- clock
-    forkIO $ task
-    threadDelay (clockBpm clock' * 100 * 1000)
+    forkIO task
+    threadDelay (clockBpm clock * 100 * 1000)

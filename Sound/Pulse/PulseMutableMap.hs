@@ -19,3 +19,5 @@ addValToPulseMMap mmap (k, v) = changePulseMMap mmap $ M.insert k v
 
 deleteValFromPulseMMap :: Ord k => TVar (M.Map k a) -> k -> IO ()
 deleteValFromPulseMMap mmap k = changePulseMMap mmap $ M.delete k
+
+-- Used to get
