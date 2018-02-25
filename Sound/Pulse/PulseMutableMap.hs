@@ -11,8 +11,7 @@ import qualified Data.Map as M
 
 -- Used to create a newPulseMutableMMap
 newPulseMMap :: Ord k => [(k, a)] -> IO (TVar (M.Map k a))
-newPulseMMap kvs = do
-    newTVarIO $ M.fromList kvs
+newPulseMMap kvs = newTVarIO $ M.fromList kvs
 
 -- Used to find a value from the existing PulseMutableMap
 findValueFromPulseMMap :: Ord k => k -> TVar (M.Map k a) -> IO (Maybe a)

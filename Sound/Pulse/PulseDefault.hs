@@ -29,9 +29,9 @@ defaultPulseWorld = do
 -- These functions are used to get a default PulseMutableMaps
 --
 defaultClockMMap :: IO (TVar (Map String Clock))
-defaultClockMMap = newClockPulseMMap "defaultClock" defaultClock
+defaultClockMMap = newClockPulseMMap defaultClock
 
 defaultPlayerMMap :: IO (TVar (Map String Player)) 
-defaultPlayerMMap = newPlayerPulseMMap "defaultPlayerMMap" defaultPlayer
+defaultPlayerMMap = newPlayerPulseMMap defaultPlayer
 --
 --

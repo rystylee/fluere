@@ -7,7 +7,10 @@ import Control.Monad (forM_, void)
 import Sound.OSC.FD (Datum, string, int32, float)
 
 import Sound.Pulse.PulseData
-import Sound.Pulse.PulseMutableMap (newPulseMMap, findValueFromPulseMMap)
+import Sound.Pulse.PulseMutableMap ( newPulseMMap
+                                    ,findValueFromPulseMMap
+                                    ,addValToPulseMMap
+                                   )
 import Sound.Pulse.OSC (sendToSC)
 --import Sound.Pulse.Chord
 
@@ -38,60 +41,61 @@ newPlayer pname ptype pbpm posc pstream pstatus =
             ,playerStatus = pstatus
            }
 
---newPlayerPulseMMap :: Ord => k -> IO Player -> IO (TVar (Map k IO Player))
-newPlayerPulseMMap :: String -> Player -> IO (TVar (Map String Player))
-newPlayerPulseMMap key player = newPulseMMap [(key, player)]
+newPlayerPulseMMap :: Player -> IO (TVar (Map String Player))
+newPlayerPulseMMap player = newPulseMMap [(playerName player, player)]
 --
 --
 
--- These functions are used to change Player
---
---changePlayer
---changePlayer ::
---changePlayer player =
-
--- Used to play a player
-playPlayer :: Player -> IO ()
-playPlayer player = 
-    if playerStatus player == Pausing
-        then putStrLn "Player Starts."
-        else putStrLn "Player has been playing." 
-
--- Used to pause a player
-pausePlayer :: Player -> IO ()
-pausePlayer player =
-    if playerStatus player == Playing
-        then putStrLn "Player Pauses."
-        else putStrLn "Player has been pausing." 
---
---
-
--- Some functions to play with Player
---
---play :: Player -> IO ()
-play :: PulseWorld -> String -> IO ()
-play world pname =
+-- These functions are not used during the performance
+changePlayer :: PulseWorld -> String -> (Player -> Player) -> IO ()
+changePlayer world pname f = do
     let pmmap = wPlayerPulseMMap world
-        checkPlayerStatus player Playing = (forkIO $ regularPlay player) >> return ()
-        checkPlayerStatus player Pausing = putStrLn $ playerName player ++ " is pausing."
-    in do
-        Just player <- findValueFromPulseMMap pname pmmap -- it is need to do Exception handling
-        checkPlayerStatus player (playerStatus player)
+    Just player <- findValueFromPulseMMap pname pmmap
+    let newPlayer = f player
+    addValToPulseMMap (pname, newPlayer) pmmap
 
+changePlayerStatus :: PulseWorld -> String -> PlayerStatus -> IO ()
+changePlayerStatus world pname newpstatus = do
+    let changepstatus p = p { playerStatus = newpstatus }
+    changePlayer world pname changepstatus
 
 -- Play reguraly according to player's sequence
-regularPlay :: Player -> IO ()
-regularPlay player = do
+regularPlay :: PulseWorld -> String -> IO ()
+regularPlay world pname = do
+    let pmmap = wPlayerPulseMMap world
+    Just player <- findValueFromPulseMMap pname pmmap
     let (bpm, stream) = (playerBpm player, playerStream player)
     forM_ stream $ \stream ->
         forM_ stream $ \node ->
             if node == 1
                 then do
-                    sendToSC "s_new" (playerOscMessage player) 
+                    sendToSC "s_new" (playerOscMessage player)
                     sleep $ bpmToSleepTime (playerBpm player)
-                else 
+                else
                     sleep $ bpmToSleepTime (playerBpm player)
-    regularPlay player
+    if playerStatus player == Playing
+        then regularPlay world pname
+        else return ()
+--
+--
+
+-- These functions are used during the performance
+play :: PulseWorld -> String -> IO ()
+play world pname =
+    let pmmap = wPlayerPulseMMap world
+        checkPlayerStatus player Playing = (forkIO $ regularPlay world pname) >> return ()
+        checkPlayerStatus player Pausing = putStrLn $ playerName player ++ " is pausing."
+    in do
+        Just player <- findValueFromPulseMMap pname pmmap -- it is need to do Exception handling
+        checkPlayerStatus player (playerStatus player)
+
+stopPlayer :: PulseWorld -> String -> IO ()
+stopPlayer world pname = do
+    let pmmap = wPlayerPulseMMap world
+    Just player <- findValueFromPulseMMap pname pmmap
+    if playerStatus player == Playing
+        then changePlayerStatus world pname Pausing
+        else return ()
 --
 --
 

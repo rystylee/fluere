@@ -27,8 +27,8 @@ newClock name bpm status =
     Clock { clockName = name, clockBpm = bpm, clockStatus = status }
 
 -- Used to create a new ClockPulseMutableMap
-newClockPulseMMap :: String -> Clock -> IO (TVar (Map String Clock))
-newClockPulseMMap key clock = newPulseMMap [(key, clock)]
+newClockPulseMMap :: Clock -> IO (TVar (Map String Clock))
+newClockPulseMMap clock = newPulseMMap [(clockName clock, clock)]
 --
 --
 
