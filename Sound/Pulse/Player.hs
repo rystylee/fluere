@@ -11,6 +11,8 @@ import Sound.Pulse.OSC
 import Sound.Pulse.Chord
 
 
+-- Data definition
+--
 data Player = Player { playerName :: String
                       ,playerType :: PlayerType
                       ,playerBpm :: Int
@@ -24,8 +26,11 @@ data PlayerType =   Regular
 
 data PlayerStatus =   Playing
                     | Pausing deriving (Show, Eq)
+--
+--
 
-
+-- Util
+--
 -- Used to convert bpm to sleep time
 -- ex.) bpm:60 -> 25
 bpmToSleepTime :: Int -> Int
@@ -34,8 +39,11 @@ bpmToSleepTime bpm = 1500 `div` bpm
 -- sleep 25 means threadDelay 0.25 * 1000 * 1000
 sleep :: Int -> IO ()
 sleep t = threadDelay (t * 10 * 1000)
+--
+--
 
-
+-- These functions are used to create data with Player
+--
 -- Used to create a new Player
 newPlayer :: String -> PlayerType -> Int -> [Datum] -> [[Int]] -> PlayerStatus -> Player
 newPlayer pname ptype pbpm posc pstream pstatus =
@@ -47,52 +55,45 @@ newPlayer pname ptype pbpm posc pstream pstatus =
             ,playerStatus = pstatus
            }
 
---newPlayerMMap :: Ord k => k -> String -> playerType -> Int -> [Datum] -> [[Int]] -> playerStatus -> IO (TVar (Map k (IO Player)))
---newPlayerMMap key pname ptype pbpm posc pstream pstatus = 
---    let player = newPlayer pname ptype pbpm posc pstream pstatus
---    in newPulseMMap [(key, player)]
-
 --newPlayerPulseMMap :: Ord => k -> IO Player -> IO (TVar (Map k IO Player))
+newPlayerPulseMMap :: String -> Player -> IO (TVar (Map String Player))
 newPlayerPulseMMap key player = newPulseMMap [(key, player)]
+--
+--
 
-
+-- These functions are used to change Player
+--
 --changePlayer
 --changePlayer ::
 --changePlayer player =
 
 -- Used to play a player
 playPlayer :: Player -> IO ()
-playPlayer player = do
+playPlayer player = 
     if playerStatus player == Pausing
         then putStrLn "Player Starts."
         else putStrLn "Player has been playing." 
 
 -- Used to pause a player
 pausePlayer :: Player -> IO ()
-pausePlayer player = do
+pausePlayer player =
     if playerStatus player == Playing
         then putStrLn "Player Pauses."
         else putStrLn "Player has been pausing." 
+--
+--
 
-
--- Used to play a player
--- play function is base function
---play :: IO Player -> IO ()
---play :: IO Player -> IO GHC.Conc.Sync.ThreadId
+-- Some functions to play with Player
+--
+play :: Player -> IO ()
 play player =
-    if playerStatus player == Playing
-        then do
-            let ptype = playerType player
-            case ptype of
-                Regular -> forkIO $ regularPlay player
-                _ -> forkIO $ putStr "Playre type error."
-            play player
-        else do
-            forkIO $ putStrLn $ playerName player ++ " is pausing."
-            play player
+    let checkPlayerStatus player Playing = (forkIO $ regularPlay player) >> return ()
+        checkPlayerStatus player Pausing = putStrLn $ playerName player ++ " is pausing."
+     in checkPlayerStatus player (playerStatus player)
+
 
 -- Play reguraly according to player's sequence
---regularPlay :: IO Player -> IO ()
+regularPlay :: Player -> IO ()
 regularPlay player = do
     let (bpm, stream) = (playerBpm player, playerStream player)
     forM_ stream $ \stream ->
@@ -103,7 +104,9 @@ regularPlay player = do
                     sleep $ bpmToSleepTime (playerBpm player)
                 else 
                     sleep $ bpmToSleepTime (playerBpm player)
-    --regularPlay player
+    regularPlay player
+--
+--
 
 {-
 playChord' :: Int -> IO ()

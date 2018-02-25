@@ -1,10 +1,14 @@
 module Sound.Pulse.Clock where
 
 import Control.Concurrent (threadDelay, forkIO)
+import Control.Concurrent.STM (TVar)
+import Data.Map (Map)
 
 import Sound.Pulse.PulseMutableMap
 
 
+-- Data definition
+--
 data Clock = Clock { clockName :: String
                     ,clockBpm :: Int
                     ,clockStatus :: ClockStatus
@@ -12,24 +16,35 @@ data Clock = Clock { clockName :: String
 
 data ClockStatus =   Started
                    | Stopped deriving (Show, Eq)
+--
+--
 
-
+-- Util
+--
 -- Conversion between bpm and actual time
 secondsToBpm :: Int -> Int
 secondsToBpm seconds = 60 * ceiling (1 / fromIntegral seconds)
 
 bpmToSeconds :: Int -> Int
 bpmToSeconds bpm = ceiling (1 / (60 / fromIntegral bpm))
+--
+--
 
-
--- Used to Create a new Clock
+-- These functions are used to create data with Clock
+--
+-- Used to create a new Clock
 newClock :: String -> Int -> ClockStatus -> Clock
 newClock name bpm status =
     Clock { clockName = name, clockBpm = bpm, clockStatus = status }
 
---
+-- Used to create a new ClockPulseMutableMap
+newClockPulseMMap :: String -> Clock -> IO (TVar (Map String Clock))
 newClockPulseMMap key clock = newPulseMMap [(key, clock)]
+--
+--
 
+-- These functions are used to change Clock
+--
 -- Used to change a Clock
 --changeClock :: ClockStatus -> Int -> IO Clock
 --changeClock s b = do
@@ -51,6 +66,8 @@ stopClock clock = do
     if clockStatus clock' == Started
         then putStrLn "Clock starts."
         else putStrLn "Clock has been stopped."
+--
+--
 
 task :: IO ()
 task = putStrLn "clock task"

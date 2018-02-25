@@ -28,7 +28,7 @@ defaultPulseWorld =
 --
 defaultClockMMap = newClockPulseMMap "defaultClock" defaultClock
 
---defaultPlayerMMap :: IO (TVar Map k (IO Player)) 
+defaultPlayerMMap :: IO (TVar (Map String Player)) 
 defaultPlayerMMap = newPlayerPulseMMap "defaultPlayerMMap" defaultPlayer
 --
 --

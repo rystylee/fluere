@@ -1,6 +1,5 @@
 module Sound.Pulse.OSC where
 
---import Sound.OSC.FD (Datum, Message, openUDP, sendOSC, int32)
 import Sound.OSC.FD
 
 
