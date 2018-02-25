@@ -2,6 +2,7 @@ module Sound.Pulse.Player where
 
 import Control.Concurrent (forkIO, threadDelay)
 import Control.Concurrent.STM (TVar)
+import Control.Monad (when)
 import Data.Map
 import Control.Monad (forM_, void)
 import Sound.OSC.FD (Datum, string, int32, float)
@@ -43,6 +44,11 @@ newPlayer pname ptype pbpm posc pstream pstatus =
 
 newPlayerPulseMMap :: Player -> IO (TVar (Map String Player))
 newPlayerPulseMMap player = newPulseMMap [(playerName player, player)]
+
+addNewPlayerToPulseMMap :: PulseWorld -> Player -> IO ()
+addNewPlayerToPulseMMap world player = do
+    let pmmap = wPlayerPulseMMap world
+    addValToPulseMMap (playerName player, player) pmmap
 --
 --
 
@@ -59,6 +65,11 @@ changePlayerStatus world pname newpstatus = do
     let changepstatus p = p { playerStatus = newpstatus }
     changePlayer world pname changepstatus
 
+changePlayerStream :: PulseWorld -> String -> [[Int]] -> IO ()
+changePlayerStream world pname newstream = do
+    let changestream p = p { playerStream = newstream }
+    changePlayer world pname changestream
+
 -- Play reguraly according to player's sequence
 regularPlay :: PulseWorld -> String -> IO ()
 regularPlay world pname = do
@@ -73,9 +84,7 @@ regularPlay world pname = do
                     sleep $ bpmToSleepTime (playerBpm player)
                 else
                     sleep $ bpmToSleepTime (playerBpm player)
-    if playerStatus player == Playing
-        then regularPlay world pname
-        else return ()
+    when (playerStatus player == Playing) $ regularPlay world pname
 --
 --
 
@@ -93,9 +102,7 @@ stopPlayer :: PulseWorld -> String -> IO ()
 stopPlayer world pname = do
     let pmmap = wPlayerPulseMMap world
     Just player <- findValueFromPulseMMap pname pmmap
-    if playerStatus player == Playing
-        then changePlayerStatus world pname Pausing
-        else return ()
+    when (playerStatus player == Playing) $ changePlayerStatus world pname Pausing
 --
 --
 
