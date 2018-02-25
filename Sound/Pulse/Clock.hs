@@ -4,20 +4,9 @@ import Control.Concurrent (threadDelay, forkIO)
 import Control.Concurrent.STM (TVar)
 import Data.Map (Map)
 
-import Sound.Pulse.PulseMutableMap
+import Sound.Pulse.PulseData
+import Sound.Pulse.PulseMutableMap (newPulseMMap)
 
-
--- Data definition
---
-data Clock = Clock { clockName :: String
-                    ,clockBpm :: Int
-                    ,clockStatus :: ClockStatus
-                   } deriving (Show)
-
-data ClockStatus =   Started
-                   | Stopped deriving (Show, Eq)
---
---
 
 -- Util
 --

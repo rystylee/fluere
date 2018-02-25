@@ -1,33 +1,16 @@
 module Sound.Pulse.Player where
 
 import Control.Concurrent (forkIO, threadDelay)
-import Control.Concurrent.STM
+import Control.Concurrent.STM (TVar)
 import Data.Map
 import Control.Monad (forM_, void)
 import Sound.OSC.FD (Datum, string, int32, float)
 
-import Sound.Pulse.PulseMutableMap
-import Sound.Pulse.OSC
-import Sound.Pulse.Chord
+import Sound.Pulse.PulseData
+import Sound.Pulse.PulseMutableMap (newPulseMMap, findValueFromPulseMMap)
+import Sound.Pulse.OSC (sendToSC)
+--import Sound.Pulse.Chord
 
-
--- Data definition
---
-data Player = Player { playerName :: String
-                      ,playerType :: PlayerType
-                      ,playerBpm :: Int
-                      ,playerOscMessage :: [Datum]
-                      ,playerStream :: [[Int]]
-                      ,playerStatus :: PlayerStatus
-                     } deriving (Show)
-
-data PlayerType =   Regular
-                  | Debug deriving (Show, Eq)
-
-data PlayerStatus =   Playing
-                    | Pausing deriving (Show, Eq)
---
---
 
 -- Util
 --
@@ -85,11 +68,15 @@ pausePlayer player =
 
 -- Some functions to play with Player
 --
-play :: Player -> IO ()
-play player =
-    let checkPlayerStatus player Playing = (forkIO $ regularPlay player) >> return ()
+--play :: Player -> IO ()
+play :: PulseWorld -> String -> IO ()
+play world pname =
+    let pmmap = wPlayerPulseMMap world
+        checkPlayerStatus player Playing = (forkIO $ regularPlay player) >> return ()
         checkPlayerStatus player Pausing = putStrLn $ playerName player ++ " is pausing."
-     in checkPlayerStatus player (playerStatus player)
+    in do
+        Just player <- findValueFromPulseMMap pname pmmap -- it is need to do Exception handling
+        checkPlayerStatus player (playerStatus player)
 
 
 -- Play reguraly according to player's sequence

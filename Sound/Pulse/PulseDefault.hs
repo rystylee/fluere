@@ -1,13 +1,13 @@
 module Sound.Pulse.PulseDefault where
 
-import Control.Concurrent.STM
-import Data.Map
+import Control.Concurrent.STM (TVar)
+import Data.Map (Map)
 import Sound.OSC.FD (Datum, string, float)
 
-import Sound.Pulse.Clock
-import Sound.Pulse.Player
-import Sound.Pulse.PulseWorld
-import Sound.Pulse.PulseMutableMap
+import Sound.Pulse.PulseData
+import Sound.Pulse.Clock (newClock, newClockPulseMMap)
+import Sound.Pulse.Player (newPlayer, newPlayerPulseMMap)
+import Sound.Pulse.PulseWorld (newPulseWorld)
 
 
 -- These functions are used to get a default data
@@ -19,13 +19,16 @@ defaultPlayer :: Player
 defaultPlayer = newPlayer "defaultPlayer" Regular 60 [string "imp", string "freq", float 440] [[1,0,1,0], [1,1,1,1]] Pausing
 
 defaultPulseWorld :: IO PulseWorld
-defaultPulseWorld =
-    return $ newPulseWorld "defaultWorld" defaultClockMMap defaultPlayerMMap
+defaultPulseWorld = do
+    cmmap <- defaultClockMMap
+    pmmap <- defaultPlayerMMap
+    return $ newPulseWorld "defaultWorld" cmmap pmmap
 --
 --
 
 -- These functions are used to get a default PulseMutableMaps
 --
+defaultClockMMap :: IO (TVar (Map String Clock))
 defaultClockMMap = newClockPulseMMap "defaultClock" defaultClock
 
 defaultPlayerMMap :: IO (TVar (Map String Player)) 
