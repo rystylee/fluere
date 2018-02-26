@@ -75,15 +75,17 @@ regularPlay :: PulseWorld -> String -> IO ()
 regularPlay world pname = do
     let pmmap = wPlayerPulseMMap world
     Just player <- findValueFromPulseMMap pname pmmap
-    let (bpm, stream) = (playerBpm player, playerStream player)
+    let cmmap = wClockPulseMMap world
+    Just clock <- findValueFromPulseMMap "defaultClock" cmmap
+    let (bpm, stream) = (clockBpm clock, playerStream player)
     forM_ stream $ \stream ->
         forM_ stream $ \node ->
             if node == 1
                 then do
                     sendToSC "s_new" (playerOscMessage player)
-                    sleep $ bpmToSleepTime (playerBpm player)
+                    sleep $ bpmToSleepTime bpm
                 else
-                    sleep $ bpmToSleepTime (playerBpm player)
+                    sleep $ bpmToSleepTime bpm
     when (playerStatus player == Playing) $ regularPlay world pname
 --
 --
@@ -105,20 +107,3 @@ stopPlayer world pname = do
     when (playerStatus player == Playing) $ changePlayerStatus world pname Pausing
 --
 --
-
-{-
-playChord' :: Int -> IO ()
-playChord' delayTime = do
-    forM_ chords $ \chord -> do
-        forM_ chord $ \scale -> do
-            play "imp" scale
-            putStrLn "playChord' done"
-        threadDelay (delayTime * 1000 * 1000)
-    playChord' delayTime
-
-performe = do
-    p <- forkIO $ playChord' 1
-    u <- delayy
-    when u $ killThread p
-    putStrLn "killed the playChord' thread"
--}

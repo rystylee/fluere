@@ -5,8 +5,10 @@ import Control.Concurrent.STM (TVar)
 import Data.Map (Map)
 
 import Sound.Pulse.PulseData
-import Sound.Pulse.PulseMutableMap (newPulseMMap)
-
+import Sound.Pulse.PulseMutableMap ( newPulseMMap
+                                    ,findValueFromPulseMMap
+                                    ,addValToPulseMMap
+                                   )
 
 -- Util
 --
@@ -32,29 +34,22 @@ newClockPulseMMap clock = newPulseMMap [(clockName clock, clock)]
 --
 --
 
--- These functions are used to change Clock
---
--- Used to change a Clock
---changeClock :: ClockStatus -> Int -> IO Clock
---changeClock s b = do
---    let clock = Clock { clockStatus = s, clockBpm = b}
---    return clock
+-- These functions are not used during the performance
+changeClock :: PulseWorld -> String -> (Clock -> Clock) -> IO ()
+changeClock world cname f = do
+    let cmmap = wClockPulseMMap world
+    Just clock <- findValueFromPulseMMap cname cmmap
+    let newClock = f clock
+    addValToPulseMMap (cname, newClock) cmmap
 
--- Used to start a Clock
-startClock :: IO Clock -> IO ()
-startClock clock = do
-    clock' <- clock
-    if clockStatus clock' == Stopped
-        then putStrLn "Clock starts."
-        else putStrLn "Clock has been started."
- 
--- Used to stop a Clock
-stopClock :: IO Clock -> IO ()
-stopClock clock = do
-    clock' <- clock
-    if clockStatus clock' == Started
-        then putStrLn "Clock starts."
-        else putStrLn "Clock has been stopped."
+changeClockBpm :: PulseWorld -> String -> Int -> IO ()
+changeClockBpm world cname newbpm = do
+    let changebpm c = c { clockBpm = newbpm }
+    changeClock world cname changebpm
+--
+--
+
+-- These functions are used during the performance
 --
 --
 
