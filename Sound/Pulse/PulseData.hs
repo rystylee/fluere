@@ -33,9 +33,8 @@ data ClockStatus =   Started
 --
 data Player = Player { playerName :: String
                       ,playerType :: PlayerType
-                      ,playerBpm :: Int
                       ,playerOscMessage :: [Datum]
-                      ,playerStream :: [[Int]]
+                      ,playerScore :: [[Int]]
                       ,playerStatus :: PlayerStatus
                      } deriving (Show)
 

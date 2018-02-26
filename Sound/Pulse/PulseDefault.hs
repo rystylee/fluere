@@ -16,7 +16,7 @@ defaultClock :: Clock
 defaultClock = newClock "defaultClock" 60 Stopped
 
 defaultPlayer :: Player
-defaultPlayer = newPlayer "defaultPlayer" Regular 60 [string "ckick", string "freq", float 440] [[1,0,1,0], [1,1,1,1]] Pausing
+defaultPlayer = newPlayer "defaultPlayer" Regular [string "ckick", string "freq", float 440] [[1,0,1,0], [1,1,1,1]] Pausing
 
 defaultPulseWorld :: IO PulseWorld
 defaultPulseWorld = do

@@ -32,13 +32,12 @@ sleep t = threadDelay (t * 10 * 1000)
 -- These functions are used to create data with Player
 --
 -- Used to create a new Player
-newPlayer :: String -> PlayerType -> Int -> [Datum] -> [[Int]] -> PlayerStatus -> Player
-newPlayer pname ptype pbpm posc pstream pstatus =
+newPlayer :: String -> PlayerType -> [Datum] -> [[Int]] -> PlayerStatus -> Player
+newPlayer pname ptype posc pscore pstatus =
     Player { playerName = pname
             ,playerType = ptype
-            ,playerBpm = pbpm
             ,playerOscMessage = posc
-            ,playerStream = pstream
+            ,playerScore = pscore
             ,playerStatus = pstatus
            }
 
@@ -65,10 +64,10 @@ changePlayerStatus world pname newpstatus = do
     let changepstatus p = p { playerStatus = newpstatus }
     changePlayer world pname changepstatus
 
-changePlayerStream :: PulseWorld -> String -> [[Int]] -> IO ()
-changePlayerStream world pname newstream = do
-    let changestream p = p { playerStream = newstream }
-    changePlayer world pname changestream
+changePlayerScore :: PulseWorld -> String -> [[Int]] -> IO ()
+changePlayerScore world pname newscore = do
+    let changescore p = p { playerScore = newscore }
+    changePlayer world pname changescore
 
 -- Play reguraly according to player's sequence
 regularPlay :: PulseWorld -> String -> IO ()
@@ -77,9 +76,9 @@ regularPlay world pname = do
     Just player <- findValueFromPulseMMap pname pmmap
     let cmmap = wClockPulseMMap world
     Just clock <- findValueFromPulseMMap "defaultClock" cmmap
-    let (bpm, stream) = (clockBpm clock, playerStream player)
-    forM_ stream $ \stream ->
-        forM_ stream $ \node ->
+    let (bpm, score) = (clockBpm clock, playerScore player)
+    forM_ score $ \music ->
+        forM_ music $ \node ->
             if node == 1
                 then do
                     sendToSC "s_new" (playerOscMessage player)
@@ -99,6 +98,12 @@ play world pname =
     in do
         Just player <- findValueFromPulseMMap pname pmmap -- it is need to do Exception handling
         checkPlayerStatus player (playerStatus player)
+
+startPlayer :: PulseWorld -> String -> IO ()
+startPlayer world pname = do
+    let pmmap = wPlayerPulseMMap world
+    Just player <- findValueFromPulseMMap pname pmmap
+    when (playerStatus player == Pausing) $ changePlayerStatus world pname Playing
 
 stopPlayer :: PulseWorld -> String -> IO ()
 stopPlayer world pname = do
