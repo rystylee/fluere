@@ -7,7 +7,7 @@ import Data.Map
 import Control.Monad (forM_, void)
 import Sound.OSC.FD (Datum, string, int32, float)
 
-import Sound.Fluere.FluereData
+import Sound.Fluere.BaseData
 import Sound.Fluere.MutableMap ( newMMap
                                 ,findValueFromMMap
                                 ,addValToMMap

@@ -1,4 +1,4 @@
-module Sound.Fluere.FluereData where
+module Sound.Fluere.BaseData where
 
 import Control.Concurrent.STM (TVar)
 import Data.Map (Map)

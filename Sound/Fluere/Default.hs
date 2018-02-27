@@ -1,10 +1,10 @@
-module Sound.Fluere.FluereDefault where
+module Sound.Fluere.Default where
 
 import Control.Concurrent.STM (TVar)
 import Data.Map (Map)
 import Sound.OSC.FD (Datum, string, float)
 
-import Sound.Fluere.FluereData
+import Sound.Fluere.BaseData
 import Sound.Fluere.Clock (newClock, newClockMMap)
 import Sound.Fluere.Player (newPlayer, newPlayerMMap)
 import Sound.Fluere.FluereWorld (newFluereWorld)

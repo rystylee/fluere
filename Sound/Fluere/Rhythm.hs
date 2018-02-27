@@ -1,4 +1,4 @@
-module Sound.Fluere.FluereRhythm where
+module Sound.Fluere.Rhythm where
 
 import Data.List
 

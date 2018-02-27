@@ -3,7 +3,7 @@ module Sound.Fluere.FluereWorld where
 import Control.Concurrent.STM (TVar)
 import Data.Map (Map)
 
-import Sound.Fluere.FluereData
+import Sound.Fluere.BaseData
 
 
 -- These functions are used to create data with FluereWorld

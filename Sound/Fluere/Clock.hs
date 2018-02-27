@@ -4,7 +4,7 @@ import Control.Concurrent (threadDelay, forkIO)
 import Control.Concurrent.STM (TVar)
 import Data.Map (Map)
 
-import Sound.Fluere.FluereData
+import Sound.Fluere.BaseData
 import Sound.Fluere.MutableMap ( newMMap
                                 ,findValueFromMMap
                                 ,addValToMMap
