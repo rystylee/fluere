@@ -22,6 +22,9 @@ sliceWithBeat n =
 --
 
 -- These functions are used during the performance
-newPlayerScore :: Int -> [Int] -> [[Int]]
-newPlayerScore pbeat newscore =
+newScore :: Int -> [Int] -> [[Int]]
+newScore pbeat newscore =
     sliceWithBeat pbeat newscore
+
+
+

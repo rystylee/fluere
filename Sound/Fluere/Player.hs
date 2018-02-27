@@ -44,8 +44,8 @@ newPlayer pname ptype posc pscore pstatus =
 newPlayerMMap :: Player -> IO (TVar (Map String Player))
 newPlayerMMap player = newMMap [(playerName player, player)]
 
-addNewPlayerToMMap :: FluereWorld -> Player -> IO ()
-addNewPlayerToMMap world player = do
+addNewPlayer :: FluereWorld -> Player -> IO ()
+addNewPlayer world player = do
     let pmmap = wPlayerMMap world
     addValToMMap (playerName player, player) pmmap
 --
@@ -110,6 +110,9 @@ stopPlayer world pname = do
     let pmmap = wPlayerMMap world
     Just player <- findValueFromMMap pname pmmap
     when (playerStatus player == Playing) $ changePlayerStatus world pname Pausing
+
+playPlayers :: FluereWorld -> [String] -> IO ()
+playPlayers world pnames = mapM_ (play world) pnames
 
 startPlayers :: FluereWorld -> [String] -> IO ()
 startPlayers world pnames = mapM_ (startPlayer world) pnames

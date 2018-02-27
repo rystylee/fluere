@@ -41,15 +41,15 @@ changeClock world cname f = do
     Just clock <- findValueFromMMap cname cmmap
     let newClock = f clock
     addValToMMap (cname, newClock) cmmap
-
-changeClockBpm :: FluereWorld -> String -> Int -> IO ()
-changeClockBpm world cname newbpm = do
-    let changebpm c = c { clockBpm = newbpm }
-    changeClock world cname changebpm
 --
 --
 
 -- These functions are used during the performance
+--
+changeClockBpm :: FluereWorld -> String -> Int -> IO ()
+changeClockBpm world cname newbpm = do
+    let changebpm c = c { clockBpm = newbpm }
+    changeClock world cname changebpm
 --
 --
 
