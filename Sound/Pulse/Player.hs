@@ -110,5 +110,11 @@ stopPlayer world pname = do
     let pmmap = wPlayerPulseMMap world
     Just player <- findValueFromPulseMMap pname pmmap
     when (playerStatus player == Playing) $ changePlayerStatus world pname Pausing
+
+startPlayers :: PulseWorld -> [String] -> IO ()
+startPlayers world pnames = mapM_ (startPlayer world) pnames
+
+stopPlayers :: PulseWorld -> [String] -> IO ()
+stopPlayers world pnames = mapM_ (stopPlayer world) pnames
 --
 --
