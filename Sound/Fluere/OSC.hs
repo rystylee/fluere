@@ -1,4 +1,4 @@
-module Sound.Pulse.OSC where
+module Sound.Fluere.OSC where
 
 import Sound.OSC.FD
 

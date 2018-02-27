@@ -1,13 +1,13 @@
-module Sound.Pulse.PulseDefault where
+module Sound.Fluere.FluereDefault where
 
 import Control.Concurrent.STM (TVar)
 import Data.Map (Map)
 import Sound.OSC.FD (Datum, string, float)
 
-import Sound.Pulse.PulseData
-import Sound.Pulse.Clock (newClock, newClockPulseMMap)
-import Sound.Pulse.Player (newPlayer, newPlayerPulseMMap)
-import Sound.Pulse.PulseWorld (newPulseWorld)
+import Sound.Fluere.FluereData
+import Sound.Fluere.Clock (newClock, newClockMMap)
+import Sound.Fluere.Player (newPlayer, newPlayerMMap)
+import Sound.Fluere.FluereWorld (newFluereWorld)
 
 
 -- These functions are used to get a default data
@@ -18,20 +18,20 @@ defaultClock = newClock "defaultClock" 60 Stopped
 defaultPlayer :: Player
 defaultPlayer = newPlayer "defaultPlayer" Regular [string "drum1", string "freq", float 440] [[1,0,1,0], [1,1,1,1]] Pausing
 
-defaultPulseWorld :: IO PulseWorld
-defaultPulseWorld = do
+defaultFluereWorld :: IO FluereWorld
+defaultFluereWorld = do
     cmmap <- defaultClockMMap
     pmmap <- defaultPlayerMMap
-    return $ newPulseWorld "defaultWorld" cmmap pmmap
+    return $ newFluereWorld "defaultWorld" cmmap pmmap
 --
 --
 
--- These functions are used to get a default PulseMutableMaps
+-- These functions are used to get a default MutableMaps
 --
 defaultClockMMap :: IO (TVar (Map String Clock))
-defaultClockMMap = newClockPulseMMap defaultClock
+defaultClockMMap = newClockMMap defaultClock
 
 defaultPlayerMMap :: IO (TVar (Map String Player)) 
-defaultPlayerMMap = newPlayerPulseMMap defaultPlayer
+defaultPlayerMMap = newPlayerMMap defaultPlayer
 --
 --

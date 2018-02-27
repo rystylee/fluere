@@ -1,4 +1,4 @@
-module Sound.Pulse.Chord where
+module Sound.Fluere.Chord where
 
 
 c  = 261.626

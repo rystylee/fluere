@@ -1,18 +1,18 @@
-module Sound.Pulse.PulseData where
+module Sound.Fluere.FluereData where
 
 import Control.Concurrent.STM (TVar)
 import Data.Map (Map)
 import Sound.OSC.FD (Datum)
 
 
--- PulseWorld
+-- FluereWorld
 --
-data PulseWorld = PulseWorld { worldName :: String
-                              ,wClockPulseMMap :: TVar (Map String Clock)
-                              ,wPlayerPulseMMap ::TVar (Map String Player)
-                             }
+data FluereWorld = FluereWorld { worldName :: String
+                                ,wClockMMap :: TVar (Map String Clock)
+                                ,wPlayerMMap ::TVar (Map String Player)
+                               }
 
---instance Show PulseWorld where
+--instance Show FluereWorld where
 --    show x = worldName x
 --
 --

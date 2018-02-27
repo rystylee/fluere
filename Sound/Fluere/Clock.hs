@@ -1,14 +1,14 @@
-module Sound.Pulse.Clock where
+module Sound.Fluere.Clock where
 
 import Control.Concurrent (threadDelay, forkIO)
 import Control.Concurrent.STM (TVar)
 import Data.Map (Map)
 
-import Sound.Pulse.PulseData
-import Sound.Pulse.PulseMutableMap ( newPulseMMap
-                                    ,findValueFromPulseMMap
-                                    ,addValToPulseMMap
-                                   )
+import Sound.Fluere.FluereData
+import Sound.Fluere.MutableMap ( newMMap
+                                ,findValueFromMMap
+                                ,addValToMMap
+                               )
 
 -- Util
 --
@@ -28,21 +28,21 @@ newClock :: String -> Int -> ClockStatus -> Clock
 newClock name bpm status =
     Clock { clockName = name, clockBpm = bpm, clockStatus = status }
 
--- Used to create a new ClockPulseMutableMap
-newClockPulseMMap :: Clock -> IO (TVar (Map String Clock))
-newClockPulseMMap clock = newPulseMMap [(clockName clock, clock)]
+-- Used to create a new ClockMutableMap
+newClockMMap :: Clock -> IO (TVar (Map String Clock))
+newClockMMap clock = newMMap [(clockName clock, clock)]
 --
 --
 
 -- These functions are not used during the performance
-changeClock :: PulseWorld -> String -> (Clock -> Clock) -> IO ()
+changeClock :: FluereWorld -> String -> (Clock -> Clock) -> IO ()
 changeClock world cname f = do
-    let cmmap = wClockPulseMMap world
-    Just clock <- findValueFromPulseMMap cname cmmap
+    let cmmap = wClockMMap world
+    Just clock <- findValueFromMMap cname cmmap
     let newClock = f clock
-    addValToPulseMMap (cname, newClock) cmmap
+    addValToMMap (cname, newClock) cmmap
 
-changeClockBpm :: PulseWorld -> String -> Int -> IO ()
+changeClockBpm :: FluereWorld -> String -> Int -> IO ()
 changeClockBpm world cname newbpm = do
     let changebpm c = c { clockBpm = newbpm }
     changeClock world cname changebpm
