@@ -22,7 +22,7 @@ defaultClock = do
     return $  newClock cname bpm beat starttime
 
 defaultPlayer :: Player
-defaultPlayer = newPlayer "defaultPlayer" Regular [string "kick1", string "freq", float 440] [[1,0,1,0], [1,1,1,1]] Pausing
+defaultPlayer = newPlayer "defaultPlayer" [string "kick1", string "freq", float 440] [[1,0,1,0], [1,1,1,1]] Pausing
 
 defaultFluereWorld :: IO FluereWorld
 defaultFluereWorld = do

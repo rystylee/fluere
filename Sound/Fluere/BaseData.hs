@@ -30,14 +30,10 @@ data Clock = Clock { clockName :: String
 -- Player
 --
 data Player = Player { playerName :: String
-                      ,playerType :: PlayerType
                       ,playerOscMessage :: [Datum]
                       ,playerScore :: [[Int]]
                       ,playerStatus :: PlayerStatus
                      } deriving (Show)
-
-data PlayerType =   Regular
-                  | Debug deriving (Show, Eq)
 
 data PlayerStatus =   Playing
                     | Pausing deriving (Show, Eq)

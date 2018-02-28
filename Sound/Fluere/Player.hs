@@ -32,10 +32,9 @@ sleep t = threadDelay (t * 10 * 1000)
 -- These functions are used to create data with Player
 --
 -- Used to create a new Player
-newPlayer :: String -> PlayerType -> [Datum] -> [[Int]] -> PlayerStatus -> Player
-newPlayer pname ptype posc pscore pstatus =
+newPlayer :: String -> [Datum] -> [[Int]] -> PlayerStatus -> Player
+newPlayer pname posc pscore pstatus =
     Player { playerName = pname
-            ,playerType = ptype
             ,playerOscMessage = posc
             ,playerScore = pscore
             ,playerStatus = pstatus
