@@ -13,20 +13,20 @@ import Sound.Fluere.MutableMap ( newMMap
 -- Util
 --
 -- Conversion between bpm and actual time
-secondsToBpm :: Int -> Int
-secondsToBpm seconds = 60 * ceiling (1 / fromIntegral seconds)
+secondsToBpm :: Double -> Int
+secondsToBpm seconds = 60 * ceiling (1 / seconds)
 
-bpmToSeconds :: Int -> Int
-bpmToSeconds bpm = ceiling (1 / (60 / fromIntegral bpm))
+bpmToSeconds :: Double -> Int
+bpmToSeconds bpm = ceiling (1 / (60 / bpm))
 --
 --
 
 -- These functions are used to create data with Clock
 --
 -- Used to create a new Clock
-newClock :: String -> Int -> ClockStatus -> Clock
-newClock name bpm status =
-    Clock { clockName = name, clockBpm = bpm, clockStatus = status }
+newClock :: String -> Double -> Double -> Double -> Clock
+newClock name bpm beat starttime =
+    Clock { clockName = name, clockBpm = bpm, clockBeat = beat, startTime = starttime }
 
 -- Used to create a new ClockMutableMap
 newClockMMap :: Clock -> IO (TVar (Map String Clock))
@@ -34,29 +34,29 @@ newClockMMap clock = newMMap [(clockName clock, clock)]
 --
 --
 
--- These functions are not used during the performance
+-- The base function to change clock
 changeClock :: FluereWorld -> String -> (Clock -> Clock) -> IO ()
 changeClock world cname f = do
     let cmmap = wClockMMap world
     Just clock <- findValueFromMMap cname cmmap
     let newClock = f clock
     addValToMMap (cname, newClock) cmmap
---
---
 
--- These functions are used during the performance
---
-changeClockBpm :: FluereWorld -> String -> Int -> IO ()
+changeClockBpm :: FluereWorld -> String -> Double -> IO ()
 changeClockBpm world cname newbpm = do
     let changebpm c = c { clockBpm = newbpm }
     changeClock world cname changebpm
---
---
 
-task :: IO ()
-task = putStrLn "clock task"
+changeClockBeat :: FluereWorld -> String -> Double -> IO ()
+changeClockBeat world cname newbeat = do
+    let changebeat c = c { clockBeat = newbeat }
+    changeClock world cname changebeat
 
-loopClock :: Clock -> IO ()
-loopClock clock = do
-    forkIO task
-    threadDelay (clockBpm clock * 100 * 1000)
+--
+--task :: IO ()
+--task = putStrLn "clock task"
+--
+--loopClock :: Clock -> IO ()
+--loopClock clock = do
+--    forkIO task
+--    threadDelay (clockBpm clock * 100 * 1000)

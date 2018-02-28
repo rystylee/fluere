@@ -20,12 +20,10 @@ data FluereWorld = FluereWorld { worldName :: String
 -- Clock
 --
 data Clock = Clock { clockName :: String
-                    ,clockBpm :: Int
-                    ,clockStatus :: ClockStatus
+                    ,clockBpm ::Double
+                    ,clockBeat :: Double
+                    ,startTime :: Double
                    } deriving (Show)
-
-data ClockStatus =   Started
-                   | Stopped deriving (Show, Eq)
 --
 --
 

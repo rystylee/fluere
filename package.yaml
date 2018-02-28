@@ -28,6 +28,7 @@ library:
   - hosc
   - stm
   - containers
+  - time
 
 # executables:
 #   fluere-exe:

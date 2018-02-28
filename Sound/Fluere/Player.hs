@@ -19,9 +19,9 @@ import Sound.Fluere.OSC (sendToSC)
 -- Util
 --
 -- Used to convert bpm to sleep time
--- ex.) bpm:60 -> 25
-bpmToSleepTime :: Int -> Int
-bpmToSleepTime bpm = 1500 `div` bpm
+-- ex.) bpm : 60 -> 25
+bpmToSleepTime :: Double -> Int
+bpmToSleepTime bpm = ceiling (1500 / bpm)
 
 -- sleep 25 means threadDelay 0.25 * 1000 * 1000
 sleep :: Int -> IO ()
@@ -41,9 +41,11 @@ newPlayer pname ptype posc pscore pstatus =
             ,playerStatus = pstatus
            }
 
+-- Used to create a new Player MutableMap
 newPlayerMMap :: Player -> IO (TVar (Map String Player))
 newPlayerMMap player = newMMap [(playerName player, player)]
 
+-- Used to add a new Player to MutableMap
 addNewPlayer :: FluereWorld -> Player -> IO ()
 addNewPlayer world player = do
     let pmmap = wPlayerMMap world
@@ -51,7 +53,7 @@ addNewPlayer world player = do
 --
 --
 
--- These functions are not used during the performance
+-- The base function to change Player
 changePlayer :: FluereWorld -> String -> (Player -> Player) -> IO ()
 changePlayer world pname f = do
     let pmmap = wPlayerMMap world
@@ -68,6 +70,17 @@ changePlayerScore :: FluereWorld -> String -> [[Int]] -> IO ()
 changePlayerScore world pname newscore = do
     let changescore p = p { playerScore = newscore }
     changePlayer world pname changescore
+
+
+-- Used to play a Player
+play :: FluereWorld -> String -> IO ()
+play world pname =
+    let pmmap = wPlayerMMap world
+        checkPlayerStatus player Playing = (forkIO $ regularPlay world pname) >> return ()
+        checkPlayerStatus player Pausing = putStrLn $ playerName player ++ " is pausing."
+    in do
+        Just player <- findValueFromMMap pname pmmap -- it is need to do Exception handling
+        checkPlayerStatus player (playerStatus player)
 
 -- Play reguraly according to player's sequence
 regularPlay :: FluereWorld -> String -> IO ()
@@ -86,18 +99,6 @@ regularPlay world pname = do
                 else
                     sleep $ bpmToSleepTime bpm
     when (playerStatus player == Playing) $ regularPlay world pname
---
---
-
--- These functions are used during the performance
-play :: FluereWorld -> String -> IO ()
-play world pname =
-    let pmmap = wPlayerMMap world
-        checkPlayerStatus player Playing = (forkIO $ regularPlay world pname) >> return ()
-        checkPlayerStatus player Pausing = putStrLn $ playerName player ++ " is pausing."
-    in do
-        Just player <- findValueFromMMap pname pmmap -- it is need to do Exception handling
-        checkPlayerStatus player (playerStatus player)
 
 startPlayer :: FluereWorld -> String -> IO ()
 startPlayer world pname = do
@@ -119,5 +120,3 @@ startPlayers world pnames = mapM_ (startPlayer world) pnames
 
 stopPlayers :: FluereWorld -> [String] -> IO ()
 stopPlayers world pnames = mapM_ (stopPlayer world) pnames
---
---
