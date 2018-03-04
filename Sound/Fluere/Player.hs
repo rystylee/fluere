@@ -13,6 +13,7 @@ import Sound.Fluere.MutableMap ( newMMap
                                 ,addValToMMap
                                )
 import Sound.Fluere.Time (currentTime, sleep, beatToDeltaByBpm)
+import Sound.Fluere.Clock (getNextEventTime)
 import Sound.Fluere.OSC (sendToSC)
 --import Sound.Pulse.Chord
 
@@ -91,20 +92,17 @@ basicPlay :: FluereWorld -> String -> IO ()
 basicPlay world pname = do
     let pmmap = wPlayerMMap world
     Just player <- findValueFromMMap pname pmmap
-    let cmmap = wClockMMap world
-    Just clock <- findValueFromMMap "defaultClock" cmmap
-    let nt = nextEventTime clock
+    nt <- getNextEventTime world "defaultClock"
     ct <- currentTime
     if (nt > ct)
         then do
             let diff = (nt - ct)
             sleep diff
         else do
-            sendToSC "s_new" (playerOscMessage player)
-            let bpm = clockBpm clock
-                beat = clockBeat clock
-                delta = beatToDeltaByBpm bpm beat
-            sleep delta
+            forkIO $ sendToSC "s_new" (playerOscMessage player) >> return ()
+            nt' <- getNextEventTime world "defaultClock"
+            ct' <- currentTime
+            sleep (ct' - nt')
     when (playerStatus player == Playing) $ basicPlay world pname
 
 

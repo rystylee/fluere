@@ -71,8 +71,8 @@ startClock world cname = do
         beat = clockBeat clock
         delta = beatToDeltaByBpm bpm beat
     ct <- currentTime
-    changeLastEventTime world cname (ct)
-    changeNextEventTime world cname (ct + delta + 1.0)
+    changeLastEventTime world cname ct
+    changeNextEventTime world cname (ct + delta)
     --loopClock world cname
     forkIO $ loopClock world cname
 
@@ -96,6 +96,12 @@ loopClock world cname = do
         else do
             ct' <- currentTime
             changeLastEventTime world cname ct'
-            changeNextEventTime world cname (ct' + delta)
-            --putStrLn $ "tick tuck" ++ (show ct')
+            changeNextEventTime world cname (ct' + delta + 0.01)
             loopClock world cname
+
+
+getNextEventTime :: FluereWorld -> String -> IO Double
+getNextEventTime world cname = do
+    let cmmap = wClockMMap world
+    Just clock <- findValueFromMMap cname cmmap
+    return $ nextEventTime clock
