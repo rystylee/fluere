@@ -22,6 +22,8 @@ data FluereWorld = FluereWorld { worldName :: String
 data Clock = Clock { clockName :: String
                     ,clockBpm ::Double
                     ,clockBeat :: Double
+                    ,lastEventTime :: Double
+                    ,nextEventTime :: Double
                     ,startTime :: Double
                    } deriving (Show)
 --

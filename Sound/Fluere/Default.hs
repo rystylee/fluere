@@ -17,12 +17,19 @@ defaultClock :: IO Clock
 defaultClock = do
     starttime <- currentTime
     let cname = "defaultClock"
-        bpm   = 60
-        beat = 4
-    return $  newClock cname bpm beat starttime
+        bpm   = 60 :: Double
+        beat = 4 :: Double
+        lasteventtime = 0 :: Double
+        nexteventtime = 0 :: Double
+    return $ newClock cname bpm beat lasteventtime nexteventtime starttime
 
-defaultPlayer :: Player
-defaultPlayer = newPlayer "defaultPlayer" [string "kick1", string "freq", float 440] [[1,0,1,0], [1,1,1,1]] Pausing
+defaultPlayer :: IO Player
+defaultPlayer = do
+    let pname = "defaultPlayer"
+        posc = [string "kick1", string "freq", float 440]
+        pscore = [[1,0,1,0], [1,1,1,1]]
+        pstatus = Pausing
+    return $ newPlayer pname posc pscore pstatus
 
 defaultFluereWorld :: IO FluereWorld
 defaultFluereWorld = do
@@ -39,7 +46,9 @@ defaultClockMMap = do
     c <- defaultClock
     newClockMMap c
 
-defaultPlayerMMap :: IO (TVar (Map String Player)) 
-defaultPlayerMMap = newPlayerMMap defaultPlayer
+defaultPlayerMMap :: IO (TVar (Map String Player))
+defaultPlayerMMap = do
+    p <- defaultPlayer
+    newPlayerMMap p
 --
 --
