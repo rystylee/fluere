@@ -12,8 +12,7 @@ import Sound.Fluere.MutableMap ( newMMap
                                 ,findValueFromMMap
                                 ,addValToMMap
                                )
-import Sound.Fluere.Time (currentTime, sleep, beatToDeltaByBpm)
-import Sound.Fluere.Clock (getNextEventTime)
+import Sound.Fluere.Clock (currentTime, sleep, getNextEventTime)
 import Sound.Fluere.OSC (sendToSC)
 --import Sound.Pulse.Chord
 

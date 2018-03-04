@@ -24,7 +24,6 @@ data Clock = Clock { clockName :: String
                     ,clockBeat :: Double
                     ,lastEventTime :: Double
                     ,nextEventTime :: Double
-                    ,startTime :: Double
                    } deriving (Show)
 --
 --

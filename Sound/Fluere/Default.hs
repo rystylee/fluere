@@ -5,7 +5,6 @@ import Data.Map (Map)
 import Sound.OSC.FD (Datum, string, float)
 
 import Sound.Fluere.BaseData
-import Sound.Fluere.Time (currentTime)
 import Sound.Fluere.Clock (newClock, newClockMMap)
 import Sound.Fluere.Player (newPlayer, newPlayerMMap)
 import Sound.Fluere.FluereWorld (newFluereWorld)
@@ -15,13 +14,12 @@ import Sound.Fluere.FluereWorld (newFluereWorld)
 --
 defaultClock :: IO Clock
 defaultClock = do
-    starttime <- currentTime
     let cname = "defaultClock"
         bpm   = 60 :: Double
         beat = 4 :: Double
         lasteventtime = 0 :: Double
         nexteventtime = 0 :: Double
-    return $ newClock cname bpm beat lasteventtime nexteventtime starttime
+    return $ newClock cname bpm beat lasteventtime nexteventtime
 
 defaultPlayer :: IO Player
 defaultPlayer = do

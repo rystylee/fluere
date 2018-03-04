@@ -9,20 +9,37 @@ import Sound.Fluere.MutableMap ( newMMap
                                 ,findValueFromMMap
                                 ,addValToMMap
                                )
-import Sound.Fluere.Time (currentTime, beatToDeltaByBpm, sleep)
+import Data.Time.Clock.POSIX
+
+
+-- Util
+--
+-- Cast from POSIX Time to a Double
+currentTime :: IO Double
+currentTime = do
+    n <- getPOSIXTime
+    return $ realToFrac n
+
+-- sleep means threadDelay which receive Double argument
+sleep :: RealFrac a => a -> IO ()
+sleep t = threadDelay ((truncate t * 100) * 10 * 1000)
+
+-- Convert beat to delta time, by bpm
+-- ex.) beat = 4, bpm = 60 => delta = 0.25
+beatToDeltaByBpm :: Double -> Double -> Double
+beatToDeltaByBpm bpm beat = (1 / (bpm / 60)) / beat
 
 
 -- These functions are used to create data with Clock
 --
 -- Used to create a new Clock
-newClock :: String -> Double -> Double -> Double -> Double -> Double -> Clock
-newClock name bpm beat lasteventime nexteventtime starttime =
+newClock :: String -> Double -> Double -> Double -> Double -> Clock
+newClock name bpm beat lasteventime nexteventtime =
     Clock {  clockName = name
             ,clockBpm = bpm
             ,clockBeat = beat
             ,lastEventTime = lasteventime
             ,nextEventTime = nexteventtime
-            ,startTime = starttime
           }
 
 -- Used to create a new ClockMutableMap

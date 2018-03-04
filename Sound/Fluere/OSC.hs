@@ -10,6 +10,7 @@ sendToSC address oscMessage = do
     client <- openUDP "127.0.0.1" 57110
     let m = createSCMessage oscMessage
     sendOSC client $ Message address m
+    close client
 
 -- Util for creating osc message with SuperCollider
 createSCMessage :: [Datum] -> [Datum]
