@@ -27,7 +27,8 @@ defaultPlayer = do
         posc = [string "kick1", string "freq", float 440]
         pscore = [[1,0,1,0], [1,1,1,1]]
         pstatus = Pausing
-    return $ newPlayer pname posc pscore pstatus
+        scorecounter = (0, 0) :: (Int, Int)
+    return $ newPlayer pname posc pscore pstatus scorecounter
 
 defaultFluereWorld :: IO FluereWorld
 defaultFluereWorld = do

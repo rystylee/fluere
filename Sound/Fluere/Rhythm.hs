@@ -25,6 +25,3 @@ sliceWithBeat n =
 newScore :: Int -> [Int] -> [[Int]]
 newScore pbeat newscore =
     sliceWithBeat pbeat newscore
-
-
-

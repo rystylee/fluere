@@ -20,12 +20,13 @@ import Sound.Fluere.OSC (sendToSC)
 -- These functions are used to create data with Player
 --
 -- Used to create a new Player
-newPlayer :: String -> [Datum] -> [[Int]] -> PlayerStatus -> Player
-newPlayer pname posc pscore pstatus =
+newPlayer :: String -> [Datum] -> [[Int]] -> PlayerStatus -> (Int, Int) -> Player
+newPlayer pname posc pscore pstatus scorecounter =
     Player { playerName = pname
             ,playerOscMessage = posc
             ,playerScore = pscore
             ,playerStatus = pstatus
+            ,scoreCounter = scorecounter
            }
 
 -- Used to create a new Player MutableMap
@@ -58,6 +59,51 @@ changePlayerScore world pname newscore = do
     let changescore p = p { playerScore = newscore }
     changePlayer world pname changescore
 
+changeScoreCounter :: FluereWorld -> String -> (Int, Int) -> IO ()
+changeScoreCounter world pname newscorecounter = do
+    let changescorecounter p = p { scoreCounter = newscorecounter }
+    changePlayer world pname changescorecounter
+
+-- Used to get next note
+getNextNote :: FluereWorld -> String -> IO Int
+getNextNote world pname = do
+    let pmmap = wPlayerMMap world
+    Just player <- findValueFromMMap pname pmmap
+    let pscore = playerScore player
+        scorecounter = scoreCounter player
+    return $ searchNote pscore scorecounter
+
+searchNote :: [[Int]] -> (Int, Int) -> Int
+searchNote pscore scorecounter =
+    let (row, column) = scorecounter
+    in (pscore !! row) !! column
+
+updateScoreCounter :: FluereWorld -> String -> IO ()
+updateScoreCounter world pname = do
+    let pmmap = wPlayerMMap world
+    Just player <- findValueFromMMap pname pmmap
+    let pscore = playerScore player
+        scorecounter = scoreCounter player
+        (row, column) = scorecounter
+        rowLength = length pscore
+    if column < 3
+        then do
+            let newcolumn = column + 1
+                newrow = row
+            changeScoreCounter world pname (newrow, newcolumn)
+            --return $ (newrow, newcolumn)
+        else if row < (rowLength - 1)
+            then do
+                let newcolumn = 0
+                    newrow = row + 1
+                changeScoreCounter world pname (newrow, newcolumn)
+                --return $ (newrow, newcolumn)
+            else do
+                let newcolumn = 0
+                    newrow = 0
+                changeScoreCounter world pname (newrow, newcolumn)
+                --return $ (newrow, newcolumn)
+
 
 -- Used to play a Player
 play :: FluereWorld -> String -> IO ()
@@ -69,36 +115,24 @@ play world pname =
         Just player <- findValueFromMMap pname pmmap -- it is need to do Exception handling
         checkPlayerStatus player (playerStatus player)
 
--- Play reguraly according to player's sequence
---basicPlay :: FluereWorld -> String -> IO ()
---basicPlay world pname = do
---    let pmmap = wPlayerMMap world
---    Just player <- findValueFromMMap pname pmmap
---    let cmmap = wClockMMap world
---    Just clock <- findValueFromMMap "defaultClock" cmmap
---    let (bpm, score) = (clockBpm clock, playerScore player)
---    forM_ score $ \music ->
---        forM_ music $ \node ->
---            if node == 1
---                then do
---                    sendToSC "s_new" (playerOscMessage player)
---                    sleep $ bpmToSleepTime bpm
---                else
---                    sleep $ bpmToSleepTime bpm
---    when (playerStatus player == Playing) $ basicPlay world pname
-
 basicPlay :: FluereWorld -> String -> IO ()
 basicPlay world pname = do
     let pmmap = wPlayerMMap world
     Just player <- findValueFromMMap pname pmmap
     nt <- getNextEventTime world "defaultClock"
     ct <- currentTime
-    if (nt > ct)
+    if nt > ct
         then do
             let diff = (nt - ct)
             sleep diff
         else do
-            forkIO $ sendToSC "s_new" (playerOscMessage player) >> return ()
+            note <- getNextNote world pname
+            if note == 1
+                then do
+                    forkIO $ sendToSC "s_new" (playerOscMessage player) >> return ()
+                else do
+                    forkIO $ sleep 0.01 >> return ()
+            updateScoreCounter world pname
             nt' <- getNextEventTime world "defaultClock"
             ct' <- currentTime
             sleep (ct' - nt')

@@ -34,6 +34,7 @@ data Player = Player { playerName :: String
                       ,playerOscMessage :: [Datum]
                       ,playerScore :: [[Int]]
                       ,playerStatus :: PlayerStatus
+                      ,scoreCounter :: (Int, Int)
                      } deriving (Show)
 
 data PlayerStatus =   Playing

@@ -105,7 +105,7 @@ loopClock world cname = do
         delta = beatToDeltaByBpm bpm beat
     ct <- currentTime
     let nt = nextEventTime clock
-    if (nt > ct)
+    if nt > ct
         then do
             let diff = nt - ct
             sleep diff
