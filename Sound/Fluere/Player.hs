@@ -7,25 +7,23 @@ import Data.Map
 import Control.Monad (forM_, void)
 import Sound.OSC.FD (Datum, string, int32, float)
 
-import Sound.Fluere.BaseData
+import Sound.Fluere.Data
 import Sound.Fluere.MutableMap ( newMMap
                                 ,findValueFromMMap
                                 ,addValToMMap
                                )
-import Sound.Fluere.Clock (currentTime, sleep, getNextEventTime)
+import Sound.Fluere.Clock (currentTime, currentBeat, sleep, beatToDelta, beatToTime)
 import Sound.Fluere.OSC (sendToSC)
---import Sound.Pulse.Chord
 
 
--- These functions are used to create data with Player
---
 -- Used to create a new Player
-newPlayer :: String -> [Datum] -> [[Int]] -> PlayerStatus -> (Int, Int) -> Player
-newPlayer pname posc pscore pstatus scorecounter =
+newPlayer :: String -> [Datum] -> [[Int]] -> PlayerStatus -> Double -> (Int, Int) -> Player
+newPlayer pname posc pscore pstatus lastBeat' scorecounter =
     Player { playerName = pname
             ,playerOscMessage = posc
             ,playerScore = pscore
             ,playerStatus = pstatus
+            ,lastBeat = lastBeat'
             ,scoreCounter = scorecounter
            }
 
@@ -34,40 +32,45 @@ newPlayerMMap :: Player -> IO (TVar (Map String Player))
 newPlayerMMap player = newMMap [(playerName player, player)]
 
 -- Used to add a new Player to MutableMap
-addNewPlayer :: FluereWorld -> Player -> IO ()
-addNewPlayer world player = do
-    let pmmap = wPlayerMMap world
+addNewPlayer :: DataBase -> Player -> IO ()
+addNewPlayer db player = do
+    let pmmap = playerMMap db
     addValToMMap (playerName player, player) pmmap
---
---
+
 
 -- The base function to change Player
-changePlayer :: FluereWorld -> String -> (Player -> Player) -> IO ()
-changePlayer world pname f = do
-    let pmmap = wPlayerMMap world
+changePlayer :: DataBase -> String -> (Player -> Player) -> IO ()
+changePlayer db pname f = do
+    let pmmap = playerMMap db
     Just player <- findValueFromMMap pname pmmap
     let newPlayer = f player
     addValToMMap (pname, newPlayer) pmmap
 
-changePlayerStatus :: FluereWorld -> String -> PlayerStatus -> IO ()
-changePlayerStatus world pname newpstatus = do
+changePlayerStatus :: DataBase -> String -> PlayerStatus -> IO ()
+changePlayerStatus db pname newpstatus = do
     let changepstatus p = p { playerStatus = newpstatus }
-    changePlayer world pname changepstatus
+    changePlayer db pname changepstatus
 
-changePlayerScore :: FluereWorld -> String -> [[Int]] -> IO ()
-changePlayerScore world pname newscore = do
+changePlayerScore :: DataBase -> String -> [[Int]] -> IO ()
+changePlayerScore db pname newscore = do
     let changescore p = p { playerScore = newscore }
-    changePlayer world pname changescore
+    changePlayer db pname changescore
 
-changeScoreCounter :: FluereWorld -> String -> (Int, Int) -> IO ()
-changeScoreCounter world pname newscorecounter = do
+changeScoreCounter :: DataBase -> String -> (Int, Int) -> IO ()
+changeScoreCounter db pname newscorecounter = do
     let changescorecounter p = p { scoreCounter = newscorecounter }
-    changePlayer world pname changescorecounter
+    changePlayer db pname changescorecounter
+
+changeLastBeat :: DataBase -> String -> Double -> IO ()
+changeLastBeat db pname newlastbeat = do
+    let changelastbeat p = p { lastBeat = newlastbeat }
+    changePlayer db pname changelastbeat
+
 
 -- Used to get next note
-getNextNote :: FluereWorld -> String -> IO Int
-getNextNote world pname = do
-    let pmmap = wPlayerMMap world
+getNextNote :: DataBase -> String -> IO Int
+getNextNote db pname = do
+    let pmmap = playerMMap db
     Just player <- findValueFromMMap pname pmmap
     let pscore = playerScore player
         scorecounter = scoreCounter player
@@ -78,9 +81,9 @@ searchNote pscore scorecounter =
     let (row, column) = scorecounter
     in (pscore !! row) !! column
 
-updateScoreCounter :: FluereWorld -> String -> IO ()
-updateScoreCounter world pname = do
-    let pmmap = wPlayerMMap world
+updateScoreCounter :: DataBase -> String -> IO ()
+updateScoreCounter db pname = do
+    let pmmap = playerMMap db
     Just player <- findValueFromMMap pname pmmap
     let pscore = playerScore player
         scorecounter = scoreCounter player
@@ -90,72 +93,93 @@ updateScoreCounter world pname = do
         then do
             let newcolumn = column + 1
                 newrow = row
-            changeScoreCounter world pname (newrow, newcolumn)
+            changeScoreCounter db pname (newrow, newcolumn)
             --return $ (newrow, newcolumn)
         else if row < (rowLength - 1)
             then do
                 let newcolumn = 0
                     newrow = row + 1
-                changeScoreCounter world pname (newrow, newcolumn)
+                changeScoreCounter db pname (newrow, newcolumn)
                 --return $ (newrow, newcolumn)
             else do
                 let newcolumn = 0
                     newrow = 0
-                changeScoreCounter world pname (newrow, newcolumn)
+                changeScoreCounter db pname (newrow, newcolumn)
                 --return $ (newrow, newcolumn)
 
 
 -- Used to play a Player
-play :: FluereWorld -> String -> IO ()
-play world pname =
-    let pmmap = wPlayerMMap world
-        checkPlayerStatus player Playing = (forkIO $ basicPlay world pname) >> return ()
-        checkPlayerStatus player Pausing = putStrLn $ playerName player ++ " is pausing."
-    in do
-        Just player <- findValueFromMMap pname pmmap -- it is need to do Exception handling
-        checkPlayerStatus player (playerStatus player)
+--play :: DataBase -> String -> IO ()
+--play db pname =
+--    let pmmap = playerMMap db
+--        cmmap = clockMMap db
+--        checkPlayerStatus player Playing = changeLastBeat db pname cb >> (forkIO $ basicPlay db pname) >> return ()
+--        checkPlayerStatus player Pausing = putStrLn $ playerName player ++ " is pausing."
+--    in do
+--        Just player <- findValueFromMMap pname pmmap -- it is need to do Exception handling
+--        Just clock <- findValueFromMMap "defaultClock" cmmap
+--        cb <- currentBeat clock
+--        checkPlayerStatus player (playerStatus player)
 
-basicPlay :: FluereWorld -> String -> IO ()
-basicPlay world pname = do
-    let pmmap = wPlayerMMap world
+play :: DataBase -> String -> IO ()
+play db pname = do
+    let pmmap = playerMMap db
+    Just player <- findValueFromMMap pname pmmap -- it is need to do Exception handling
+    let cmmap = clockMMap db
+    Just clock <- findValueFromMMap "defaultClock" cmmap
+    cb <- currentBeat clock
+    if (playerStatus player == Playing)
+        then changeLastBeat db pname cb >> (forkIO $ basicPlay db pname) >> return ()
+        else putStrLn $ playerName player ++ " is pausing."
+
+
+basicPlay :: DataBase -> String -> IO ()
+basicPlay db pname = do
+    let pmmap = playerMMap db
     Just player <- findValueFromMMap pname pmmap
-    nt <- getNextEventTime world "defaultClock"
-    ct <- currentTime
-    if nt > ct
+    let cmmap = clockMMap db
+    Just clock <- findValueFromMMap "defaultClock" cmmap
+    cb <- currentBeat clock
+    let lb = lastBeat player
+    if (cb /= (lb + 1))
         then do
-            let diff = (nt - ct)
-            sleep diff
+            ct <- currentTime
+            nt <- beatToTime clock (lb + 1)
+            let diff = nt - ct
+            sleep $ diff
         else do
-            note <- getNextNote world pname
+            note <- getNextNote db pname
             if note == 1
                 then do
                     forkIO $ sendToSC "s_new" (playerOscMessage player) >> return ()
                 else do
                     forkIO $ sleep 0.01 >> return ()
-            updateScoreCounter world pname
-            nt' <- getNextEventTime world "defaultClock"
-            ct' <- currentTime
-            sleep (ct' - nt')
-    when (playerStatus player == Playing) $ basicPlay world pname
+            updateScoreCounter db pname
+            forkIO $ sendToSC "s_new" (playerOscMessage player) >> return ()
+            changeLastBeat db pname cb
+            ct <- currentTime
+            nt <- beatToTime clock (cb + 1)
+            let diff = nt - ct
+            sleep $ diff
+    when (playerStatus player == Playing) $ basicPlay db pname
 
-
-startPlayer :: FluereWorld -> String -> IO ()
-startPlayer world pname = do
-    let pmmap = wPlayerMMap world
+startPlayer :: DataBase -> String -> IO ()
+startPlayer db pname = do
+    let pmmap = playerMMap db
     Just player <- findValueFromMMap pname pmmap
-    when (playerStatus player == Pausing) $ changePlayerStatus world pname Playing
+    when (playerStatus player == Pausing) $ changePlayerStatus db pname Playing
 
-stopPlayer :: FluereWorld -> String -> IO ()
-stopPlayer world pname = do
-    let pmmap = wPlayerMMap world
+stopPlayer :: DataBase -> String -> IO ()
+stopPlayer db pname = do
+    let pmmap = playerMMap db
     Just player <- findValueFromMMap pname pmmap
-    when (playerStatus player == Playing) $ changePlayerStatus world pname Pausing
+    when (playerStatus player == Playing) $ changePlayerStatus db pname Pausing
 
-playPlayers :: FluereWorld -> [String] -> IO ()
-playPlayers world pnames = mapM_ (play world) pnames
+playPlayers :: DataBase -> [String] -> IO ()
+playPlayers db pnames = mapM_ (play db) pnames
 
-startPlayers :: FluereWorld -> [String] -> IO ()
-startPlayers world pnames = mapM_ (startPlayer world) pnames
+startPlayers :: DataBase -> [String] -> IO ()
+startPlayers db pnames = mapM_ (startPlayer db) pnames
 
-stopPlayers :: FluereWorld -> [String] -> IO ()
-stopPlayers world pnames = mapM_ (stopPlayer world) pnames
+stopPlayers :: DataBase -> [String] -> IO ()
+stopPlayers db pnames = mapM_ (stopPlayer db) pnames

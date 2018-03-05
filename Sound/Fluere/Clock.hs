@@ -4,7 +4,7 @@ import Control.Concurrent (threadDelay, forkIO, killThread, ThreadId)
 import Control.Concurrent.STM (TVar)
 import Data.Map (Map)
 
-import Sound.Fluere.BaseData
+import Sound.Fluere.Data
 import Sound.Fluere.MutableMap ( newMMap
                                 ,findValueFromMMap
                                 ,addValToMMap
@@ -12,113 +12,81 @@ import Sound.Fluere.MutableMap ( newMMap
 import Data.Time.Clock.POSIX
 
 
--- Util
---
--- Cast from POSIX Time to a Double
-currentTime :: IO Double
-currentTime = do
-    n <- getPOSIXTime
-    return $ realToFrac n
-
--- sleep means threadDelay which receive Double argument
-sleep :: RealFrac a => a -> IO ()
-sleep t = threadDelay ((truncate t * 100) * 10 * 1000)
-
--- Convert beat to delta time, by bpm
--- ex.) beat = 4, bpm = 60 => delta = 0.25
-beatToDeltaByBpm :: Double -> Double -> Double
-beatToDeltaByBpm bpm beat = (1 / (bpm / 60)) / beat
-
-
--- These functions are used to create data with Clock
---
 -- Used to create a new Clock
-newClock :: String -> Double -> Double -> Double -> Double -> Clock
-newClock name bpm beat lasteventime nexteventtime =
-    Clock {  clockName = name
-            ,clockBpm = bpm
-            ,clockBeat = beat
-            ,lastEventTime = lasteventime
-            ,nextEventTime = nexteventtime
+newClock :: String -> Double -> Double -> Double -> Double -> Double -> Double -> Clock
+newClock cn c be st et ebar ebeat =
+    Clock {  clockName = cn
+            ,cps  = c
+            ,beat = be
+            ,startTime = st
+            ,elapsedTime = et
+            ,elapsedBar = ebar
+            ,elapsedBeat = ebeat
           }
 
 -- Used to create a new ClockMutableMap
 newClockMMap :: Clock -> IO (TVar (Map String Clock))
 newClockMMap clock =
     newMMap [(clockName clock, clock)]
---
---
+
 
 -- The base function to change clock
-changeClock :: FluereWorld -> String -> (Clock -> Clock) -> IO ()
-changeClock world cname f = do
-    let cmmap = wClockMMap world
+changeClock :: DataBase -> String -> (Clock -> Clock) -> IO ()
+changeClock db cname f = do
+    let cmmap = clockMMap db
     Just clock <- findValueFromMMap cname cmmap
     let newClock = f clock
     addValToMMap (cname, newClock) cmmap
 
-changeClockBpm :: FluereWorld -> String -> Double -> IO ()
-changeClockBpm world cname newbpm = do
-    let changebpm c = c { clockBpm = newbpm }
-    changeClock world cname changebpm
+changeCps :: DataBase -> String -> Double -> IO ()
+changeCps db cname newcps = do
+    let changecps c = c { cps = newcps }
+    changeClock db cname changecps
 
-changeClockBeat :: FluereWorld -> String -> Double -> IO ()
-changeClockBeat world cname newbeat = do
-    let changebeat c = c { clockBeat = newbeat }
-    changeClock world cname changebeat
-
-changeLastEventTime :: FluereWorld -> String -> Double -> IO ()
-changeLastEventTime world cname newlasteventtime = do
-    let changelasteventtime c = c { lastEventTime = newlasteventtime }
-    changeClock world cname changelasteventtime
-
-changeNextEventTime :: FluereWorld -> String -> Double -> IO ()
-changeNextEventTime world cname newnexteventtime = do
-    let changenexteventtime c = c { nextEventTime = newnexteventtime }
-    changeClock world cname changenexteventtime
+changeBeat :: DataBase -> String -> Double -> IO ()
+changeBeat db cname newbeat = do
+    let changebeat c = c { beat = newbeat }
+    changeClock db cname changebeat
 
 
--- Used to measure the time
---
-startClock :: FluereWorld -> String -> IO ThreadId
-startClock world cname = do
-    let cmmap = wClockMMap world
-    Just clock <- findValueFromMMap cname cmmap
-    let bpm = clockBpm clock
-        beat = clockBeat clock
-        delta = beatToDeltaByBpm bpm beat
+-- sleep means threadDelay which receive Double argument
+sleep :: RealFrac a => a -> IO ()
+sleep t = threadDelay ((truncate t * 100) * 10 * 1000)
+
+-- Cast from POSIX Time to a Double
+currentTime :: IO Double
+currentTime = do
+    n <- getPOSIXTime
+    return $ realToFrac n
+
+getElapsedTime :: Clock -> IO Double
+getElapsedTime clock = do
     ct <- currentTime
-    changeLastEventTime world cname ct
-    changeNextEventTime world cname (ct + delta)
-    --loopClock world cname
-    forkIO $ loopClock world cname
+    return $ (ct - startTime clock)
 
-stopClock :: ThreadId -> IO ()
-stopClock id = killThread id
+currentBar :: Clock -> IO Double
+currentBar clock = do
+    let cps' = cps clock
+    et <- getElapsedTime clock
+    return $ fromIntegral (floor (et * cps'))
 
-loopClock :: FluereWorld -> String -> IO ()
-loopClock world cname = do
-    let cmmap = wClockMMap world
-    Just clock <- findValueFromMMap cname cmmap
-    let bpm = clockBpm clock
-        beat = clockBeat clock
-        delta = beatToDeltaByBpm bpm beat
-    ct <- currentTime
-    let nt = nextEventTime clock
-    if nt > ct
-        then do
-            let diff = nt - ct
-            sleep diff
-            loopClock world cname
-        else do
-            ct' <- currentTime
-            changeLastEventTime world cname ct'
-            changeNextEventTime world cname (ct' + delta + 0.01)
-            loopClock world cname
+currentBeat :: Clock -> IO Double
+currentBeat clock = do
+    et <- getElapsedTime clock
+    let delta = beatToDelta clock
+    return $ fromIntegral (floor (et / delta))
 
 
-getNextEventTime :: FluereWorld -> String -> IO Double
-getNextEventTime world cname = do
-    let cmmap = wClockMMap world
-    Just clock <- findValueFromMMap cname cmmap
-    return $ nextEventTime clock
+-- Convert beat to delta time
+-- ex.) beat = 4, cps = 0.5 => delta = 0.5
+beatToDelta :: Clock -> Double
+beatToDelta clock =
+    let cps' = cps clock
+        beat' = beat clock
+    in (1 / cps') / beat'
+
+beatToTime :: Clock -> Double -> IO Double
+beatToTime clock beat' = do
+    let st = startTime clock
+        delta = beatToDelta clock
+    return $ st + (delta * beat')
