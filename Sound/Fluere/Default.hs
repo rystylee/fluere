@@ -14,7 +14,7 @@ defaultClock :: IO Clock
 defaultClock = do
     startTime' <- currentTime
     let clockName' = "defaultClock"
-        cps' = 0.5
+        cps' = 2
         beat' = 4
         elapsedTime' = 0
         elapsedBar' = 0

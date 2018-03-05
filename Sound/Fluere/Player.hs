@@ -108,19 +108,6 @@ updateScoreCounter db pname = do
                 --return $ (newrow, newcolumn)
 
 
--- Used to play a Player
---play :: DataBase -> String -> IO ()
---play db pname =
---    let pmmap = playerMMap db
---        cmmap = clockMMap db
---        checkPlayerStatus player Playing = changeLastBeat db pname cb >> (forkIO $ basicPlay db pname) >> return ()
---        checkPlayerStatus player Pausing = putStrLn $ playerName player ++ " is pausing."
---    in do
---        Just player <- findValueFromMMap pname pmmap -- it is need to do Exception handling
---        Just clock <- findValueFromMMap "defaultClock" cmmap
---        cb <- currentBeat clock
---        checkPlayerStatus player (playerStatus player)
-
 play :: DataBase -> String -> IO ()
 play db pname = do
     let pmmap = playerMMap db
@@ -153,9 +140,8 @@ basicPlay db pname = do
                 then do
                     forkIO $ sendToSC "s_new" (playerOscMessage player) >> return ()
                 else do
-                    forkIO $ sleep 0.01 >> return ()
+                    forkIO $ return ()
             updateScoreCounter db pname
-            forkIO $ sendToSC "s_new" (playerOscMessage player) >> return ()
             changeLastBeat db pname cb
             ct <- currentTime
             nt <- beatToTime clock (cb + 1)
