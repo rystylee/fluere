@@ -11,7 +11,7 @@ newDataBase :: String
                -> TVar (Map String Player)
                -> DataBase
 newDataBase dbname cmmap pmmap =
-    DataBase {  dataBaseName = dbname
-               ,clockMMap = cmmap
-               ,playerMMap = pmmap
-              }
+    DataBase { dataBaseName = dbname
+              ,clockMMap = cmmap
+              ,playerMMap = pmmap
+             }

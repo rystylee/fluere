@@ -12,14 +12,17 @@ import Sound.Fluere.DataBase (newDataBase)
 
 defaultClock :: IO Clock
 defaultClock = do
-    startTime' <- currentTime
+    ct <- currentTime
     let clockName' = "defaultClock"
-        cps' = 2
-        beat' = 4
-        elapsedTime' = 0
-        elapsedBar' = 0
-        elapsedBeat' = 0
-    return $ newClock clockName' cps' beat' startTime' elapsedTime' elapsedBar' elapsedBeat'
+        tempo' = Tempo { cps = 1
+                        ,beat = 4
+                       }
+        tempohistory = TempoHistory { tempo = tempo'
+                                     ,startTime = ct
+                                     ,startBar = 0
+                                     ,startBeat = 0
+                                    }
+    return $ newClock clockName' [tempohistory]
 
 defaultPlayer :: IO Player
 defaultPlayer = do

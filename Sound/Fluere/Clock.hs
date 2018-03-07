@@ -1,27 +1,39 @@
 module Sound.Fluere.Clock where
 
-import Control.Concurrent (threadDelay, forkIO, killThread, ThreadId)
+import Control.Concurrent (threadDelay, forkIO)
 import Control.Concurrent.STM (TVar)
 import Data.Map (Map)
+import Data.Time.Clock.POSIX
 
 import Sound.Fluere.Data
 import Sound.Fluere.MutableMap ( newMMap
                                 ,findValueFromMMap
                                 ,addValToMMap
                                )
-import Data.Time.Clock.POSIX
 
+
+------------------------------------------------------
+-- For debug
+------------------------------------------------------
+ 
+displayClock :: DataBase -> String -> IO ()
+displayClock db cname = do
+    let cmmap = clockMMap db
+    Just clock <- findValueFromMMap cname cmmap
+    et <- elapsedTime clock
+    cBar <- currentBar clock
+    cBeat <- currentBeat clock
+    putStrLn $ "elapsedTime : " ++ show et
+    putStrLn $ "currentBar : " ++ show cBar
+    putStrLn $ "currentBeat : " ++ show cBeat
+
+------------------------------------------------------
 
 -- Used to create a new Clock
-newClock :: String -> Double -> Double -> Double -> Double -> Double -> Double -> Clock
-newClock cn c be st et ebar ebeat =
-    Clock {  clockName = cn
-            ,cps  = c
-            ,beat = be
-            ,startTime = st
-            ,elapsedTime = et
-            ,elapsedBar = ebar
-            ,elapsedBeat = ebeat
+newClock :: String -> [TempoHistory] -> Clock
+newClock cname' tempohistories' =
+    Clock { clockName = cname'
+           ,tempoHistories = tempohistories'
           }
 
 -- Used to create a new ClockMutableMap
@@ -38,20 +50,35 @@ changeClock db cname f = do
     let newClock = f clock
     addValToMMap (cname, newClock) cmmap
 
-changeCps :: DataBase -> String -> Double -> IO ()
-changeCps db cname newcps = do
-    let changecps c = c { cps = newcps }
-    changeClock db cname changecps
+changeTempoHistories :: DataBase -> String -> TempoHistory -> IO ()
+changeTempoHistories db cname newtempohistory = do
+    let cmmap = clockMMap db
+    Just clock <- findValueFromMMap cname cmmap
+    --let changetempohistories c = c { tempoHistories = [newtempohistory] ++ (tempoHistories clock) }
+    let changetempohistories c = c { tempoHistories = newtempohistory:(tempoHistories clock) }
+    changeClock db cname changetempohistories
 
-changeBeat :: DataBase -> String -> Double -> IO ()
-changeBeat db cname newbeat = do
-    let changebeat c = c { beat = newbeat }
-    changeClock db cname changebeat
-
+changeTempo :: DataBase -> String -> Double -> Double -> IO ()
+changeTempo db cname cps' beat' = do
+    let cmmap = clockMMap db
+    Just clock <- findValueFromMMap cname cmmap
+    ct <- currentTime
+    let newtempo = Tempo { cps = cps', beat = beat' }
+        newtempohistory = TempoHistory { tempo = newtempo
+                                        ,startTime = ct
+                                        ,startBar = 0
+                                        ,startBeat = 0
+                                       }
+    changeTempoHistories db cname newtempohistory
 
 -- sleep means threadDelay which receive Double argument
 sleep :: RealFrac a => a -> IO ()
 sleep t = threadDelay ((truncate t * 100) * 10 * 1000)
+
+-- Get delta by cps and beat
+-- ex.) cps = 0.5, beat = 4 => delta = 0.5
+beatToDelta :: Double -> Double -> Double
+beatToDelta cps' beat' = (1 / cps') / beat'
 
 -- Cast from POSIX Time to a Double
 currentTime :: IO Double
@@ -59,34 +86,48 @@ currentTime = do
     n <- getPOSIXTime
     return $ realToFrac n
 
-getElapsedTime :: Clock -> IO Double
-getElapsedTime clock = do
-    ct <- currentTime
-    return $ (ct - startTime clock)
+-- Helper to get current TempoHistory
+currentTempoHistory :: Clock -> TempoHistory
+currentTempoHistory clock = head (tempoHistories clock)
 
-currentBar :: Clock -> IO Double
-currentBar clock = do
-    let cps' = cps clock
-    et <- getElapsedTime clock
-    return $ fromIntegral (floor (et * cps'))
+-- Helper to get current Tempo
+currentTempo :: Clock -> Tempo
+currentTempo clock = tempo (currentTempoHistory clock)
 
-currentBeat :: Clock -> IO Double
-currentBeat clock = do
-    et <- getElapsedTime clock
-    let delta = beatToDelta clock
-    return $ fromIntegral (floor (et / delta))
-
-
--- Convert beat to delta time
+-- Get current delta, which is the time between currentBeat and NextBeat
 -- ex.) beat = 4, cps = 0.5 => delta = 0.5
-beatToDelta :: Clock -> Double
-beatToDelta clock =
-    let cps' = cps clock
-        beat' = beat clock
+currentDelta :: Clock -> Double
+currentDelta clock =
+    let tempo' = currentTempo clock
+        cps' = cps tempo'
+        beat' = beat tempo'
     in (1 / cps') / beat'
 
-beatToTime :: Clock -> Double -> IO Double
-beatToTime clock beat' = do
-    let st = startTime clock
-        delta = beatToDelta clock
+-- Get the current Bar since Tempo was changed
+currentBar :: Clock -> IO Double
+currentBar clock = do
+    et <- elapsedTime clock
+    let ct = tempo (currentTempoHistory clock)
+        cps' = cps ct
+    return $ fromIntegral (floor (et * cps'))
+
+-- Get the current Beat since Tempo was changed
+currentBeat :: Clock -> IO Double
+currentBeat clock = do
+    et <- elapsedTime clock
+    let delta = currentDelta clock
+    return $ fromIntegral (floor (et / delta))
+
+-- Get the elapsed time since Tempo was changed
+elapsedTime :: Clock -> IO Double
+elapsedTime clock = do
+    ct <- currentTime
+    let st = startTime (currentTempoHistory clock)
+    return $ (ct - st)
+
+-- Get the elapsed time of beat since Tempo was changed
+elapsedTimeOfBeat :: Clock -> Double -> IO Double
+elapsedTimeOfBeat clock beat' = do
+    let st = startTime (currentTempoHistory clock)
+        delta = currentDelta clock
     return $ st + (delta * beat')

@@ -7,19 +7,24 @@ import Sound.OSC.FD (Datum)
 
 data DataBase = DataBase { dataBaseName :: String
                           ,clockMMap :: TVar (Map String Clock)
-                          ,playerMMap ::TVar (Map String Player)
+                          ,playerMMap :: TVar (Map String Player)
                          }
 
 --instance Show DataBase where
 --    show x = name x
 
-data Clock = Clock { clockName :: String
-                    ,cps :: Double
+data Tempo = Tempo { cps :: Double
                     ,beat :: Double
-                    ,startTime :: Double
-                    ,elapsedTime :: Double
-                    ,elapsedBar :: Double
-                    ,elapsedBeat :: Double
+                   } deriving (Show)
+
+data TempoHistory = TempoHistory { tempo :: Tempo
+                                  ,startTime :: Double
+                                  ,startBar :: Double
+                                  ,startBeat :: Double
+                                 } deriving (Show)
+
+data Clock = Clock { clockName :: String
+                    ,tempoHistories :: [TempoHistory]
                    } deriving (Show)
 
 data Player = Player { playerName :: String

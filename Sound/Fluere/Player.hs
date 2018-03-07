@@ -12,9 +12,21 @@ import Sound.Fluere.MutableMap ( newMMap
                                 ,findValueFromMMap
                                 ,addValToMMap
                                )
-import Sound.Fluere.Clock (currentTime, currentBeat, sleep, beatToDelta, beatToTime)
+import Sound.Fluere.Clock (sleep, currentTime, currentBeat, elapsedTimeOfBeat)
 import Sound.Fluere.OSC (sendToSC)
 
+
+------------------------------------------------------
+-- For debug
+------------------------------------------------------
+
+displayPlayer :: DataBase -> String -> IO ()
+displayPlayer db pname = do
+    let pmmap = playerMMap db
+    Just player <- findValueFromMMap pname pmmap
+    putStrLn $ "lastBeat : " ++ show (lastBeat player)
+
+------------------------------------------------------
 
 -- Used to create a new Player
 newPlayer :: String -> [Datum] -> [[Int]] -> PlayerStatus -> Double -> (Int, Int) -> Player
@@ -86,65 +98,64 @@ updateScoreCounter db pname = do
     let pmmap = playerMMap db
     Just player <- findValueFromMMap pname pmmap
     let pscore = playerScore player
-        scorecounter = scoreCounter player
-        (row, column) = scorecounter
+        (row, col) = scoreCounter player
         rowLength = length pscore
-    if column < 3
+    if col < 3
         then do
-            let newcolumn = column + 1
+            let newcol = col + 1
                 newrow = row
-            changeScoreCounter db pname (newrow, newcolumn)
-            --return $ (newrow, newcolumn)
+            changeScoreCounter db pname (newrow, newcol)
         else if row < (rowLength - 1)
             then do
-                let newcolumn = 0
+                let newcol = 0
                     newrow = row + 1
-                changeScoreCounter db pname (newrow, newcolumn)
-                --return $ (newrow, newcolumn)
+                changeScoreCounter db pname (newrow, newcol)
             else do
-                let newcolumn = 0
+                let newcol = 0
                     newrow = 0
-                changeScoreCounter db pname (newrow, newcolumn)
-                --return $ (newrow, newcolumn)
+                changeScoreCounter db pname (newrow, newcol)
 
+checkTempoChange :: DataBase -> String -> IO Bool
+checkTempoChange db cname = do
+    let cmmap = clockMMap db
+    Just clock <- findValueFromMMap cname cmmap
+    cb <- currentBeat clock
+    if (cb == 0) then return True else return False
 
 play :: DataBase -> String -> IO ()
 play db pname = do
     let pmmap = playerMMap db
-    Just player <- findValueFromMMap pname pmmap -- it is need to do Exception handling
+    Just player <- findValueFromMMap pname pmmap
     let cmmap = clockMMap db
     Just clock <- findValueFromMMap "defaultClock" cmmap
     cb <- currentBeat clock
     if (playerStatus player == Playing)
-        then changeLastBeat db pname cb >> (forkIO $ basicPlay db pname) >> return ()
+        then changeLastBeat db pname cb >> void (forkIO $ basicPlay db pname)
         else putStrLn $ playerName player ++ " is pausing."
-
 
 basicPlay :: DataBase -> String -> IO ()
 basicPlay db pname = do
+    tc <- checkTempoChange db "defaultClock"
+    when (tc) $ restartPlayer db pname
     let pmmap = playerMMap db
     Just player <- findValueFromMMap pname pmmap
     let cmmap = clockMMap db
     Just clock <- findValueFromMMap "defaultClock" cmmap
     cb <- currentBeat clock
     let lb = lastBeat player
-    if (cb /= (lb + 1))
+    if (cb < (lb + 1))
         then do
             ct <- currentTime
-            nt <- beatToTime clock (lb + 1)
+            nt <- elapsedTimeOfBeat clock (lb + 1)
             let diff = nt - ct
             sleep $ diff
         else do
             note <- getNextNote db pname
-            if note == 1
-                then do
-                    forkIO $ sendToSC "s_new" (playerOscMessage player) >> return ()
-                else do
-                    forkIO $ return ()
+            when (note == 1) $ void (forkIO $ sendToSC "s_new" (playerOscMessage player))
             updateScoreCounter db pname
             changeLastBeat db pname cb
             ct <- currentTime
-            nt <- beatToTime clock (cb + 1)
+            nt <- elapsedTimeOfBeat clock (cb + 1)
             let diff = nt - ct
             sleep $ diff
     when (playerStatus player == Playing) $ basicPlay db pname
@@ -160,6 +171,9 @@ stopPlayer db pname = do
     let pmmap = playerMMap db
     Just player <- findValueFromMMap pname pmmap
     when (playerStatus player == Playing) $ changePlayerStatus db pname Pausing
+
+restartPlayer :: DataBase -> String -> IO ()
+restartPlayer db pname = changeLastBeat db pname 0 >> changeScoreCounter db pname (0, 0)
 
 playPlayers :: DataBase -> [String] -> IO ()
 playPlayers db pnames = mapM_ (play db) pnames
