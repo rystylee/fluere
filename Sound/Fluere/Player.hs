@@ -59,8 +59,7 @@ newPlayerMMap player = newMMap [(playerName player, player)]
 -- Used to add a new Player to MutableMap
 addNewPlayer :: DataBase -> Player -> IO ()
 addNewPlayer db player = do
-    let pmmap = playerMMap db
-    addValToMMap (playerName player, player) pmmap
+    addValToMMap (playerName player, player) (playerMMap db)
 
 
 -- The base function to change Player
@@ -95,8 +94,7 @@ changeBeatToStart db pname newbeattostart = do
 -- Used to get next note
 getNextNote :: DataBase -> String -> IO Int
 getNextNote db pname = do
-    let pmmap = playerMMap db
-    Just player <- findValueFromMMap pname pmmap
+    Just player <- findValueFromMMap pname (playerMMap db)
     let pscore = playerScore player
         scorecounter = scoreCounter player
     return $ searchNote pscore scorecounter
@@ -108,8 +106,7 @@ searchNote pscore scorecounter =
 
 updateScoreCounter :: DataBase -> String -> IO ()
 updateScoreCounter db pname = do
-    let pmmap = playerMMap db
-    Just player <- findValueFromMMap pname pmmap
+    Just player <- findValueFromMMap pname (playerMMap db)
     let pscore = playerScore player
         (row, col) = scoreCounter player
         rowLength = length pscore
@@ -130,8 +127,7 @@ updateScoreCounter db pname = do
 
 play :: DataBase -> String -> IO ()
 play db pname = do
-    let pmmap = playerMMap db
-    Just player <- findValueFromMMap pname pmmap
+    Just player <- findValueFromMMap pname (playerMMap db)
     if (playerStatus player == Playing)
         then void (forkIO $ basicPlay db pname)
         else putStrLn $ playerName player ++ " is pausing."
@@ -143,10 +139,8 @@ playAt db pname beat' = do
 
 basicPlay :: DataBase -> String -> IO ()
 basicPlay db pname = do
-    let pmmap = playerMMap db
-    Just player <- findValueFromMMap pname pmmap
-    let cmmap = clockMMap db
-    Just clock <- findValueFromMMap "defaultClock" cmmap
+    Just player <- findValueFromMMap pname (playerMMap db)
+    Just clock <- findValueFromMMap "defaultClock" (clockMMap db)
     cb <- currentBeat clock
     let bs = beatToStart player
     if (bs > cb)
@@ -170,8 +164,7 @@ startPlayer db pname = do
 
 stopPlayer :: DataBase -> String -> IO ()
 stopPlayer db pname = do
-    let pmmap = playerMMap db
-    Just player <- findValueFromMMap pname pmmap
+    Just player <- findValueFromMMap pname (playerMMap db)
     when (playerStatus player == Playing) $ changePlayerStatus db pname Pausing
 
 playPlayers :: DataBase -> [String] -> IO ()

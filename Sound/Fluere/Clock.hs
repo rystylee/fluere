@@ -17,10 +17,10 @@ import Sound.Fluere.MutableMap ( newMMap
 -- For debug
 ------------------------------------------------------
  
+
 displayClock :: DataBase -> String -> IO ()
 displayClock db cname = do
-    let cmmap = clockMMap db
-    Just clock <- findValueFromMMap cname cmmap
+    Just clock <- findValueFromMMap cname (clockMMap db)
     et <- elapsedTime clock
     cBar <- currentBar clock
     cBeat <- currentBeat clock
@@ -28,14 +28,13 @@ displayClock db cname = do
     let sBeat = startBeat $ currentTempoHistory clock
     putStrLn $ "\n------------------------------------" 
     putStrLn $ "clockName : " ++ show (clockName clock)
-    --putStrLn $ "elapsedTime : " ++ show et
+    putStrLn $ "elapsedTime : " ++ show et
     putStrLn $ "currentBar : " ++ show cBar
     putStrLn $ "currentBeat : " ++ show cBeat
-    putStrLn $ "startBar : " ++ show sBar
-    putStrLn $ "startBeat : " ++ show sBeat
     putStrLn $ "------------------------------------\n" 
-    --sleep $ 5
-    --void (forkIO $ displayClock db cname)
+    sleep $ 5
+    void (forkIO $ displayClock db cname)
+
 
 ------------------------------------------------------
 
@@ -51,7 +50,6 @@ newClockMMap :: Clock -> IO (TVar (Map String Clock))
 newClockMMap clock =
     newMMap [(clockName clock, clock)]
 
-
 -- The base function to change clock
 changeClock :: DataBase -> String -> (Clock -> Clock) -> IO ()
 changeClock db cname f = do
@@ -62,16 +60,14 @@ changeClock db cname f = do
 
 changeTempoHistories :: DataBase -> String -> TempoHistory -> IO ()
 changeTempoHistories db cname newtempohistory = do
-    let cmmap = clockMMap db
-    Just clock <- findValueFromMMap cname cmmap
+    Just clock <- findValueFromMMap cname (clockMMap db)
     let changetempohistories c = c { tempoHistories = newtempohistory:(tempoHistories clock) }
     changeClock db cname changetempohistories
     displayClock db cname
 
 changeTempo :: DataBase -> String -> Double -> Double -> IO ()
 changeTempo db cname cps' beat' = do
-    let cmmap = clockMMap db
-    Just clock <- findValueFromMMap cname cmmap
+    Just clock <- findValueFromMMap cname (clockMMap db)
     cTime <- currentTime
     cBar <- currentBar clock
     cBeat <- currentBeat clock
@@ -92,8 +88,7 @@ changeTempo db cname cps' beat' = do
 
 checkTempoChange :: DataBase -> String -> IO Double
 checkTempoChange db cname = do
-    let cmmap = clockMMap db
-    Just clock <- findValueFromMMap cname cmmap
+    Just clock <- findValueFromMMap cname (clockMMap db)
     let sBar = startBar $ currentTempoHistory clock
         sBeat = startBeat $ currentTempoHistory clock
     cBar <- currentBar clock
@@ -125,8 +120,7 @@ beatToTime clock beat' =
 -- Get Beat by clock's beat and Bar
 barToBeat :: Clock -> Double -> IO Double
 barToBeat clock bar' = do
-    let beat' =  beat $ currentTempo clock
-    return $ beat' * bar'
+    return $ (beat $ currentTempo clock) * bar'
 
 -- Cast from POSIX Time to a Double
 currentTime :: IO Double
@@ -187,5 +181,4 @@ elapsedTimeOfBar clock bar' = do
 elapsedTimeOfBeat :: Clock -> Double -> IO Double
 elapsedTimeOfBeat clock beat' = do
     let st = startTime (currentTempoHistory clock)
-        delta = currentDelta clock
-    return $ st + (delta * beat')
+    return $ st + (currentDelta clock * beat')

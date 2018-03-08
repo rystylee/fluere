@@ -19,7 +19,6 @@ findValueFromMMap k mmap = do
     mmap' <- readTVarIO mmap
     return $ M.lookup k mmap'
 
-
 -- Used to change the existing MutableMap
 -- do the operation given to the argument on the MutableMap
 changeMMap :: TVar a -> (a -> a) -> IO ()
