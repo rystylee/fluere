@@ -151,21 +151,14 @@ basicPlay db pname = do
     let bs = beatToStart player
     if (bs > cb)
         then do
-            ct <- currentTime
-            nt <- elapsedTimeOfBeat clock bs
-            let diff = nt - ct
+            let diff = bs - cb
             sleep $ diff
         else do
             note <- getNextNote db pname
             when (note == 1) $ void (forkIO $ sendToSC "s_new" (playerOscMessage player))
             updateScoreCounter db pname
-            beatOfNextEvent <- checkTempoChange db "defaultClock"
+            let beatOfNextEvent = cb + 1
             changeBeatToStart db pname beatOfNextEvent
-            --putStrLn $ "beatOfNextEvent : " ++ show beatOfNextEvent
-            --ct <- currentTime
-            --nt <- elapsedTimeOfBeat clock beatOfNextEvent
-            --let diff = nt - ct
-            --sleep $ diff
             sleep $ beatToTime clock (beatOfNextEvent - cb)
     when (playerStatus player == Playing) $ basicPlay db pname
 

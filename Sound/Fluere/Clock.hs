@@ -76,8 +76,10 @@ changeTempo db cname cps' beat' = do
     cBar <- currentBar clock
     cBeat <- currentBeat clock
     let b = beat $ tempo $ currentTempoHistory clock
+        sBar = startBar $ currentTempoHistory clock
+        sBeat = startBeat $ currentTempoHistory clock
         nBar = cBar + 1
-        nBeat = b * nBar
+        nBeat = sBeat + (nBar - sBar) * b
         newtempo = Tempo { cps = cps', beat = beat' }
         newtempohistory = TempoHistory { tempo = newtempo
                                         ,startTime = cTime
@@ -153,17 +155,9 @@ currentDelta clock =
 currentBar :: Clock -> IO Double
 currentBar clock = do
     et <- elapsedTime clock
-    --let sBar = startBar (currentTempoHistory clock)
     let sBar = lastBar (currentTempoHistory clock)
     let cps' = cps $ tempo (currentTempoHistory clock)
     return $ sBar + fromIntegral (floor (et * cps'))
-
-nextBar :: Clock -> IO Double
-nextBar clock = do
-    cBar <- currentBar clock
-    cBeat <- currentBeat clock
-    let b = floor $ beat $ tempo $ currentTempoHistory clock
-    if ((floor cBeat) `mod` b == (b - 1)) then return $ cBar + 1 else return cBar
 
 -- Get the current Beat since Tempo was changed
 currentBeat :: Clock -> IO Double
@@ -171,7 +165,7 @@ currentBeat clock = do
     et <- elapsedTime clock
     let sBeat = lastBeat (currentTempoHistory clock)
     let delta = currentDelta clock
-    return $ sBeat + fromIntegral (floor (et / delta))
+    return $ sBeat + et / delta
 
 -- Get the elapsed time since Tempo was changed
 elapsedTime :: Clock -> IO Double
