@@ -10,9 +10,6 @@ data DataBase = DataBase { dataBaseName :: String
                           ,playerMMap :: TVar (Map String Player)
                          }
 
---instance Show DataBase where
---    show x = name x
-
 data Tempo = Tempo { cps :: Double
                     ,beat :: Double
                    } deriving (Show)
@@ -21,6 +18,8 @@ data TempoHistory = TempoHistory { tempo :: Tempo
                                   ,startTime :: Double
                                   ,startBar :: Double
                                   ,startBeat :: Double
+                                  ,lastBar :: Double
+                                  ,lastBeat :: Double
                                  } deriving (Show)
 
 data Clock = Clock { clockName :: String
@@ -31,7 +30,7 @@ data Player = Player { playerName :: String
                       ,playerOscMessage :: [Datum]
                       ,playerScore :: [[Int]]
                       ,playerStatus :: PlayerStatus
-                      ,lastBeat :: Double
+                      ,beatToStart :: Double
                       ,scoreCounter :: (Int, Int)
                      } deriving (Show)
 

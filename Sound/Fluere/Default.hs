@@ -21,6 +21,8 @@ defaultClock = do
                                      ,startTime = ct
                                      ,startBar = 0
                                      ,startBeat = 0
+                                     ,lastBar = 0
+                                     ,lastBeat = 0
                                     }
     return $ newClock clockName' [tempohistory]
 
@@ -30,9 +32,9 @@ defaultPlayer = do
         playerOscMessage' = [string "kick1", string "freq", float 440]
         playerScore' = [[1,0,1,0], [1,1,1,1]]
         playerStatus' = Playing
-        lastBeat' = 0
+        beatToStart' = 0
         scoreCounter' = (0, 0) :: (Int, Int)
-    return $ newPlayer playerName' playerOscMessage' playerScore' playerStatus' lastBeat' scoreCounter'
+    return $ newPlayer playerName' playerOscMessage' playerScore' playerStatus' beatToStart' scoreCounter'
 
 defaultDataBase :: IO DataBase
 defaultDataBase = do
