@@ -14,14 +14,7 @@ import Sound.Fluere.MutableMap ( newMMap
                                )
 import Sound.Fluere.Clock ( sleep
                            ,beatToTime
-                           ,barToBeat
-                           ,currentTime
-                           ,currentBar
                            ,currentBeat
-                           ,currentTempoHistory
-                           ,elapsedTimeOfBar
-                           ,elapsedTimeOfBeat
-                           ,checkTempoChange 
                           ) 
 import Sound.Fluere.OSC (sendToSC)
 

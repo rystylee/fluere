@@ -86,19 +86,6 @@ changeTempo db cname cps' beat' = do
                                        }
     changeTempoHistories db cname newtempohistory
 
-checkTempoChange :: DataBase -> String -> IO Double
-checkTempoChange db cname = do
-    Just clock <- findValueFromMMap cname (clockMMap db)
-    let sBar = startBar $ currentTempoHistory clock
-        sBeat = startBeat $ currentTempoHistory clock
-    cBar <- currentBar clock
-    cBeat <- currentBeat clock
-    if (cBar <= sBar)
-        then do
-            putStrLn "Tempo change!!"
-            sleep $ beatToTime clock (sBeat - cBeat)
-            return sBeat
-        else return $ cBeat + 1
 
 -- sleep means threadDelay which receive Double argument
 sleep :: RealFrac a => a -> IO ()
@@ -116,11 +103,6 @@ beatToTime clock beat' =
     let cps' = cps $ currentTempo clock
         delta' = beatToDelta cps' (beat $ currentTempo clock)
     in delta' * beat'
-
--- Get Beat by clock's beat and Bar
-barToBeat :: Clock -> Double -> IO Double
-barToBeat clock bar' = do
-    return $ (beat $ currentTempo clock) * bar'
 
 -- Cast from POSIX Time to a Double
 currentTime :: IO Double
@@ -167,18 +149,3 @@ elapsedTime clock = do
     ct <- currentTime
     let st = startTime (currentTempoHistory clock)
     return $ (ct - st)
-
--- Get the elapsed time of bar since Tempo was created
--- Notice that it is not always the latest time
-elapsedTimeOfBar :: Clock -> Double -> IO Double
-elapsedTimeOfBar clock bar' = do
-    cBar <- currentBar clock
-    let st = startTime (currentTempoHistory clock)
-        cps' = cps $ tempo (currentTempoHistory clock)
-    return $ st + (cBar * (1 / cps'))
-
--- Get the elapsed time of beat since Tempo was created
-elapsedTimeOfBeat :: Clock -> Double -> IO Double
-elapsedTimeOfBeat clock beat' = do
-    let st = startTime (currentTempoHistory clock)
-    return $ st + (currentDelta clock * beat')
