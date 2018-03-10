@@ -91,7 +91,7 @@ changeTempo db cname cps' beat' = do
 sleep :: RealFrac a => a -> IO ()
 sleep t = threadDelay ((truncate t * 100) * 10 * 1000)
 
--- Get delta by cps and beat
+-- Get delta of each beat by cps and beat
 -- ex.) cps = 0.5, beat = 4 => delta = 0.5
 beatToDelta :: Double -> Double -> Double
 beatToDelta cps' beat' = (1 / cps') / beat'
@@ -104,20 +104,6 @@ beatToTime clock beat' =
         delta' = beatToDelta cps' (beat $ currentTempo clock)
     in delta' * beat'
 
--- Cast from POSIX Time to a Double
-currentTime :: IO Double
-currentTime = do
-    n <- getPOSIXTime
-    return $ realToFrac n
-
--- Helper to get current TempoHistory
-currentTempoHistory :: Clock -> TempoHistory
-currentTempoHistory clock = head (tempoHistories clock)
-
--- Helper to get current Tempo
-currentTempo :: Clock -> Tempo
-currentTempo clock = tempo (currentTempoHistory clock)
-
 -- Get current delta, which is the time between currentBeat and NextBeat
 -- ex.) beat = 4, cps = 0.5 => delta = 0.5
 currentDelta :: Clock -> Double
@@ -126,6 +112,27 @@ currentDelta clock =
         cps' = cps tempo'
         beat' = beat tempo'
     in (1 / cps') / beat'
+
+-- Cast from POSIX Time to a Double
+currentTime :: IO Double
+currentTime = do
+    n <- getPOSIXTime
+    return $ realToFrac n
+
+-- Get the elapsed time since Tempo was changed
+elapsedTime :: Clock -> IO Double
+elapsedTime clock = do
+    ct <- currentTime
+    let st = startTime (currentTempoHistory clock)
+    return $ (ct - st)
+
+-- Helper to get current TempoHistory
+currentTempoHistory :: Clock -> TempoHistory
+currentTempoHistory clock = head (tempoHistories clock)
+
+-- Helper to get current Tempo
+currentTempo :: Clock -> Tempo
+currentTempo clock = tempo (currentTempoHistory clock)
 
 -- Get the current Bar since Tempo was changed
 currentBar :: Clock -> IO Double
@@ -142,10 +149,3 @@ currentBeat clock = do
     let sBeat = lastBeat (currentTempoHistory clock)
     let delta = currentDelta clock
     return $ sBeat + et / delta
-
--- Get the elapsed time since Tempo was changed
-elapsedTime :: Clock -> IO Double
-elapsedTime clock = do
-    ct <- currentTime
-    let st = startTime (currentTempoHistory clock)
-    return $ (ct - st)

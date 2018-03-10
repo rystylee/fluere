@@ -8,10 +8,10 @@ import Sound.Fluere.Data
 
 newDataBase :: String
                -> TVar (Map String Clock)
-               -> TVar (Map String Player)
+               -> TVar (Map String Agent)
                -> DataBase
-newDataBase dbname cmmap pmmap =
+newDataBase dbname cmmap ammap =
     DataBase { dataBaseName = dbname
               ,clockMMap = cmmap
-              ,playerMMap = pmmap
+              ,agentMMap = ammap
              }

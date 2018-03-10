@@ -6,7 +6,7 @@ import Sound.OSC.FD (Datum, string, float)
 
 import Sound.Fluere.Data
 import Sound.Fluere.Clock (currentTime, newClock, newClockMMap)
-import Sound.Fluere.Player (newPlayer, newPlayerMMap)
+import Sound.Fluere.Agent (newAgent, newAgentMMap)
 import Sound.Fluere.DataBase (newDataBase)
 
 
@@ -26,28 +26,29 @@ defaultClock = do
                                     }
     return $ newClock clockName' [tempohistory]
 
-defaultPlayer :: IO Player
-defaultPlayer = do
-    let playerName' = "defaultPlayer"
-        playerOscMessage' = [string "kick1", string "freq", float 440]
-        playerScore' = [[1,0,1,0], [1,1,1,1]]
-        playerStatus' = Playing
+defaultAgent :: IO Agent
+defaultAgent = do
+    let agentName' = "defaultAgent"
+        agentClock = "defaultClock"
+        agentOscMessage' = [string "kick1", string "freq", float 440]
+        agentScore' = [[1,0,1,0], [1,1,1,1]]
+        agentStatus' = Playing
         beatToStart' = 0
         scoreCounter' = (0, 0) :: (Int, Int)
-    return $ newPlayer playerName' playerOscMessage' playerScore' playerStatus' beatToStart' scoreCounter'
+    return $ newAgent agentClock agentName' agentOscMessage' agentScore' agentStatus' beatToStart' scoreCounter'
 
 defaultDataBase :: IO DataBase
 defaultDataBase = do
     cmmap <- defaultClockMMap
-    pmmap <- defaultPlayerMMap
-    return $ newDataBase "defaultDB" cmmap pmmap
+    ammap <- defaultAgentMMap
+    return $ newDataBase "defaultDB" cmmap ammap
 
 defaultClockMMap :: IO (TVar (Map String Clock))
 defaultClockMMap = do
     c <- defaultClock
     newClockMMap c
 
-defaultPlayerMMap :: IO (TVar (Map String Player))
-defaultPlayerMMap = do
-    p <- defaultPlayer
-    newPlayerMMap p
+defaultAgentMMap :: IO (TVar (Map String Agent))
+defaultAgentMMap = do
+    a <- defaultAgent
+    newAgentMMap a

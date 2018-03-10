@@ -7,7 +7,7 @@ import Sound.OSC.FD (Datum)
 
 data DataBase = DataBase { dataBaseName :: String
                           ,clockMMap :: TVar (Map String Clock)
-                          ,playerMMap :: TVar (Map String Player)
+                          ,agentMMap :: TVar (Map String Agent)
                          }
 
 data Tempo = Tempo { cps :: Double
@@ -26,13 +26,14 @@ data Clock = Clock { clockName :: String
                     ,tempoHistories :: [TempoHistory]
                    } deriving (Show)
 
-data Player = Player { playerName :: String
-                      ,playerOscMessage :: [Datum]
-                      ,playerScore :: [[Int]]
-                      ,playerStatus :: PlayerStatus
-                      ,beatToStart :: Double
-                      ,scoreCounter :: (Int, Int)
-                     } deriving (Show)
+data Agent = Agent { agentName :: String
+                    ,agentClock :: String
+                    ,agentOscMessage :: [Datum]
+                    ,agentScore :: [[Int]]
+                    ,agentStatus :: AgentStatus
+                    ,beatToStart :: Double
+                    ,scoreCounter :: (Int, Int)
+                   } deriving (Show)
 
-data PlayerStatus =   Playing
-                    | Pausing deriving (Show, Eq)
+data AgentStatus =  Playing
+                  | Pausing deriving (Show, Eq)

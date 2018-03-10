@@ -3,8 +3,6 @@ module Sound.Fluere.Rhythm where
 import Data.List
 
 
--- Util
---
 fillRestWith0 :: Num a => Int -> [a] -> Maybe ([a], [a])
 fillRestWith0 n xs =
     if length xs == n
@@ -18,10 +16,8 @@ sliceWithBeat n =
     let phi [] = Nothing
         phi xs = fillRestWith0 n xs
     in unfoldr phi
---
---
 
--- These functions are used during the performance
+
 newScore :: Int -> [Int] -> [[Int]]
-newScore pbeat newscore =
-    sliceWithBeat pbeat newscore
+newScore abeat newscore =
+    sliceWithBeat abeat newscore
