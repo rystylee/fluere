@@ -7,6 +7,7 @@ import Sound.OSC.FD (Datum, string, float)
 import Sound.Fluere.Data
 import Sound.Fluere.Clock (currentTime, newClock, newClockMMap)
 import Sound.Fluere.Agent (newAgent, newAgentMMap)
+import Sound.Fluere.Action (newAction, newActionMMap, playSound)
 import Sound.Fluere.DataBase (newDataBase)
 
 
@@ -30,18 +31,26 @@ defaultAgent :: IO Agent
 defaultAgent = do
     let agentName' = "defaultAgent"
         agentClock = "defaultClock"
+        agentAction = "defaultAction"
         agentOscMessage' = [string "kick1", string "freq", float 440]
         agentScore' = [[1,0,1,0], [1,1,1,1]]
         agentStatus' = Playing
         beatToStart' = 0
         scoreCounter' = (0, 0) :: (Int, Int)
-    return $ newAgent agentClock agentName' agentOscMessage' agentScore' agentStatus' beatToStart' scoreCounter'
+    return $ newAgent agentName' agentClock agentAction agentOscMessage' agentScore' agentStatus' beatToStart' scoreCounter'
+
+defaultAction :: IO Action
+defaultAction = do
+    let aname = "defaultAction"
+        action = playSound
+    return $ newAction aname action
 
 defaultDataBase :: IO DataBase
 defaultDataBase = do
     cmmap <- defaultClockMMap
     ammap <- defaultAgentMMap
-    return $ newDataBase "defaultDB" cmmap ammap
+    actmmap <- defaultActionMMap
+    return $ newDataBase "defaultDB" cmmap ammap actmmap
 
 defaultClockMMap :: IO (TVar (Map String Clock))
 defaultClockMMap = do
@@ -52,3 +61,8 @@ defaultAgentMMap :: IO (TVar (Map String Agent))
 defaultAgentMMap = do
     a <- defaultAgent
     newAgentMMap a
+
+defaultActionMMap :: IO (TVar (Map String Action))
+defaultActionMMap = do
+    act <- defaultAction
+    newActionMMap act

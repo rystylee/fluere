@@ -2,9 +2,8 @@ module Sound.Fluere.Agent where
 
 import Control.Concurrent (forkIO, threadDelay)
 import Control.Concurrent.STM (TVar)
-import Control.Monad (when)
+import Control.Monad (forM_, void, when)
 import Data.Map
-import Control.Monad (forM_, void)
 import Sound.OSC.FD (Datum, string, int32, float)
 
 import Sound.Fluere.Data
@@ -16,7 +15,6 @@ import Sound.Fluere.Clock ( sleep
                            ,beatToTime
                            ,currentBeat
                           ) 
-import Sound.Fluere.OSC (sendToSC)
 
 
 ------------------------------------------------------
@@ -35,16 +33,17 @@ displayAgent db aname = do
 ------------------------------------------------------
 
 -- Used to create a new Agent
-newAgent :: String -> String -> [Datum] -> [[Int]] -> AgentStatus -> Double -> (Int, Int) -> Agent
-newAgent aname aclock aosc ascore astatus beatToStart' scorecounter =
+newAgent :: String -> String -> String -> [Datum] -> [[Int]] -> AgentStatus -> Double -> (Int, Int) -> Agent
+newAgent aname aclock aaction aosc ascore astatus beatToStart' scorecounter =
     Agent { agentName = aname
            ,agentClock = aclock
+           ,agentAction = aaction
            ,agentOscMessage = aosc
            ,agentScore = ascore
            ,agentStatus = astatus
            ,beatToStart = beatToStart'
            ,scoreCounter = scorecounter
-           }
+          }
 
 -- Used to create a new Agent MutableMap
 newAgentMMap :: Agent -> IO (TVar (Map String Agent))
@@ -87,8 +86,8 @@ changeBeatToStart db aname newbeattostart = do
 
 -- Used to get next note
 getNextNote :: DataBase -> String -> IO Int
-getNextNote db agent = do
-    Just agent <- findValueFromMMap agent (agentMMap db)
+getNextNote db aname = do
+    Just agent <- findValueFromMMap aname (agentMMap db)
     let ascore = agentScore agent
         scorecounter = scoreCounter agent
     return $ searchNote ascore scorecounter
@@ -119,20 +118,20 @@ updateScoreCounter db aname = do
                     newrow = 0
                 changeScoreCounter db aname (newrow, newcol)
 
-play :: DataBase -> String -> IO ()
-play db aname = do
+act :: DataBase -> String -> IO ()
+act db aname = do
     Just agent <- findValueFromMMap aname (agentMMap db)
     if (agentStatus agent == Playing)
-        then void (forkIO $ basicPlay db aname)
+        then void (forkIO $ actLoop db aname)
         else putStrLn $ agentName agent ++ " is pausing."
 
-playAt :: DataBase -> String -> Double -> IO ()
-playAt db aname beat' = do
+actAt :: DataBase -> String -> Double -> IO ()
+actAt db aname beat' = do
     changeBeatToStart db aname beat'
-    play db aname
+    act db aname
 
-basicPlay :: DataBase -> String -> IO ()
-basicPlay db aname = do
+actLoop :: DataBase -> String -> IO ()
+actLoop db aname = do
     Just agent <- findValueFromMMap aname (agentMMap db)
     Just clock <- findValueFromMMap (agentClock agent) (clockMMap db)
     cb <- currentBeat clock
@@ -143,12 +142,13 @@ basicPlay db aname = do
             sleep $ diff
         else do
             note <- getNextNote db aname
-            when (note == 1) $ void (forkIO $ sendToSC "s_new" (agentOscMessage agent))
+            Just act <- findValueFromMMap (agentAction agent) (actionMMap db)
+            when (note == 1) $ void (forkIO $ (subStance act) db aname)
             updateScoreCounter db aname
             let beatOfNextEvent = cb + 1
             changeBeatToStart db aname beatOfNextEvent
             sleep $ beatToTime clock (beatOfNextEvent - cb)
-    when (agentStatus agent == Playing) $ basicPlay db aname
+    when (agentStatus agent == Playing) $ actLoop db aname
 
 startAgent :: DataBase -> String -> IO ()
 startAgent db aname = do
@@ -161,8 +161,8 @@ stopAgent db aname = do
     Just agent <- findValueFromMMap aname (agentMMap db)
     when (agentStatus agent == Playing) $ changeAgentStatus db aname Pausing
 
-playAgents :: DataBase -> [String] -> IO ()
-playAgents db anames = mapM_ (play db) anames
+actAgents :: DataBase -> [String] -> IO ()
+actAgents db anames = mapM_ (act db) anames
 
 startAgents :: DataBase -> [String] -> IO ()
 startAgents db anames = mapM_ (startAgent db) anames

@@ -9,9 +9,11 @@ import Sound.Fluere.Data
 newDataBase :: String
                -> TVar (Map String Clock)
                -> TVar (Map String Agent)
+               -> TVar (Map String Action)
                -> DataBase
-newDataBase dbname cmmap ammap =
+newDataBase dbname cmmap ammap actmmap =
     DataBase { dataBaseName = dbname
               ,clockMMap = cmmap
               ,agentMMap = ammap
+              ,actionMMap = actmmap
              }
