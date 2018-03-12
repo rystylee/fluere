@@ -20,12 +20,12 @@ newAction aname act =
 
 -- Used to create a new Action MutableMap
 newActionMMap :: Action -> IO (TVar (Map String Action))
-newActionMMap action = newMMap [(actionName action, action)]
+newActionMMap act = newMMap [(actionName act, act)]
 
 -- Used to add a new Action to MutableMap
 addNewAction :: DataBase -> Action -> IO ()
-addNewAction db action = do
-    addValToMMap (actionName action, action) (actionMMap db)
+addNewAction db act = do
+    addValToMMap (actionName act, act) (actionMMap db)
 
 ------------------------------------------------------
 -- An action used to play sound

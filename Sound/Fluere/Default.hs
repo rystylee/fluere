@@ -30,20 +30,20 @@ defaultClock = do
 defaultAgent :: IO Agent
 defaultAgent = do
     let agentName' = "defaultAgent"
-        agentClock = "defaultClock"
-        agentAction = "defaultAction"
+        agentClock' = "defaultClock"
+        agentAction' = "defaultAction"
         agentOscMessage' = [string "kick1", string "freq", float 440]
         agentScore' = [[1,0,1,0], [1,1,1,1]]
         agentStatus' = Playing
         beatToStart' = 0
         scoreCounter' = (0, 0) :: (Int, Int)
-    return $ newAgent agentName' agentClock agentAction agentOscMessage' agentScore' agentStatus' beatToStart' scoreCounter'
+    return $ newAgent agentName' agentClock' agentAction' agentOscMessage' agentScore' agentStatus' beatToStart' scoreCounter'
 
 defaultAction :: IO Action
 defaultAction = do
     let aname = "defaultAction"
-        action = playSound
-    return $ newAction aname action
+        act = playSound
+    return $ newAction aname act
 
 defaultDataBase :: IO DataBase
 defaultDataBase = do

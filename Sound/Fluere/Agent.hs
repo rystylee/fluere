@@ -23,10 +23,11 @@ import Sound.Fluere.Clock ( sleep
 
 displayAgent :: DataBase -> String -> IO ()
 displayAgent db aname = do
-    let ammap = agentMMap db
-    Just agent <- findValueFromMMap aname ammap
+    Just agent <- findValueFromMMap aname (agentMMap db)
     putStrLn $ "\n------------------------------------" 
     putStrLn $ "agentName : " ++ show (agentName agent)
+    putStrLn $ "agentClock : " ++ show (agentClock agent)
+    putStrLn $ "agentAction : " ++ show (agentAction agent)
     putStrLn $ "beatToStart : " ++ show (beatToStart agent)
     putStrLn $ "------------------------------------\n" 
 
