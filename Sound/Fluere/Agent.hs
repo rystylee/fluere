@@ -30,6 +30,7 @@ displayAgent db aname = do
     putStrLn $ "agentName : " ++ show (agentName agent)
     putStrLn $ "agentClock : " ++ show (agentClock agent)
     putStrLn $ "agentAction : " ++ show (agentAction agent)
+    putStrLn $ "agentPattern : " ++ show (agentPattern agent)
     putStrLn $ "agentBeat : " ++ show (agentBeat agent)
     putStrLn $ "------------------------------------\n" 
 
@@ -117,10 +118,9 @@ actLoop db aname = do
         else do
             Just act <- findValueFromMMap (agentAction agent) (actionMMap db)
             void $ forkIO $ (actionFunc act) db aname
-            --let beatOfNextEvent = cb + 1
             beatOfNextEvent <- nextBeat db aname cb
-            changeAgentBeat db aname beatOfNextEvent
-            sleep $ beatToTime clock (beatOfNextEvent - cb)
+            changeAgentBeat db aname (beatOfNextEvent + cb)
+            sleep $ beatToTime clock beatOfNextEvent
     when (agentStatus agent == Playing) $ actLoop db aname
 
 startAgent :: DataBase -> String -> IO ()

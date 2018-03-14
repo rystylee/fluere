@@ -63,7 +63,6 @@ changeTempoHistories db cname newtempohistory = do
     Just clock <- findValueFromMMap cname (clockMMap db)
     let changetempohistories c = c { tempoHistories = newtempohistory:(tempoHistories clock) }
     changeClock db cname changetempohistories
-    displayClock db cname
 
 changeTempo :: DataBase -> String -> Double -> Double -> IO ()
 changeTempo db cname cps' beat' = do

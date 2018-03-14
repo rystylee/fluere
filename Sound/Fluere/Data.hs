@@ -42,7 +42,7 @@ data Action = Action { actionName :: String
                      }
 
 data Pattern = Pattern { patternName :: String
-                        ,interval :: [Int]
+                        ,interval :: [Double]
                         ,counter :: Int
                        }
 

@@ -10,14 +10,15 @@ import Sound.Fluere.MutableMap ( newMMap
                                 ,findValueFromMMap
                                 ,addValToMMap
                                )
+import Sound.Fluere.Clock (currentDelta)
 
 
 -- Used to create a new Pattern
-newPattern :: String -> [Int] -> Int -> Pattern
+newPattern :: String -> [Double] -> Int -> Pattern
 newPattern pname interval' counter' =
     Pattern { patternName = pname
-    		 ,interval = interval'
-    		 ,counter = counter'
+             ,interval = interval'
+             ,counter = counter'
             }
 
 -- Used to create a new Pattern MutableMap
@@ -37,7 +38,7 @@ changePattern db pname f = do
     let newPattern = f pattern
     addValToMMap (pname, newPattern) pmmap
 
-changeInterval :: DataBase -> String -> [Int] -> IO ()
+changeInterval :: DataBase -> String -> [Double] -> IO ()
 changeInterval db pname newinterval = do
     let changeinterval p = p { interval = newinterval }
     changePattern db pname changeinterval
@@ -49,56 +50,21 @@ changeCounter db pname newcounter = do
 
 ------------------------------------------------------
 
-nextBeat :: DataBase -> String -> Double -> IO Int
+nextBeat :: DataBase -> String -> Double -> IO Double
 nextBeat db aname currentBeat' = do
     Just agent <- findValueFromMMap aname (agentMMap db)
+    Just clock <- findValueFromMMap (agentClock agent) (clockMMap db)
     Just pattern <- findValueFromMMap (agentPattern agent) (patternMMap db)
     let interval' = interval pattern
         counter' = counter pattern
         ilen = length interval'
     if (counter' == (ilen - 1))
         then do
-            changeCounter db aname 0
-            return $ interval' !! 0
+            changeCounter db (agentPattern agent) 0
+            return $ (interval' !! counter') * (currentDelta clock)
         else do
-            changeCounter db aname (counter' + 1)
-            return $ interval' !! (counter' - 1)
-
-
--- -- Used to get next note
--- getNextNote :: DataBase -> String -> IO Int
--- getNextNote db aname = do
---     Just agent <- findValueFromMMap aname (agentMMap db)
---     let ascore = agentScore agent
---         scorecounter = scoreCounter agent
---     return $ searchNote ascore scorecounter
-
--- searchNote :: [[Int]] -> (Int, Int) -> Int
--- searchNote ascore scorecounter =
---     let (row, column) = scorecounter
---     in (ascore !! row) !! column
-
--- updateScoreCounter :: DataBase -> String -> IO ()
--- updateScoreCounter db aname = do
---     Just agent <- findValueFromMMap aname (agentMMap db)
---     let ascore = agentScore agent
---         (row, col) = scoreCounter agent
---         rowLength = length ascore
---     if col < 3
---         then do
---             let newcol = col + 1
---                 newrow = row
---             changeScoreCounter db aname (newrow, newcol)
---         else if row < (rowLength - 1)
---             then do
---                 let newcol = 0
---                     newrow = row + 1
---                 changeScoreCounter db aname (newrow, newcol)
---             else do
---                 let newcol = 0
---                     newrow = 0
---                 changeScoreCounter db aname (newrow, newcol)
-
+            changeCounter db (agentPattern agent) (counter' + 1)
+            return $ (interval' !! counter') * (currentDelta clock)
 
 
 fillRestWith0 :: Num a => Int -> [a] -> Maybe ([a], [a])

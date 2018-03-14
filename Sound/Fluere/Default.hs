@@ -8,6 +8,7 @@ import Sound.Fluere.Data
 import Sound.Fluere.Clock (currentTime, newClock, newClockMMap)
 import Sound.Fluere.Agent (newAgent, newAgentMMap)
 import Sound.Fluere.Action (newAction, newActionMMap, playSound)
+import Sound.Fluere.Pattern (newPattern, newPatternMMap)
 import Sound.Fluere.DataBase (newDataBase)
 
 
@@ -15,7 +16,7 @@ defaultClock :: IO Clock
 defaultClock = do
     ct <- currentTime
     let clockName' = "defaultClock"
-        tempo' = Tempo { cps = 1
+        tempo' = Tempo { cps = 0.5
                         ,beat = 4
                        }
         tempohistory = TempoHistory { tempo = tempo'
@@ -47,7 +48,7 @@ defaultAction = do
 defaultPattern :: IO Pattern
 defaultPattern = do
     let pname = "defaultPattern"
-        interval' = [2,2,1,1,1,1]
+        interval' = [4,4,1,1,1,1]
         counter' = 0
     return $ newPattern pname interval' counter'
 
@@ -56,7 +57,8 @@ defaultDataBase = do
     cmmap <- defaultClockMMap
     ammap <- defaultAgentMMap
     actmmap <- defaultActionMMap
-    return $ newDataBase "defaultDB" cmmap ammap actmmap
+    pmmap <- defaultPatternMMap
+    return $ newDataBase "defaultDB" cmmap ammap actmmap pmmap
 
 defaultClockMMap :: IO (TVar (Map String Clock))
 defaultClockMMap = do
