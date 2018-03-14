@@ -38,15 +38,15 @@ displayAgent db aname = do
 
 -- Used to create a new Agent
 newAgent :: String -> String -> String -> String -> [Datum] -> AgentStatus -> Double -> Agent
-newAgent aname aclock aaction apattern aosc astatus abeat =
-    Agent { agentName = aname
-           ,agentClock = aclock
-           ,agentAction = aaction
-           ,agentPattern = apattern
-           ,agentOscMessage = aosc
-           ,agentStatus = astatus
-           ,agentBeat = abeat
-          }
+newAgent aname aclock aaction apattern aosc astatus abeat = Agent {
+     agentName = aname
+    ,agentClock = aclock
+    ,agentAction = aaction
+    ,agentPattern = apattern
+    ,agentOscMessage = aosc
+    ,agentStatus = astatus
+    ,agentBeat = abeat
+}
 
 -- Used to create a new Agent MutableMap
 newAgentMMap :: Agent -> IO (TVar (Map String Agent))

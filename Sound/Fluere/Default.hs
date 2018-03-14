@@ -49,8 +49,7 @@ defaultPattern :: IO Pattern
 defaultPattern = do
     let pname = "defaultPattern"
         interval' = [4,4,1,1,1,1]
-        counter' = 0
-    return $ newPattern pname interval' counter'
+    return $ newPattern pname interval'
 
 defaultDataBase :: IO DataBase
 defaultDataBase = do

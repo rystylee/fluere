@@ -13,10 +13,10 @@ import Sound.Fluere.OSC (sendToSC)
 
 -- Used to create a new Action
 newAction :: String -> (DataBase -> String -> IO ()) -> Action
-newAction aname actfunc =
-    Action { actionName = aname
-            ,actionFunc = actfunc
-           }
+newAction aname actfunc = Action { 
+     actionName = aname
+    ,actionFunc = actfunc
+}
 
 -- Used to create a new Action MutableMap
 newActionMMap :: Action -> IO (TVar (Map String Action))

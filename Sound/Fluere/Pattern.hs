@@ -14,11 +14,11 @@ import Sound.Fluere.Clock (currentDelta)
 
 
 -- Used to create a new Pattern
-newPattern :: String -> [Double] -> Int -> Pattern
-newPattern pname interval' counter' =
+newPattern :: String -> [Double] -> Pattern
+newPattern pname interval' =
     Pattern { patternName = pname
              ,interval = interval'
-             ,counter = counter'
+             ,index = 0
             }
 
 -- Used to create a new Pattern MutableMap
@@ -26,8 +26,8 @@ newPatternMMap :: Pattern -> IO (TVar (Map String Pattern))
 newPatternMMap pattern = newMMap [(patternName pattern, pattern)]
 
 -- Used to add a new Pattern to MutableMap
-addNewPattern :: DataBase -> Pattern -> IO ()
-addNewPattern db pattern = do
+addPattern :: DataBase -> Pattern -> IO ()
+addPattern db pattern = do
     addValToMMap (patternName pattern, pattern) (patternMMap db)
 
 -- The base function to change Pattern
@@ -43,10 +43,10 @@ changeInterval db pname newinterval = do
     let changeinterval p = p { interval = newinterval }
     changePattern db pname changeinterval
 
-changeCounter :: DataBase -> String -> Int -> IO ()
-changeCounter db pname newcounter = do
-    let changecounter p = p { counter = newcounter }
-    changePattern db pname changecounter
+changeIndex :: DataBase -> String -> Int -> IO ()
+changeIndex db pname newindex = do
+    let changeindex p = p { index = newindex }
+    changePattern db pname changeindex
 
 ------------------------------------------------------
 
@@ -56,16 +56,19 @@ nextBeat db aname currentBeat' = do
     Just clock <- findValueFromMMap (agentClock agent) (clockMMap db)
     Just pattern <- findValueFromMMap (agentPattern agent) (patternMMap db)
     let interval' = interval pattern
-        counter' = counter pattern
+        index' = index pattern
         ilen = length interval'
-    if (counter' == (ilen - 1))
+    if (index' == (ilen - 1))
         then do
-            changeCounter db (agentPattern agent) 0
-            return $ (interval' !! counter') * (currentDelta clock)
+            changeIndex db (agentPattern agent) 0
+            return $ (interval' !! index') * (currentDelta clock)
         else do
-            changeCounter db (agentPattern agent) (counter' + 1)
-            return $ (interval' !! counter') * (currentDelta clock)
+            changeIndex db (agentPattern agent) (index' + 1)
+            return $ (interval' !! index') * (currentDelta clock)
 
+
+
+------------------------------------------------------
 
 fillRestWith0 :: Num a => Int -> [a] -> Maybe ([a], [a])
 fillRestWith0 n xs =
