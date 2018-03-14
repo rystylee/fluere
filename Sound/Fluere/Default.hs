@@ -32,18 +32,24 @@ defaultAgent = do
     let agentName' = "defaultAgent"
         agentClock' = "defaultClock"
         agentAction' = "defaultAction"
+        agentPattern' = "defaultPattern"
         agentOscMessage' = [string "kick1", string "freq", float 440]
-        agentScore' = [[1,0,1,0], [1,1,1,1]]
         agentStatus' = Playing
-        beatToStart' = 0
-        scoreCounter' = (0, 0) :: (Int, Int)
-    return $ newAgent agentName' agentClock' agentAction' agentOscMessage' agentScore' agentStatus' beatToStart' scoreCounter'
+        agentBeat' = 0
+    return $ newAgent agentName' agentClock' agentAction' agentPattern' agentOscMessage' agentStatus' agentBeat'
 
 defaultAction :: IO Action
 defaultAction = do
     let aname = "defaultAction"
-        act = playSound
-    return $ newAction aname act
+        f = playSound
+    return $ newAction aname f
+
+defaultPattern :: IO Pattern
+defaultPattern = do
+    let pname = "defaultPattern"
+        interval' = [2,2,1,1,1,1]
+        counter' = 0
+    return $ newPattern pname interval' counter'
 
 defaultDataBase :: IO DataBase
 defaultDataBase = do
@@ -66,3 +72,8 @@ defaultActionMMap :: IO (TVar (Map String Action))
 defaultActionMMap = do
     act <- defaultAction
     newActionMMap act
+
+defaultPatternMMap :: IO (TVar (Map String Pattern))
+defaultPatternMMap = do
+    p <- defaultPattern
+    newPatternMMap p

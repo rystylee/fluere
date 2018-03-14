@@ -14,7 +14,9 @@ import Sound.Fluere.MutableMap ( newMMap
 import Sound.Fluere.Clock ( sleep
                            ,beatToTime
                            ,currentBeat
-                          ) 
+                          )
+import Sound.Fluere.Pattern ( nextBeat
+                            )
 
 
 ------------------------------------------------------
@@ -28,22 +30,21 @@ displayAgent db aname = do
     putStrLn $ "agentName : " ++ show (agentName agent)
     putStrLn $ "agentClock : " ++ show (agentClock agent)
     putStrLn $ "agentAction : " ++ show (agentAction agent)
-    putStrLn $ "beatToStart : " ++ show (beatToStart agent)
+    putStrLn $ "agentBeat : " ++ show (agentBeat agent)
     putStrLn $ "------------------------------------\n" 
 
 ------------------------------------------------------
 
 -- Used to create a new Agent
-newAgent :: String -> String -> String -> [Datum] -> [[Int]] -> AgentStatus -> Double -> (Int, Int) -> Agent
-newAgent aname aclock aaction aosc ascore astatus beatToStart' scorecounter =
+newAgent :: String -> String -> String -> String -> [Datum] -> AgentStatus -> Double -> Agent
+newAgent aname aclock aaction apattern aosc astatus abeat =
     Agent { agentName = aname
            ,agentClock = aclock
            ,agentAction = aaction
+           ,agentPattern = apattern
            ,agentOscMessage = aosc
-           ,agentScore = ascore
            ,agentStatus = astatus
-           ,beatToStart = beatToStart'
-           ,scoreCounter = scorecounter
+           ,agentBeat = abeat
           }
 
 -- Used to create a new Agent MutableMap
@@ -64,60 +65,32 @@ changeAgent db aname f = do
     let newAgent = f agent
     addValToMMap (aname, newAgent) ammap
 
+changeAgentClock :: DataBase -> String -> String -> IO ()
+changeAgentClock db aname newclock= do
+    let changeclock a = a { agentClock = newclock }
+    changeAgent db aname changeclock
+
+changeAgentAction :: DataBase -> String -> String -> IO ()
+changeAgentAction db aname newaction = do
+    let changeaction a = a { agentAction = newaction }
+    changeAgent db aname changeaction
+
+changeAgentPattern :: DataBase -> String -> String -> IO ()
+changeAgentPattern db aname newpattern = do
+    let changepattern a = a { agentPattern = newpattern }
+    changeAgent db aname changepattern
+
 changeAgentStatus :: DataBase -> String -> AgentStatus -> IO ()
 changeAgentStatus db aname newastatus = do
     let changeastatus a = a { agentStatus = newastatus }
     changeAgent db aname changeastatus
 
-changeAgentScore :: DataBase -> String -> [[Int]] -> IO ()
-changeAgentScore db aname newscore = do
-    let changescore a = a { agentScore = newscore }
-    changeAgent db aname changescore
+changeAgentBeat :: DataBase -> String -> Double -> IO ()
+changeAgentBeat db aname newbeat = do
+    let changebeat a = a { agentBeat = newbeat }
+    changeAgent db aname changebeat
 
-changeScoreCounter :: DataBase -> String -> (Int, Int) -> IO ()
-changeScoreCounter db aname newscorecounter = do
-    let changescorecounter a = a { scoreCounter = newscorecounter }
-    changeAgent db aname changescorecounter
-
-changeBeatToStart :: DataBase -> String -> Double -> IO ()
-changeBeatToStart db aname newbeattostart = do
-    let changebeattostart a = a { beatToStart = newbeattostart }
-    changeAgent db aname changebeattostart
-
-
--- Used to get next note
-getNextNote :: DataBase -> String -> IO Int
-getNextNote db aname = do
-    Just agent <- findValueFromMMap aname (agentMMap db)
-    let ascore = agentScore agent
-        scorecounter = scoreCounter agent
-    return $ searchNote ascore scorecounter
-
-searchNote :: [[Int]] -> (Int, Int) -> Int
-searchNote ascore scorecounter =
-    let (row, column) = scorecounter
-    in (ascore !! row) !! column
-
-updateScoreCounter :: DataBase -> String -> IO ()
-updateScoreCounter db aname = do
-    Just agent <- findValueFromMMap aname (agentMMap db)
-    let ascore = agentScore agent
-        (row, col) = scoreCounter agent
-        rowLength = length ascore
-    if col < 3
-        then do
-            let newcol = col + 1
-                newrow = row
-            changeScoreCounter db aname (newrow, newcol)
-        else if row < (rowLength - 1)
-            then do
-                let newcol = 0
-                    newrow = row + 1
-                changeScoreCounter db aname (newrow, newcol)
-            else do
-                let newcol = 0
-                    newrow = 0
-                changeScoreCounter db aname (newrow, newcol)
+------------------------------------------------------
 
 act :: DataBase -> String -> IO ()
 act db aname = do
@@ -128,7 +101,7 @@ act db aname = do
 
 actAt :: DataBase -> String -> Double -> IO ()
 actAt db aname beat' = do
-    changeBeatToStart db aname beat'
+    changeAgentBeat db aname beat'
     act db aname
 
 actLoop :: DataBase -> String -> IO ()
@@ -136,18 +109,17 @@ actLoop db aname = do
     Just agent <- findValueFromMMap aname (agentMMap db)
     Just clock <- findValueFromMMap (agentClock agent) (clockMMap db)
     cb <- currentBeat clock
-    let bs = beatToStart agent
+    let bs = agentBeat agent
     if (bs > cb)
         then do
             let diff = bs - cb
             sleep $ diff
         else do
-            note <- getNextNote db aname
             Just act <- findValueFromMMap (agentAction agent) (actionMMap db)
-            when (note == 1) $ void (forkIO $ (subStance act) db aname)
-            updateScoreCounter db aname
-            let beatOfNextEvent = cb + 1
-            changeBeatToStart db aname beatOfNextEvent
+            void $ forkIO $ (actionFunc act) db aname
+            --let beatOfNextEvent = cb + 1
+            beatOfNextEvent <- nextBeat db aname cb
+            changeAgentBeat db aname beatOfNextEvent
             sleep $ beatToTime clock (beatOfNextEvent - cb)
     when (agentStatus agent == Playing) $ actLoop db aname
 

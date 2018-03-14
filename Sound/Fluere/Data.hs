@@ -9,6 +9,7 @@ data DataBase = DataBase { dataBaseName :: String
                           ,clockMMap :: TVar (Map String Clock)
                           ,agentMMap :: TVar (Map String Agent)
                           ,actionMMap :: TVar (Map String Action)
+                          ,patternMMap :: TVar (Map String Pattern)
                          }
 
 data Tempo = Tempo { cps :: Double
@@ -30,16 +31,20 @@ data Clock = Clock { clockName :: String
 data Agent = Agent { agentName :: String
                     ,agentClock :: String
                     ,agentAction :: String
+                    ,agentPattern :: String
                     ,agentOscMessage :: [Datum]
-                    ,agentScore :: [[Int]]
                     ,agentStatus :: AgentStatus
-                    ,beatToStart :: Double
-                    ,scoreCounter :: (Int, Int)
+                    ,agentBeat :: Double
                    } deriving (Show)
+
+data Action = Action { actionName :: String
+                      ,actionFunc :: (DataBase -> String -> IO ())
+                     }
+
+data Pattern = Pattern { patternName :: String
+                        ,interval :: [Int]
+                        ,counter :: Int
+                       }
 
 data AgentStatus =  Playing
                   | Pausing deriving (Show, Eq)
-
-data Action = Action { actionName :: String
-                      ,subStance :: (DataBase -> String -> IO ())
-                     }

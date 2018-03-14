@@ -86,6 +86,7 @@ changeTempo db cname cps' beat' = do
                                        }
     changeTempoHistories db cname newtempohistory
 
+------------------------------------------------------
 
 -- sleep means threadDelay which receive Double argument
 sleep :: RealFrac a => a -> IO ()
