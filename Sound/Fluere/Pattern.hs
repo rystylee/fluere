@@ -15,11 +15,11 @@ import Sound.Fluere.Clock (currentDelta)
 
 -- Used to create a new Pattern
 newPattern :: String -> [Double] -> Pattern
-newPattern pname interval' =
-    Pattern { patternName = pname
-             ,interval = interval'
-             ,index = 0
-            }
+newPattern pname interval' = Pattern {
+     patternName = pname
+    ,interval = interval'
+    ,index = 0
+}
 
 -- Used to create a new Pattern MutableMap
 newPatternMMap :: Pattern -> IO (TVar (Map String Pattern))
@@ -65,6 +65,28 @@ nextBeat db aname currentBeat' = do
         else do
             changeIndex db (agentPattern agent) (index' + 1)
             return $ (interval' !! index') * (currentDelta clock)
+
+------------------------------------------------------
+
+--newSimilarPattern :: [[a]] -> Int -> [a]
+--newSimilarPattern 2ls len = do
+--    let ls = concat 2ls
+
+-- Concat the list and add it to patternMMap
+newConcatPattern :: DataBase -> String -> [[Double]] -> IO ()
+newConcatPattern db pname ls = do
+    let newls = concat ls
+        newp = newPattern pname newls
+    addPattern db newp
+
+
+
+--replN :: DataBase -> String -> [[Double]] -> Int -> Pattern
+--replN db pname ls n = do
+--    let ls' = concat ls
+--        newp = newPattern db ls'
+--    addPattern db newp
+
 
 
 

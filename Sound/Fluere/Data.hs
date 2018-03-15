@@ -29,28 +29,28 @@ data TempoHistory = TempoHistory {
 
 data Clock = Clock {
      clockName :: String
-     ,tempoHistories :: [TempoHistory]
+    ,tempoHistories :: [TempoHistory]
 } deriving (Show)
 
 data Agent = Agent {
      agentName :: String
-     ,agentClock :: String
-     ,agentAction :: String
-     ,agentPattern :: String
-     ,agentOscMessage :: [Datum]
-     ,agentStatus :: AgentStatus
-     ,agentBeat :: Double
+    ,agentClock :: String
+    ,agentAction :: String
+    ,agentPattern :: String
+    ,agentOscMessage :: [Datum]
+    ,agentStatus :: AgentStatus
+    ,agentBeat :: Double
 } deriving (Show)
 
 data Action = Action {
      actionName :: String
-     ,actionFunc :: (DataBase -> String -> IO ())
+    ,actionFunc :: (DataBase -> String -> IO ())
 }
 
 data Pattern = Pattern {
      patternName :: String
-     ,interval :: [Double]
-     ,index :: Int
+    ,interval :: [Double]
+    ,index :: Int
 }
 
 data AgentStatus = Playing | Pausing deriving (Show, Eq)

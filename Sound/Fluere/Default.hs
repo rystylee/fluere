@@ -16,16 +16,18 @@ defaultClock :: IO Clock
 defaultClock = do
     ct <- currentTime
     let clockName' = "defaultClock"
-        tempo' = Tempo { cps = 0.5
-                        ,beat = 4
-                       }
-        tempohistory = TempoHistory { tempo = tempo'
-                                     ,startTime = ct
-                                     ,startBar = 0
-                                     ,startBeat = 0
-                                     ,lastBar = 0
-                                     ,lastBeat = 0
-                                    }
+        tempo' = Tempo {
+             cps = 0.5
+            ,beat = 4
+        }
+        tempohistory = TempoHistory {
+             tempo = tempo'
+            ,startTime = ct
+            ,startBar = 0
+            ,startBeat = 0
+            ,lastBar = 0
+            ,lastBeat = 0
+        }
     return $ newClock clockName' [tempohistory]
 
 defaultAgent :: IO Agent

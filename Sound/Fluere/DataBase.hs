@@ -12,10 +12,10 @@ newDataBase :: String
                -> TVar (Map String Action)
                -> TVar (Map String Pattern)
                -> DataBase
-newDataBase dbname cmmap ammap actmmap pmmap =
-    DataBase { dataBaseName = dbname
-              ,clockMMap = cmmap
-              ,agentMMap = ammap
-              ,actionMMap = actmmap
-              ,patternMMap = pmmap
-             }
+newDataBase dbname cmmap ammap actmmap pmmap = DataBase {
+     dataBaseName = dbname
+    ,clockMMap = cmmap
+    ,agentMMap = ammap
+    ,actionMMap = actmmap
+    ,patternMMap = pmmap
+}
