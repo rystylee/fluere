@@ -1,9 +1,9 @@
 module Sound.Fluere.Pattern where
 
 import Control.Concurrent.STM (TVar)
-import Control.Monad (void)
-import Data.Map
-import Data.List
+import Control.Monad (void, forM)
+import qualified Data.Map as M
+import qualified Data.List as L
 
 import Sound.Fluere.Data
 import Sound.Fluere.MutableMap ( newMMap
@@ -22,7 +22,7 @@ newPattern pname interval' = Pattern {
 }
 
 -- Used to create a new Pattern MutableMap
-newPatternMMap :: Pattern -> IO (TVar (Map String Pattern))
+newPatternMMap :: Pattern -> IO (TVar (M.Map String Pattern))
 newPatternMMap pattern = newMMap [(patternName pattern, pattern)]
 
 -- Used to add a new Pattern to MutableMap
@@ -72,23 +72,40 @@ nextBeat db aname currentBeat' = do
 --newSimilarPattern 2ls len = do
 --    let ls = concat 2ls
 
+
 -- Concat the list and add it to patternMMap
-newConcatPattern :: DataBase -> String -> [[Double]] -> IO ()
-newConcatPattern db pname ls = do
-    let newls = concat ls
+newConcatPattern :: DataBase -> String -> [[Double]] -> Double -> IO ()
+newConcatPattern db pname ls beat' = do
+    let newls = adjustList ls beat'
         newp = newPattern pname newls
+    putStrLn (show newls)
     addPattern db newp
 
 
 
---replN :: DataBase -> String -> [[Double]] -> Int -> Pattern
---replN db pname ls n = do
---    let ls' = concat ls
---        newp = newPattern db ls'
---    addPattern db newp
+adjustList :: [[Double]] -> Double -> [Double]
+adjustList ls beat' = do
+    finalls <- forM ls $ \e -> do
+        let ls' = adjustToBeat e beat'
+        return ls'
+    concat finalls
 
+adjustToBeat :: [Double] -> Double -> [Double]
+adjustToBeat ls beat'
+    | beat' == (sum ls)    = ls
+    | beat' - (sum ls) > 0 = increaseToBeat ls beat' (sum ls)
+    | otherwise            = decreaseToBeat ls beat' (sum ls)
 
+increaseToBeat :: [Double] -> Double -> Double -> [Double]
+increaseToBeat ls beat' sum'
+    | sum' == beat' = ls
+    | otherwise     = ls ++ [beat' - sum']
 
+decreaseToBeat :: [Double] -> Double -> Double -> [Double]
+decreaseToBeat ls beat' sum'
+    | sum' == beat' = ls
+    | sum' < beat'  = increaseToBeat ls beat' sum'
+    | sum' > beat'  = decreaseToBeat (init ls) beat' sum'
 
 ------------------------------------------------------
 
@@ -104,7 +121,7 @@ sliceWithBeat :: Num a => Int -> [a] -> [[a]]
 sliceWithBeat n =
     let phi [] = Nothing
         phi xs = fillRestWith0 n xs
-    in unfoldr phi
+    in L.unfoldr phi
 
 
 newScore :: Int -> [Int] -> [[Int]]
