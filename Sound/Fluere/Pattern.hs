@@ -67,34 +67,39 @@ nextBeat db aname currentBeat' = do
             return $ (interval' !! index') * (currentDelta clock)
 
 ------------------------------------------------------
+-- These function are used to create new patterns
+------------------------------------------------------
+
+-- Concat the list and add it to patternMMap
+newConcatPattern :: DataBase -> String -> [[Double]] -> Double -> IO ()
+newConcatPattern db pname ls beat' = do
+    let newls = adjustList ls beat'
+        newp = newPattern pname (concat newls)
+    putStrLn (show newls)
+    addPattern db newp
+
 
 --newSimilarPattern :: [[a]] -> Int -> [a]
 --newSimilarPattern 2ls len = do
 --    let ls = concat 2ls
 
 
--- Concat the list and add it to patternMMap
-newConcatPattern :: DataBase -> String -> [[Double]] -> Double -> IO ()
-newConcatPattern db pname ls beat' = do
-    let newls = adjustList ls beat'
-        newp = newPattern pname newls
-    putStrLn (show newls)
-    addPattern db newp
+------------------------------------------------------
+-- manipulation list utils
+------------------------------------------------------
 
-
-
-adjustList :: [[Double]] -> Double -> [Double]
+adjustList :: [[Double]] -> Double -> [[Double]]
 adjustList ls beat' = do
     finalls <- forM ls $ \e -> do
         let ls' = adjustToBeat e beat'
         return ls'
-    concat finalls
+    finalls
 
 adjustToBeat :: [Double] -> Double -> [Double]
 adjustToBeat ls beat'
     | beat' == (sum ls)    = ls
     | beat' - (sum ls) > 0 = increaseToBeat ls beat' (sum ls)
-    | otherwise            = decreaseToBeat ls beat' (sum ls)
+    | beat' - (sum ls) < 0 = decreaseToBeat ls beat' (sum ls)
 
 increaseToBeat :: [Double] -> Double -> Double -> [Double]
 increaseToBeat ls beat' sum'
@@ -105,7 +110,7 @@ decreaseToBeat :: [Double] -> Double -> Double -> [Double]
 decreaseToBeat ls beat' sum'
     | sum' == beat' = ls
     | sum' < beat'  = increaseToBeat ls beat' sum'
-    | sum' > beat'  = decreaseToBeat (init ls) beat' sum'
+    | sum' > beat'  = decreaseToBeat (init ls) beat' (sum' - last ls)
 
 ------------------------------------------------------
 
