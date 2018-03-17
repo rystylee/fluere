@@ -11,6 +11,7 @@ data DataBase = DataBase {
     ,agentMMap :: TVar (Map String Agent)
     ,actionMMap :: TVar (Map String Action)
     ,patternMMap :: TVar (Map String Pattern)
+    ,conductorMMap :: TVar (Map String Conductor)
 }
 
 data Tempo = Tempo {
@@ -54,3 +55,8 @@ data Pattern = Pattern {
 }
 
 data AgentStatus = Playing | Pausing deriving (Show, Eq)
+
+data Conductor = Conductor {
+     conductorName :: String
+    ,targetAgents :: [String]
+}

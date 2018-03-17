@@ -70,9 +70,9 @@ nextBeat db aname currentBeat' = do
 -- These function are used to create new patterns
 ------------------------------------------------------
 
--- Concat the list and add it to patternMMap
-newConcatPattern :: DataBase -> String -> [[Double]] -> Double -> IO ()
-newConcatPattern db pname ls beat' = do
+-- Replicate the list and add it to patternMMap
+newReplPattern :: DataBase -> String -> [[Double]] -> Double -> IO ()
+newReplPattern db pname ls beat' = do
     let newls = adjustList ls beat'
         newp = newPattern pname (concat newls)
     putStrLn (show newls)
@@ -85,7 +85,7 @@ newConcatPattern db pname ls beat' = do
 
 
 ------------------------------------------------------
--- manipulation list utils
+-- For manipulating list utils
 ------------------------------------------------------
 
 adjustList :: [[Double]] -> Double -> [[Double]]
@@ -104,7 +104,8 @@ adjustToBeat ls beat'
 increaseToBeat :: [Double] -> Double -> Double -> [Double]
 increaseToBeat ls beat' sum'
     | sum' == beat' = ls
-    | otherwise     = ls ++ [beat' - sum']
+    | sum' < beat'  = ls ++ [beat' - sum']
+    | sum' > beat'  = decreaseToBeat ls beat' sum'
 
 decreaseToBeat :: [Double] -> Double -> Double -> [Double]
 decreaseToBeat ls beat' sum'
@@ -113,7 +114,18 @@ decreaseToBeat ls beat' sum'
     | sum' > beat'  = decreaseToBeat (init ls) beat' (sum' - last ls)
 
 ------------------------------------------------------
+-- Used to generate list 
+------------------------------------------------------
 
+-- If given the pair of list, then return the value (0 ~ 1)
+--calcSimilarity :: [[Double]] -> [[Double]] -> Double
+--calcSimilarity ls1 ls2 = do
+
+
+
+
+
+------------------------------------------------------
 fillRestWith0 :: Num a => Int -> [a] -> Maybe ([a], [a])
 fillRestWith0 n xs =
     if length xs == n
