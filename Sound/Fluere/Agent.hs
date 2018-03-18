@@ -15,8 +15,7 @@ import Sound.Fluere.Clock ( sleep
                            ,beatToTime
                            ,currentBeat
                           )
-import Sound.Fluere.Pattern ( nextBeat
-                            )
+import Sound.Fluere.Pattern (nextBeat)
 
 
 ------------------------------------------------------
@@ -32,21 +31,21 @@ displayAgent db aname = do
     putStrLn $ "agentAction : " ++ show (agentAction agent)
     putStrLn $ "agentPattern : " ++ show (agentPattern agent)
     putStrLn $ "agentBeat : " ++ show (agentBeat agent)
-    putStrLn $ "------------------------------------\n" 
+    putStrLn $ "------------------------------------\n"
 
 ------------------------------------------------------
 
 -- Used to create a new Agent
 newAgent :: String -> String -> String -> String -> [Datum] -> AgentStatus -> Double -> Agent
-newAgent aname aclock aaction apattern aosc astatus abeat = Agent {
-     agentName = aname
-    ,agentClock = aclock
-    ,agentAction = aaction
-    ,agentPattern = apattern
-    ,agentOscMessage = aosc
-    ,agentStatus = astatus
-    ,agentBeat = abeat
-}
+newAgent aname aclock aaction apattern aosc astatus abeat =
+    Agent { agentName = aname
+           ,agentClock = aclock
+           ,agentAction = aaction
+           ,agentPattern = apattern
+           ,agentOscMessage = aosc
+           ,agentStatus = astatus
+           ,agentBeat = abeat
+          }
 
 -- Used to create a new Agent MutableMap
 newAgentMMap :: Agent -> IO (TVar (Map String Agent))
@@ -93,20 +92,20 @@ changeAgentBeat db aname newbeat = do
 
 ------------------------------------------------------
 
-act :: DataBase -> String -> IO ()
-act db aname = do
+bang :: DataBase -> String -> IO ()
+bang db aname = do
     Just agent <- findValueFromMMap aname (agentMMap db)
     if (agentStatus agent == Playing)
-        then void (forkIO $ actLoop db aname)
+        then void (forkIO $ bangLoop db aname)
         else putStrLn $ agentName agent ++ " is pausing."
 
-actAt :: DataBase -> String -> Double -> IO ()
-actAt db aname beat' = do
+bangAt :: DataBase -> String -> Double -> IO ()
+bangAt db aname beat' = do
     changeAgentBeat db aname beat'
-    act db aname
+    bang db aname
 
-actLoop :: DataBase -> String -> IO ()
-actLoop db aname = do
+bangLoop :: DataBase -> String -> IO ()
+bangLoop db aname = do
     Just agent <- findValueFromMMap aname (agentMMap db)
     Just clock <- findValueFromMMap (agentClock agent) (clockMMap db)
     cb <- currentBeat clock
@@ -116,12 +115,12 @@ actLoop db aname = do
             let diff = bs - cb
             sleep $ diff
         else do
-            Just act <- findValueFromMMap (agentAction agent) (actionMMap db)
-            void $ forkIO $ (actionFunc act) db aname
+            Just action' <- findValueFromMMap (agentAction agent) (actionMMap db)
+            void $ forkIO $ (actionFunc action') (agentAction agent) db aname
             beatOfNextEvent <- nextBeat db aname cb
             changeAgentBeat db aname (beatOfNextEvent + cb)
             sleep $ beatToTime clock beatOfNextEvent
-    when (agentStatus agent == Playing) $ actLoop db aname
+    when (agentStatus agent == Playing) $ bangLoop db aname
 
 startAgent :: DataBase -> String -> IO ()
 startAgent db aname = do
@@ -134,8 +133,8 @@ stopAgent db aname = do
     Just agent <- findValueFromMMap aname (agentMMap db)
     when (agentStatus agent == Playing) $ changeAgentStatus db aname Pausing
 
-actAgents :: DataBase -> [String] -> IO ()
-actAgents db anames = mapM_ (act db) anames
+bangAgents :: DataBase -> [String] -> IO ()
+bangAgents db anames = mapM_ (bang db) anames
 
 startAgents :: DataBase -> [String] -> IO ()
 startAgents db anames = mapM_ (startAgent db) anames

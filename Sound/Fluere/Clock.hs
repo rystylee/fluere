@@ -35,15 +35,14 @@ displayClock db cname = do
     sleep $ 5
     void (forkIO $ displayClock db cname)
 
-
 ------------------------------------------------------
 
 -- Used to create a new Clock
 newClock :: String -> [TempoHistory] -> Clock
-newClock cname' tempohistories' = Clock {
-     clockName = cname'
-    ,tempoHistories = tempohistories'
-}
+newClock cname' tempohistories' =
+    Clock { clockName = cname'
+           ,tempoHistories = tempohistories'
+          }
 
 -- Used to create a new ClockMutableMap
 newClockMMap :: Clock -> IO (TVar (Map String Clock))
@@ -75,15 +74,16 @@ changeTempo db cname cps' beat' = do
         sBeat = startBeat $ currentTempoHistory clock
         nBar = cBar + 1
         nBeat = sBeat + (nBar - sBar) * b
-        newtempo = Tempo { cps = cps', beat = beat' }
-        newtempohistory = TempoHistory {
-             tempo = newtempo
-            ,startTime = cTime
-            ,startBar = nBar
-            ,startBeat = nBeat
-            ,lastBar = cBar
-            ,lastBeat = cBeat
-        }
+        newtempo = Tempo { cps = cps'
+                          ,beat = beat'
+                         }
+        newtempohistory = TempoHistory { tempo = newtempo
+                                        ,startTime = cTime
+                                        ,startBar = nBar
+                                        ,startBeat = nBeat
+                                        ,lastBar = cBar
+                                        ,lastBeat = cBeat
+                                       }
     changeTempoHistories db cname newtempohistory
 
 ------------------------------------------------------

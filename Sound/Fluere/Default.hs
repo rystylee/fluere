@@ -7,9 +7,9 @@ import Sound.OSC.FD (Datum, string, float)
 import Sound.Fluere.Data
 import Sound.Fluere.Clock (currentTime, newClock, newClockMMap)
 import Sound.Fluere.Agent (newAgent, newAgentMMap)
-import Sound.Fluere.Action (newAction, newActionMMap, playSound)
+import Sound.Fluere.Action (newAction, newActionMMap, act)
 import Sound.Fluere.Pattern (newPattern, newPatternMMap)
-import SOund.FLuere.Conductor (newConductor, newConductorMMap)
+import Sound.Fluere.Conductor (newConductor, newConductorMMap)
 import Sound.Fluere.DataBase (newDataBase)
 
 
@@ -17,18 +17,16 @@ defaultClock :: IO Clock
 defaultClock = do
     ct <- currentTime
     let clockName' = "defaultClock"
-        tempo' = Tempo {
-             cps = 0.5
-            ,beat = 4
-        }
-        tempohistory = TempoHistory {
-             tempo = tempo'
-            ,startTime = ct
-            ,startBar = 0
-            ,startBeat = 0
-            ,lastBar = 0
-            ,lastBeat = 0
-        }
+        tempo' = Tempo { cps = 0.5
+                        ,beat = 4
+                       }
+        tempohistory = TempoHistory { tempo = tempo'
+                                     ,startTime = ct
+                                     ,startBar = 0
+                                     ,startBeat = 0
+                                     ,lastBar = 0
+                                     ,lastBeat = 0
+                                    }
     return $ newClock clockName' [tempohistory]
 
 defaultAgent :: IO Agent
@@ -45,8 +43,8 @@ defaultAgent = do
 defaultAction :: IO Action
 defaultAction = do
     let aname = "defaultAction"
-        f = playSound
-    return $ newAction aname f
+        afunc = act
+    return $ newAction aname afunc
 
 defaultPattern :: IO Pattern
 defaultPattern = do
@@ -62,11 +60,12 @@ defaultConductor = do
 
 defaultDataBase :: IO DataBase
 defaultDataBase = do
-    cmmap <- defaultClockMMap
+    clmmap <- defaultClockMMap
     ammap <- defaultAgentMMap
     actmmap <- defaultActionMMap
     pmmap <- defaultPatternMMap
-    return $ newDataBase "defaultDB" cmmap ammap actmmap pmmap
+    commap <- defaultConductorMMap
+    return $ newDataBase "defaultDB" clmmap ammap actmmap pmmap commap
 
 defaultClockMMap :: IO (TVar (Map String Clock))
 defaultClockMMap = do
@@ -89,6 +88,6 @@ defaultPatternMMap = do
     newPatternMMap p
 
 defaultConductorMMap :: IO (TVar (Map String Conductor))
-defaultClockMMap = do
+defaultConductorMMap = do
     c <- defaultConductor
     newConductorMMap c

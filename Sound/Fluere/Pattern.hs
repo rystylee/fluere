@@ -15,11 +15,11 @@ import Sound.Fluere.Clock (currentDelta)
 
 -- Used to create a new Pattern
 newPattern :: String -> [Double] -> Pattern
-newPattern pname interval' = Pattern {
-     patternName = pname
-    ,interval = interval'
-    ,index = 0
-}
+newPattern pname rhythmList' =
+    Pattern { patternName = pname
+             ,rhythmList = rhythmList'
+             ,index = 0
+            }
 
 -- Used to create a new Pattern MutableMap
 newPatternMMap :: Pattern -> IO (TVar (M.Map String Pattern))
@@ -38,10 +38,10 @@ changePattern db pname f = do
     let newPattern = f pattern
     addValToMMap (pname, newPattern) pmmap
 
-changeInterval :: DataBase -> String -> [Double] -> IO ()
-changeInterval db pname newinterval = do
-    let changeinterval p = p { interval = newinterval }
-    changePattern db pname changeinterval
+changeRhythmList :: DataBase -> String -> [Double] -> IO ()
+changeRhythmList db pname newrhythmlist = do
+    let changerhythmlist p = p { rhythmList = newrhythmlist }
+    changePattern db pname changerhythmlist
 
 changeIndex :: DataBase -> String -> Int -> IO ()
 changeIndex db pname newindex = do
@@ -55,16 +55,16 @@ nextBeat db aname currentBeat' = do
     Just agent <- findValueFromMMap aname (agentMMap db)
     Just clock <- findValueFromMMap (agentClock agent) (clockMMap db)
     Just pattern <- findValueFromMMap (agentPattern agent) (patternMMap db)
-    let interval' = interval pattern
+    let rhythmList' = rhythmList pattern
         index' = index pattern
-        ilen = length interval'
+        ilen = length rhythmList'
     if (index' == (ilen - 1))
         then do
             changeIndex db (agentPattern agent) 0
-            return $ (interval' !! index') * (currentDelta clock)
+            return $ (rhythmList' !! index') * (currentDelta clock)
         else do
             changeIndex db (agentPattern agent) (index' + 1)
-            return $ (interval' !! index') * (currentDelta clock)
+            return $ (rhythmList' !! index') * (currentDelta clock)
 
 ------------------------------------------------------
 -- These function are used to create new patterns
@@ -78,10 +78,16 @@ newReplPattern db pname ls beat' = do
     putStrLn (show newls)
     addPattern db newp
 
+{--
+beat = 4
+ls1 = [[1,2,1], [2,2], [1.5,2.5]]
+ls2 = [[2,2], [0.5,1.5,2], [1,3]]
+--}
 
---newSimilarPattern :: [[a]] -> Int -> [a]
---newSimilarPattern 2ls len = do
---    let ls = concat 2ls
+-- Used to create the pattern which is mixied two lists given as argument
+newMixedPattern :: DataBase -> String -> [[Double]] -> [[Double]] -> Double -> IO ()
+newMixedPattern db pname ls1 ls2 beat' = undefined
+
 
 
 ------------------------------------------------------
@@ -114,33 +120,10 @@ decreaseToBeat ls beat' sum'
     | sum' > beat'  = decreaseToBeat (init ls) beat' (sum' - last ls)
 
 ------------------------------------------------------
--- Used to generate list 
+-- Used to calc the similarilty of two list
 ------------------------------------------------------
 
 -- If given the pair of list, then return the value (0 ~ 1)
---calcSimilarity :: [[Double]] -> [[Double]] -> Double
---calcSimilarity ls1 ls2 = do
+calcSimilarity :: [[Double]] -> [[Double]] -> Double
+calcSimilarity ls1 ls2 = undefined
 
-
-
-
-
-------------------------------------------------------
-fillRestWith0 :: Num a => Int -> [a] -> Maybe ([a], [a])
-fillRestWith0 n xs =
-    if length xs == n
-        then Just $ splitAt n xs
-        else do
-            let (xs', xs_) = splitAt n xs
-            Just (xs' ++ replicate (n - length xs) 0, xs_)
-
-sliceWithBeat :: Num a => Int -> [a] -> [[a]]
-sliceWithBeat n =
-    let phi [] = Nothing
-        phi xs = fillRestWith0 n xs
-    in L.unfoldr phi
-
-
-newScore :: Int -> [Int] -> [[Int]]
-newScore abeat newscore =
-    sliceWithBeat abeat newscore

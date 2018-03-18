@@ -12,10 +12,10 @@ import Sound.Fluere.MutableMap ( newMMap
 
 -- Used to create a new Conductor
 newConductor :: String -> [String] -> Conductor
-newConductor cname tagents = Conductor {
-     conductorName = cname
-    ,targetAgents = tagents
-}
+newConductor cname tagents =
+    Conductor { conductorName = cname
+               ,targetAgents = tagents
+              }
 
 -- Used to create a new Conductor MutableMap
 newConductorMMap :: Conductor -> IO (TVar (Map String Conductor))
@@ -33,3 +33,10 @@ changeConductor db cname f = do
     Just conductor <- findValueFromMMap cname cmmap
     let newConductor = f conductor
     addValToMMap (cname, newConductor) cmmap
+
+changeTargetAgents :: DataBase -> String -> [String] -> IO ()
+changeTargetAgents db cname newtagents= do
+    let changetagents c = c { targetAgents = newtagents }
+    changeConductor db cname changetagents
+
+------------------------------------------------------

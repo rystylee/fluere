@@ -9,14 +9,15 @@ import Sound.Fluere.MutableMap ( newMMap
                                 ,addValToMMap
                                )
 import Sound.Fluere.OSC (sendToSC)
+import Sound.Fluere.Agent (changeAgentStatus)
 
 
 -- Used to create a new Action
-newAction :: String -> (DataBase -> String -> IO ()) -> Action
-newAction aname actfunc = Action { 
-     actionName = aname
-    ,actionFunc = actfunc
-}
+newAction :: String -> (String -> DataBase -> String -> IO ()) -> Action
+newAction aname actfunc =
+    Action { actionName = aname
+            ,actionFunc = actfunc
+           }
 
 -- Used to create a new Action MutableMap
 newActionMMap :: Action -> IO (TVar (Map String Action))
@@ -31,9 +32,18 @@ addNewAction db act = do
 -- An action used to play sound
 ------------------------------------------------------
 
-playSound :: DataBase -> String -> IO ()
-playSound db aname = do
-    Just agent <- findValueFromMMap aname (agentMMap db)
-    sendToSC "s_new" (agentOscMessage agent)
+act :: String -> DataBase -> String -> IO ()
+act agentAction' db aname
+    | agentAction' == "playSound" = do
+        Just agent <- findValueFromMMap aname (agentMMap db)
+        sendToSC "s_new" (agentOscMessage agent)
 
-------------------------------------------------------
+    | agentAction' == "changeAgentStatus" = do
+        Just agent <- findValueFromMMap aname (agentMMap db)
+        if (agentStatus agent == Playing) then changeAgentStatus db aname Pausing
+                                           else changeAgentStatus db aname Playing
+
+    | agentAction' == "putStrLn"          = putStrLn "Hello, World!"
+    | otherwise = do
+        Just agent <- findValueFromMMap aname (agentMMap db)
+        sendToSC "s_new" (agentOscMessage agent)
