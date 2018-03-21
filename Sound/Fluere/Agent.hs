@@ -119,7 +119,8 @@ bangLoop db aname = do
             void $ forkIO $ (actionFunc action') (agentAction agent) db aname
             beatOfNextEvent <- nextBeat db aname cb
             changeAgentBeat db aname (beatOfNextEvent + cb)
-            sleep $ beatToTime clock beatOfNextEvent
+            -- Delay countermeasures considered to be caused by GC etc.
+            sleep $ (beatToTime clock beatOfNextEvent - 0.01)
     when (agentStatus agent == Playing) $ bangLoop db aname
 
 startAgent :: DataBase -> String -> IO ()

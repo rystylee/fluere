@@ -42,10 +42,6 @@ data Action = Action { actionName :: String
                       ,actionFunc :: (String -> DataBase -> String -> IO ())
                      }
 
---data ActionType = PlaySound DataBase String
---                | ChangeAgentStatus String AgentStatus
---                | PutStrLn String
-
 data Pattern = Pattern { patternName :: String
                         ,rhythmList :: [Double]
                         ,index :: Int

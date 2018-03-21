@@ -41,13 +41,13 @@ library:
 #     dependencies:
 #     - fluere
 
-tests:
-  fluere-test:
-    main:                Spec.hs
-    source-dirs:         test
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - fluere
+# tests:
+#   fluere-test:
+#     main:                Spec.hs
+#     source-dirs:         test
+#     ghc-options:
+#     - -threaded
+#     - -rtsopts
+#     - -with-rtsopts=-N
+#     dependencies:
+#     - fluere
