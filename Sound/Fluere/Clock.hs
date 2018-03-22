@@ -13,11 +13,10 @@ import Sound.Fluere.MutableMap ( newMMap
                                )
 
 
-------------------------------------------------------
+---------------------------------------------------------------------
 -- For debug
-------------------------------------------------------
+---------------------------------------------------------------------
  
-
 displayClock :: DataBase -> String -> IO ()
 displayClock db cname = do
     Just clock <- findValueFromMMap cname (clockMMap db)
@@ -35,7 +34,7 @@ displayClock db cname = do
     sleep $ 5
     void (forkIO $ displayClock db cname)
 
-------------------------------------------------------
+---------------------------------------------------------------------
 
 -- Used to create a new Clock
 newClock :: String -> [TempoHistory] -> Clock
@@ -86,7 +85,7 @@ changeTempo db cname cps' beat' = do
                                        }
     changeTempoHistories db cname newtempohistory
 
-------------------------------------------------------
+---------------------------------------------------------------------
 
 -- sleep means threadDelay which receive Double argument
 sleep :: RealFrac a => a -> IO ()

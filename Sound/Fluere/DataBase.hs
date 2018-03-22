@@ -11,13 +11,11 @@ newDataBase :: String
                -> TVar (Map String Agent)
                -> TVar (Map String Action)
                -> TVar (Map String Pattern)
-               -> TVar (Map String Conductor)
                -> DataBase
-newDataBase dbname clmmap ammap actmmap pmmap commap =
+newDataBase dbname clmmap ammap actmmap pmmap =
   DataBase { dataBaseName = dbname
             ,clockMMap = clmmap
             ,agentMMap = ammap
             ,actionMMap = actmmap
             ,patternMMap = pmmap
-            ,conductorMMap = commap
            }

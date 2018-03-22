@@ -13,6 +13,8 @@ import Sound.Fluere.MutableMap ( newMMap
 import Sound.Fluere.Clock (currentDelta)
 
 
+---------------------------------------------------------------------
+
 -- Used to create a new Pattern
 newPattern :: String -> [Double] -> Pattern
 newPattern pname rhythmList' =
@@ -48,7 +50,7 @@ changeIndex db pname newindex = do
     let changeindex p = p { index = newindex }
     changePattern db pname changeindex
 
-------------------------------------------------------
+---------------------------------------------------------------------
 
 nextBeat :: DataBase -> String -> Double -> IO Double
 nextBeat db aname currentBeat' = do
@@ -66,9 +68,9 @@ nextBeat db aname currentBeat' = do
             changeIndex db (agentPattern agent) (index' + 1)
             return $ (rhythmList' !! index') * (currentDelta clock)
 
-------------------------------------------------------
+---------------------------------------------------------------------
 -- These function are used to create new patterns
-------------------------------------------------------
+---------------------------------------------------------------------
 
 -- Replicate the list and add it to patternMMap
 newReplPattern :: DataBase -> String -> [[Double]] -> Double -> IO ()
@@ -90,9 +92,9 @@ newMixedPattern db pname ls1 ls2 beat' = undefined
 
 
 
-------------------------------------------------------
+---------------------------------------------------------------------
 -- For manipulating list utils
-------------------------------------------------------
+---------------------------------------------------------------------
 
 adjustList :: [[Double]] -> Double -> [[Double]]
 adjustList ls beat' = do
@@ -119,9 +121,9 @@ decreaseToBeat ls beat' sum'
     | sum' < beat'  = increaseToBeat ls beat' sum'
     | sum' > beat'  = decreaseToBeat (init ls) beat' (sum' - last ls)
 
-------------------------------------------------------
+---------------------------------------------------------------------
 -- Used to calc the similarilty of two list
-------------------------------------------------------
+---------------------------------------------------------------------
 
 -- If given the pair of list, then return the value (0 ~ 1)
 calcSimilarity :: [[Double]] -> [[Double]] -> Double

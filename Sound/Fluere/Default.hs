@@ -9,7 +9,6 @@ import Sound.Fluere.Clock (currentTime, newClock, newClockMMap)
 import Sound.Fluere.Agent (newAgent, newAgentMMap)
 import Sound.Fluere.Action (newAction, newActionMMap, act)
 import Sound.Fluere.Pattern (newPattern, newPatternMMap)
-import Sound.Fluere.Conductor (newConductor, newConductorMMap)
 import Sound.Fluere.DataBase (newDataBase)
 
 
@@ -52,20 +51,13 @@ defaultPattern = do
         interval' = [4,4,1,1,1,1]
     return $ newPattern pname interval'
 
-defaultConductor :: IO Conductor
-defaultConductor = do
-    let cname = "defaultConductor"
-        tagents = ["defaultAgent"]
-    return $ newConductor cname tagents
-
 defaultDataBase :: IO DataBase
 defaultDataBase = do
     clmmap <- defaultClockMMap
     ammap <- defaultAgentMMap
     actmmap <- defaultActionMMap
     pmmap <- defaultPatternMMap
-    commap <- defaultConductorMMap
-    return $ newDataBase "defaultDB" clmmap ammap actmmap pmmap commap
+    return $ newDataBase "defaultDB" clmmap ammap actmmap pmmap
 
 defaultClockMMap :: IO (TVar (Map String Clock))
 defaultClockMMap = do
@@ -86,8 +78,3 @@ defaultPatternMMap :: IO (TVar (Map String Pattern))
 defaultPatternMMap = do
     p <- defaultPattern
     newPatternMMap p
-
-defaultConductorMMap :: IO (TVar (Map String Conductor))
-defaultConductorMMap = do
-    c <- defaultConductor
-    newConductorMMap c

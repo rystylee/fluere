@@ -18,9 +18,9 @@ import Sound.Fluere.Clock ( sleep
 import Sound.Fluere.Pattern (nextBeat)
 
 
-------------------------------------------------------
+---------------------------------------------------------------------
 -- For debug
-------------------------------------------------------
+---------------------------------------------------------------------
 
 displayAgent :: DataBase -> String -> IO ()
 displayAgent db aname = do
@@ -33,7 +33,7 @@ displayAgent db aname = do
     putStrLn $ "agentBeat : " ++ show (agentBeat agent)
     putStrLn $ "------------------------------------\n"
 
-------------------------------------------------------
+---------------------------------------------------------------------
 
 -- Used to create a new Agent
 newAgent :: String -> String -> String -> String -> [Datum] -> AgentStatus -> Double -> Agent
@@ -90,7 +90,7 @@ changeAgentBeat db aname newbeat = do
     let changebeat a = a { agentBeat = newbeat }
     changeAgent db aname changebeat
 
-------------------------------------------------------
+---------------------------------------------------------------------
 
 bang :: DataBase -> String -> IO ()
 bang db aname = do
