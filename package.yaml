@@ -1,6 +1,6 @@
-name:                fluere
+name:                fluere-base
 version:             0.1.0.0
-github:              "rystylee/fluere"
+github:              "rystylee/fluere-base"
 license:             BSD3
 author:              "rystylee"
 maintainer:          "rystylee8@gmail.com"
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on Github at <https://github.com/rystylee/fluere#readme>
+description:         Please see the README on Github at <https://github.com/rystylee/fluere-base#readme>
 
 dependencies:
 - base >= 4.7 && < 5
