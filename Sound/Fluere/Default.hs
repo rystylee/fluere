@@ -6,7 +6,7 @@ import Sound.OSC.FD (Datum, string, float)
 
 import Sound.Fluere.Data
 import Sound.Fluere.Clock (currentTime, newClock, newClockMMap)
-import Sound.Fluere.Agent (newAgent, newAgentMMap)
+import Sound.Fluere.Player (newPlayer, newPlayerMMap)
 import Sound.Fluere.Action (newAction, newActionMMap, act)
 import Sound.Fluere.Pattern (newPattern, newPatternMMap)
 import Sound.Fluere.DataBase (newDataBase)
@@ -28,16 +28,16 @@ defaultClock = do
                                     }
     return $ newClock clockName' [tempohistory]
 
-defaultAgent :: IO Agent
-defaultAgent = do
-    let agentName' = "defaultAgent"
-        agentClock' = "defaultClock"
-        agentAction' = "defaultAction"
-        agentPattern' = "defaultPattern"
-        agentOscMessage' = [string "kick1", string "freq", float 440]
-        agentStatus' = Playing
-        agentBeat' = 0
-    return $ newAgent agentName' agentClock' agentAction' agentPattern' agentOscMessage' agentStatus' agentBeat'
+defaultPlayer :: IO Player
+defaultPlayer = do
+    let playerName' = "defaultPlayer"
+        playerClock' = "defaultClock"
+        playerAction' = "defaultAction"
+        playerPattern' = "defaultPattern"
+        playerOscMessage' = [string "kick1", string "freq", float 440]
+        playerStatus' = Playing
+        playerBeat' = 0
+    return $ newPlayer playerName' playerClock' playerAction' playerPattern' playerOscMessage' playerStatus' playerBeat'
 
 defaultAction :: IO Action
 defaultAction = do
@@ -54,20 +54,20 @@ defaultPattern = do
 defaultDataBase :: IO DataBase
 defaultDataBase = do
     clmmap <- defaultClockMMap
-    ammap <- defaultAgentMMap
+    playermmap <- defaultPlayerMMap
     actmmap <- defaultActionMMap
-    pmmap <- defaultPatternMMap
-    return $ newDataBase "defaultDB" clmmap ammap actmmap pmmap
+    patternmmap <- defaultPatternMMap
+    return $ newDataBase "defaultDB" clmmap playermmap actmmap patternmmap
 
 defaultClockMMap :: IO (TVar (Map String Clock))
 defaultClockMMap = do
     c <- defaultClock
     newClockMMap c
 
-defaultAgentMMap :: IO (TVar (Map String Agent))
-defaultAgentMMap = do
-    a <- defaultAgent
-    newAgentMMap a
+defaultPlayerMMap :: IO (TVar (Map String Player))
+defaultPlayerMMap = do
+    p <- defaultPlayer
+    newPlayerMMap p
 
 defaultActionMMap :: IO (TVar (Map String Action))
 defaultActionMMap = do

@@ -9,7 +9,7 @@ import Sound.Fluere.MutableMap ( newMMap
                                 ,addValToMMap
                                )
 import Sound.Fluere.OSC (sendToSC)
-import Sound.Fluere.Agent (changeAgentStatus)
+import Sound.Fluere.Player (changePlayerStatus)
 
 
 ---------------------------------------------------------------------
@@ -31,23 +31,23 @@ addNewAction db act = do
     addValToMMap (actionName act, act) (actionMMap db)
 
 ---------------------------------------------------------------------
--- Different action function for each Agent
+-- Different action function for each Player
 ---------------------------------------------------------------------
 
 act :: String -> DataBase -> String -> IO ()
-act agentAction' db aname
-    | agentAction' == "playSound" = do
-        Just agent <- findValueFromMMap aname (agentMMap db)
-        sendToSC "s_new" (agentOscMessage agent)
+act playerAction' db pname
+    | playerAction' == "playSound" = do
+        Just player <- findValueFromMMap pname (playerMMap db)
+        sendToSC "s_new" (playerOscMessage player)
 
-    | agentAction' == "swapAgentStatus" = do
-        Just agent <- findValueFromMMap aname (agentMMap db)
-        if (agentStatus agent == Playing)
-            then changeAgentStatus db aname Pausing
-            else changeAgentStatus db aname Playing
+    | playerAction' == "swapPlayerStatus" = do
+        Just player <- findValueFromMMap pname (playerMMap db)
+        if (playerStatus player == Playing)
+            then changePlayerStatus db pname Pausing
+            else changePlayerStatus db pname Playing
 
-    | agentAction' == "putStrLn"          = putStrLn "Hello, World!"
+    | playerAction' == "putStrLn"          = putStrLn "Hello, World!"
 
     | otherwise = do
-        Just agent <- findValueFromMMap aname (agentMMap db)
-        sendToSC "s_new" (agentOscMessage agent)
+        Just player <- findValueFromMMap pname (playerMMap db)
+        sendToSC "s_new" (playerOscMessage player)
