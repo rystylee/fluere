@@ -31,7 +31,7 @@ addNewAction db act = do
     addValToMMap (actionName act, act) (actionMMap db)
 
 ---------------------------------------------------------------------
--- An action used to play sound
+-- Different action function for each Agent
 ---------------------------------------------------------------------
 
 act :: String -> DataBase -> String -> IO ()
