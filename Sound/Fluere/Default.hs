@@ -48,7 +48,7 @@ defaultAction = do
 defaultPattern :: IO Pattern
 defaultPattern = do
     let pname = "defaultPattern"
-        interval' = [4,4,1,1,1,1]
+        interval' = [[4], [4], [1,1,1,1]]
     return $ newPattern pname interval'
 
 defaultDataBase :: IO DataBase

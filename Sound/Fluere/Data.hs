@@ -42,7 +42,7 @@ data Action = Action { actionName :: String
                      }
 
 data Pattern = Pattern { patternName :: String
-                        ,rhythmList :: [Double]
+                        ,rhythmList :: [[Double]]
                         ,index :: Int
                        } deriving (Show)
 

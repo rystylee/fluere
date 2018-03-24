@@ -16,7 +16,7 @@ import Sound.Fluere.Clock (currentDelta)
 ---------------------------------------------------------------------
 
 -- Used to create a new Pattern
-newPattern :: String -> [Double] -> Pattern
+newPattern :: String -> [[Double]] -> Pattern
 newPattern pname rhythmList' =
     Pattern { patternName = pname
              ,rhythmList = rhythmList'
@@ -40,7 +40,7 @@ changePattern db pname f = do
     let newPattern = f pattern
     addValToMMap (pname, newPattern) pmmap
 
-changeRhythmList :: DataBase -> String -> [Double] -> IO ()
+changeRhythmList :: DataBase -> String -> [[Double]] -> IO ()
 changeRhythmList db pname newrhythmlist = do
     let changerhythmlist p = p { rhythmList = newrhythmlist }
     changePattern db pname changerhythmlist
@@ -58,7 +58,7 @@ nextBeat db pname currentBeat' = do
     Just player <- findValueFromMMap pname (playerMMap db)
     Just clock <- findValueFromMMap (playerClock player) (clockMMap db)
     Just pattern <- findValueFromMMap (playerPattern player) (patternMMap db)
-    let rhythmList' = rhythmList pattern
+    let rhythmList' = concat $ rhythmList pattern
         index' = index pattern
         ilen = length rhythmList'
     if (index' == (ilen - 1))
