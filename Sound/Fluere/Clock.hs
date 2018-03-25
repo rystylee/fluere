@@ -25,13 +25,13 @@ displayClock db cname = do
     cBeat <- currentBeat clock
     let sBar = startBar $ currentTempoHistory clock
     let sBeat = startBeat $ currentTempoHistory clock
-    putStrLn $ "\n------------------------------------" 
+    putStrLn "\n------------------------------------" 
     putStrLn $ "clockName : " ++ show (clockName clock)
     putStrLn $ "elapsedTime : " ++ show et
     putStrLn $ "currentBar : " ++ show cBar
     putStrLn $ "currentBeat : " ++ show cBeat
-    putStrLn $ "------------------------------------\n" 
-    sleep $ 5
+    putStrLn "------------------------------------\n" 
+    sleep 5
     void (forkIO $ displayClock db cname)
 
 ---------------------------------------------------------------------
@@ -59,7 +59,7 @@ changeClock db cname f = do
 changeTempoHistories :: DataBase -> String -> TempoHistory -> IO ()
 changeTempoHistories db cname newtempohistory = do
     Just clock <- findValueFromMMap cname (clockMMap db)
-    let changetempohistories c = c { tempoHistories = newtempohistory:(tempoHistories clock) }
+    let changetempohistories c = c { tempoHistories = newtempohistory:tempoHistories clock }
     changeClock db cname changetempohistories
 
 changeTempo :: DataBase -> String -> Double -> Double -> IO ()
@@ -124,7 +124,7 @@ elapsedTime :: Clock -> IO Double
 elapsedTime clock = do
     ct <- currentTime
     let st = startTime (currentTempoHistory clock)
-    return $ (ct - st)
+    return (ct - st)
 
 -- Helper to get current TempoHistory
 currentTempoHistory :: Clock -> TempoHistory

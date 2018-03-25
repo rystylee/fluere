@@ -25,13 +25,13 @@ import Sound.Fluere.Pattern (nextBeat)
 displayPlayer :: DataBase -> String -> IO ()
 displayPlayer db pname = do
     Just player <- findValueFromMMap pname (playerMMap db)
-    putStrLn $ "\n------------------------------------" 
+    putStrLn "\n------------------------------------" 
     putStrLn $ "playerName : " ++ show (playerName player)
     putStrLn $ "playerClock : " ++ show (playerClock player)
     putStrLn $ "playerAction : " ++ show (playerAction player)
     putStrLn $ "playerPattern : " ++ show (playerPattern player)
     putStrLn $ "playerBeat : " ++ show (playerBeat player)
-    putStrLn $ "------------------------------------\n"
+    putStrLn "------------------------------------\n"
 
 ---------------------------------------------------------------------
 
@@ -53,8 +53,7 @@ newPlayerMMap player = newMMap [(playerName player, player)]
 
 -- Used to add a new Player to MutableMap
 addNewPlayer :: DataBase -> Player -> IO ()
-addNewPlayer db player = do
-    addValToMMap (playerName player, player) (playerMMap db)
+addNewPlayer db player = addValToMMap (playerName player, player) (playerMMap db)
 
 
 -- The base function to change Player
@@ -95,7 +94,7 @@ changePlayerBeat db pname newbeat = do
 play :: DataBase -> String -> IO ()
 play db pname = do
     Just player <- findValueFromMMap pname (playerMMap db)
-    if (playerStatus player == Playing)
+    if playerStatus player == Playing
         then void (forkIO $ playLoop db pname)
         else putStrLn $ playerName player ++ " is pausing."
 
@@ -110,17 +109,17 @@ playLoop db pname = do
     Just clock <- findValueFromMMap (playerClock player) (clockMMap db)
     cb <- currentBeat clock
     let bs = playerBeat player
-    if (bs > cb)
+    if bs > cb
         then do
             let diff = bs - cb
-            sleep $ diff
+            sleep diff
         else do
             Just action' <- findValueFromMMap (playerAction player) (actionMMap db)
-            void $ forkIO $ (actionFunc action') (playerAction player) db pname
+            void $ forkIO $ actionFunc action' (playerAction player) db pname
             beatOfNextEvent <- nextBeat db pname cb
             changePlayerBeat db pname (beatOfNextEvent + cb)
             -- Delay countermeasures considered to be caused by GC etc.
-            sleep $ (beatToTime clock beatOfNextEvent - 0.01)
+            sleep (beatToTime clock beatOfNextEvent - 0.01)
     when (playerStatus player == Playing) $ playLoop db pname
 
 startPlayer :: DataBase -> String -> IO ()

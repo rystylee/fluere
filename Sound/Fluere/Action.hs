@@ -27,8 +27,7 @@ newActionMMap act = newMMap [(actionName act, act)]
 
 -- Used to add a new Action to MutableMap
 addNewAction :: DataBase -> Action -> IO ()
-addNewAction db act = do
-    addValToMMap (actionName act, act) (actionMMap db)
+addNewAction db act = addValToMMap (actionName act, act) (actionMMap db)
 
 ---------------------------------------------------------------------
 -- Different action function for each Player
@@ -42,7 +41,7 @@ act playerAction' db pname
 
     | playerAction' == "swapPlayerStatus" = do
         Just player <- findValueFromMMap pname (playerMMap db)
-        if (playerStatus player == Playing)
+        if playerStatus player == Playing
             then changePlayerStatus db pname Pausing
             else changePlayerStatus db pname Playing
 

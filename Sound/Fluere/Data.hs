@@ -38,7 +38,7 @@ data Player = Player { playerName :: String
                      } deriving (Show)
 
 data Action = Action { actionName :: String
-                      ,actionFunc :: (String -> DataBase -> String -> IO ())
+                      ,actionFunc :: String -> DataBase -> String -> IO ()
                      }
 
 data Pattern = Pattern { patternName :: String
