@@ -1,4 +1,8 @@
-module Sound.Fluere.Action where
+module Sound.Fluere.Action ( newAction
+                           , newActionMMap
+                           , addAction
+                           , act
+                           ) where
 
 import Sound.OSC.FD (Datum)
 

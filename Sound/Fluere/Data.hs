@@ -23,6 +23,7 @@ data TempoClock = TempoClock { tempoClockName :: String
 data Player = Player { playerName :: String
                      , playerAction :: String
                      , playerPattern :: String
+                     , playerStatus :: PlayerStatus
                      } deriving (Show)
 
 data OscScLang = OscScLang { path :: String
@@ -41,3 +42,7 @@ data Pattern = Pattern { patternName :: String
                        , durations :: [Int]
                        , index :: Int
                        } deriving (Show)
+
+data PlayerStatus = Playing
+                  | Stopping
+                  deriving (Eq, Show)

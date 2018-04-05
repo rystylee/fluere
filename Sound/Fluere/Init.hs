@@ -40,10 +40,11 @@ initPlayerMMap = do
 
 initPlayer :: IO Player
 initPlayer = do
-    let pn = "p1"
+    let n = "p1"
         pa = "kick1"
         pp = "pattern1"
-    return $ newPlayer pn pa pp
+        ps = Playing
+    return $ newPlayer n pa pp ps
 
 initActionMMap :: IO (MutableMap String Action)
 initActionMMap = do

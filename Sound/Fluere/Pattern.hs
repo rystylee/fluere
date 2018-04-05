@@ -1,4 +1,8 @@
-module Sound.Fluere.Pattern where
+module Sound.Fluere.Pattern ( newPattern
+                            , newPatternMMap
+                            , addPattern
+                            , nextPlayerNote
+                            ) where
 
 import Sound.Fluere.Data
 import Sound.Fluere.MutableMap (MutableMap, fromListM, insertM, lookupM)

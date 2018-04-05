@@ -1,4 +1,4 @@
-module Sound.Fluere.Osc where
+module Sound.Fluere.Osc (sendToSC) where
 
 import Sound.OSC.FD
 

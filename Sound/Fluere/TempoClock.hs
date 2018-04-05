@@ -1,4 +1,9 @@
-module Sound.Fluere.TempoClock where
+module Sound.Fluere.TempoClock ( newTempoClock
+                               , newTempoClockMMap
+                               , cps'
+                               , startTick
+                               , currentTime
+                               ) where
 
 import Data.Time.Clock.POSIX (getPOSIXTime)
 import Control.Concurrent (threadDelay, forkIO)
@@ -85,8 +90,8 @@ cps' = modifyCps
 -- tick loop
 ---------------------------------------------------------------------
 
-tick :: DataBase -> IO ()
-tick db = do
+startTick :: DataBase -> IO ()
+startTick db = do
     Just tc <- lookupM "TempoClock" $ tempoClockMMap db
     _ <- forkIO $ tickLoop db
     pBar <- physicalBar tc
