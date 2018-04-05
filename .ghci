@@ -1,1 +1,3 @@
 :set prompt "fluere> "
+
+:module Sound.OSC.FD

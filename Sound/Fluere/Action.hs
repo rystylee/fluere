@@ -1,52 +1,32 @@
 module Sound.Fluere.Action where
 
-import Control.Concurrent.STM (TVar)
-import Data.Map
+import Sound.OSC.FD (Datum)
 
 import Sound.Fluere.Data
-import Sound.Fluere.MutableMap ( newMMap
-                                ,findValueFromMMap
-                                ,addValToMMap
-                               )
-import Sound.Fluere.OSC (sendToSC)
-import Sound.Fluere.Player (changePlayerStatus)
+import Sound.Fluere.MutableMap (MutableMap, fromListM, insertM)
+import Sound.Fluere.Osc (sendToSC)
 
 
 ---------------------------------------------------------------------
-
--- Used to create a new Action
-newAction :: String -> (String -> DataBase -> String -> IO ()) -> Action
-newAction aname actfunc =
-    Action { actionName = aname
-            ,actionFunc = actfunc
-           }
-
--- Used to create a new Action MutableMap
-newActionMMap :: Action -> IO (TVar (Map String Action))
-newActionMMap act = newMMap [(actionName act, act)]
-
--- Used to add a new Action to MutableMap
-addNewAction :: DataBase -> Action -> IO ()
-addNewAction db act = addValToMMap (actionName act, act) (actionMMap db)
-
----------------------------------------------------------------------
--- Different action function for each Player
+-- Construction
 ---------------------------------------------------------------------
 
-act :: String -> DataBase -> String -> IO ()
-act playerAction' db pname
-    | playerAction' == "playSound" = do
-        Just player <- findValueFromMMap pname (playerMMap db)
-        sendToSC "s_new" (playerOscMessage player)
+newAction :: Action -> Action
+newAction (PlaySound n om) = PlaySound { actionName = n, oscMessage = om }
+newAction (DisplayMessage n dm) = DisplayMessage { actionName = n, displayMessage = dm }
 
-    | playerAction' == "swapPlayerStatus" = do
-        Just player <- findValueFromMMap pname (playerMMap db)
-        if playerStatus player == Playing
-            then changePlayerStatus db pname Pausing
-            else changePlayerStatus db pname Playing
+newActionMMap :: Action -> IO (MutableMap String Action)
+newActionMMap (PlaySound n om) = fromListM [(n, (PlaySound n om))]
+newActionMMap (DisplayMessage n dm) = fromListM [(n, (DisplayMessage n dm))]
 
-    | playerAction' == "putStrLn"          = putStrLn "Hello, World!"
+addAction :: DataBase -> Action -> IO ()
+addAction db (PlaySound n om) = insertM n (PlaySound n om) $ actionMMap db
+addAction db (DisplayMessage n dm) = insertM n (DisplayMessage n dm) $ actionMMap db
 
-    | otherwise = do
-        Just player <- findValueFromMMap pname (playerMMap db)
-        sendToSC "s_new" (playerOscMessage player)
+---------------------------------------------------------------------
+-- Different action function for each player
+---------------------------------------------------------------------
+
+act :: DataBase -> Player -> Action -> Double -> IO ()
+act db p (PlaySound _ om) lo = sendToSC lo om
+act db p (DisplayMessage n dm) lo = putStrLn $ show n ++ "'s message is " ++ show dm

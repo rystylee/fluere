@@ -1,33 +1,62 @@
 module Sound.Fluere.MutableMap where
 
-import Control.Concurrent.STM ( TVar
-                               ,atomically
-                               ,newTVarIO
-                               ,modifyTVar'
-                               ,readTVarIO
-                              )
 import qualified Data.Map as M
+import Control.Concurrent.STM (TVar, newTVarIO, readTVarIO, atomically, modifyTVar')
+
+type MutableMap k a = TVar (M.Map k a)
 
 
--- Used to create a new MutableMMap
-newMMap :: Ord k => [(k, a)] -> IO (TVar (M.Map k a))
-newMMap kvs = newTVarIO $ M.fromList kvs
+---------------------------------------------------------------------
+-- Query
+---------------------------------------------------------------------
 
--- Used to find a value from the existing MutableMap
-findValueFromMMap :: Ord k => k -> TVar (M.Map k a) -> IO (Maybe a)
-findValueFromMMap k mmap = do
+-- lookup of MutableMap version
+lookupM :: Ord k => k -> MutableMap k a -> IO (Maybe a)
+lookupM k mmap = do
     mmap' <- readTVarIO mmap
     return $ M.lookup k mmap'
 
--- Used to change the existing MutableMap
--- do the operation given to the argument on the MutableMap
-changeMMap :: TVar a -> (a -> a) -> IO ()
-changeMMap mmap f = atomically $ modifyTVar' mmap f
+---------------------------------------------------------------------
+-- Insertion
+---------------------------------------------------------------------
 
--- Used to add value to the existing MutableMap
-addValToMMap :: Ord k => (k, a) -> TVar (M.Map k a) -> IO () 
-addValToMMap (k, v) mmap = changeMMap mmap $ M.insert k v
+-- insert of MutableMap version
+insertM :: Ord k => k -> a -> MutableMap k a -> IO ()
+insertM k v mmap = modifyMMap' mmap $ M.insert k v
 
--- Used to delete value from the existing MutableMap
-deleteValFromMMap :: Ord k => k -> TVar (M.Map k a) -> IO ()
-deleteValFromMMap k mmap  = changeMMap mmap $ M.delete k
+---------------------------------------------------------------------
+-- Delete/Update
+---------------------------------------------------------------------
+
+deleteM :: Ord k => k -> MutableMap k a -> IO ()
+deleteM k mmap = modifyMMap' mmap $ M.delete k
+
+---------------------------------------------------------------------
+-- Conversion
+---------------------------------------------------------------------
+
+keysM :: MutableMap k a -> IO [k]
+keysM mmap = do
+    mmap' <- readTVarIO mmap
+    return $ M.keys mmap'
+
+elemsM :: MutableMap k a -> IO [a]
+elemsM mmap = do
+    mmap' <- readTVarIO mmap
+    return $ M.elems mmap'
+
+---------------------------------------------------------------------
+-- Lists
+---------------------------------------------------------------------
+
+-- fromList of MutableMap version
+fromListM :: Ord k => [(k, a)] -> IO (MutableMap k a)
+fromListM kvs = newTVarIO $ M.fromList kvs
+
+---------------------------------------------------------------------
+-- Utils
+---------------------------------------------------------------------
+
+-- modifyTVarIO, strict function
+modifyMMap' :: TVar a -> (a -> a) -> IO ()
+modifyMMap' mmap f = atomically $ modifyTVar' mmap f

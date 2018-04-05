@@ -1,3 +1,3 @@
-# Changelog for pulse
+# Changelog for fluere-base
 
 ## Unreleased changes
