@@ -84,6 +84,7 @@ modifyCps db c = do
                                 }
     modifyTempoClock db changecps
 
+-- alias
 cps' = modifyCps
 
 ---------------------------------------------------------------------

@@ -55,7 +55,7 @@ initAction :: IO Action
 initAction = do
     let n = "kick1"
         om = OscScLang { path = "/s_new"
-                       , scMessage = [string "kick1", string "freq", float 440]
+                       , scMessage = [string "kick2", string "freq", float 440]
                        }
     return $ newAction (PlaySound n om)
 

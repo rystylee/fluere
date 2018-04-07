@@ -2,6 +2,7 @@ module Sound.Fluere.Pattern ( newPattern
                             , newPatternMMap
                             , addPattern
                             , nextPlayerNote
+                            , modifyDurations
                             ) where
 
 import Sound.Fluere.Data
@@ -60,9 +61,9 @@ nextPlayerNote db n = do
         else do
             modifyIndex db (playerPattern p) (i + 1)
     Just pattern <- lookupM (playerPattern p) (patternMMap db)
-    --putStrLn $ show pattern
     return $ ds !! i
 
+-- ex.) [2,1,1.5]
 convertN :: [Int] -> [Int]
 convertN xs = concat $  map convert xs
 
