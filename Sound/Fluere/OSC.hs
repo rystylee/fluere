@@ -16,7 +16,6 @@ sendToSC lo slang = do
 -- Util for creating osc message with SuperCollider
 createSCMessage :: [Datum] -> [Datum]
 createSCMessage sm = instrument ++ defaultArgs ++ scArgs
-    where
-        instrument = [head sm]
-        defaultArgs = [int32 (-1), int32 0, int32 1]
-        scArgs = sm
+    where instrument = [head sm]
+          defaultArgs = [int32 (-1), int32 0, int32 1]
+          scArgs = sm

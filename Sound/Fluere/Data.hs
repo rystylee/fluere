@@ -39,7 +39,7 @@ data Action = PlaySound { actionName :: String
             deriving (Show)
 
 data Pattern = Pattern { patternName :: String
-                       , durations :: [Int]
+                       , durations :: [Double]
                        , index :: Int
                        } deriving (Show)
 

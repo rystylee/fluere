@@ -13,7 +13,7 @@ import Sound.Fluere.MutableMap (MutableMap, fromListM, insertM, lookupM)
 -- Construction
 ---------------------------------------------------------------------
 
-newPattern :: String -> [Int] -> Pattern
+newPattern :: String -> [Double] -> Pattern
 newPattern n d =
     Pattern { patternName = n
             , durations = d
@@ -37,7 +37,7 @@ modifyPattern db n f = do
     let newp = f p
     insertM n newp pmmap
 
-modifyDurations :: DataBase -> String -> [Int] -> IO ()
+modifyDurations :: DataBase -> String -> [Double] -> IO ()
 modifyDurations db n newd = modifyPattern db n modifyds
     where modifyds p = p { durations = newd, index = 0 }
 
@@ -49,7 +49,7 @@ modifyIndex db n newi = modifyPattern db n modifyi
 -- used to get player's next note
 ---------------------------------------------------------------------
 
-nextPlayerNote :: DataBase -> String -> IO Int
+nextPlayerNote :: DataBase -> String -> IO Double
 nextPlayerNote db n = do
     Just p <- lookupM n $ playerMMap db
     Just pattern <- lookupM (playerPattern p) (patternMMap db)
@@ -64,9 +64,9 @@ nextPlayerNote db n = do
     return $ ds !! i
 
 -- ex.) [2,1,1.5]
-convertN :: [Int] -> [Int]
+convertN :: [Double] -> [Double]
 convertN xs = concat $  map convert xs
 
-convert :: Int -> [Int]
+convert :: Double -> [Double]
 convert 0 = [0]
-convert x = [1] ++ replicate (x - 1) 0
+convert x = [1] ++ replicate ((floor x) - 1) 0

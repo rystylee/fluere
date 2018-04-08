@@ -130,10 +130,9 @@ beatDelta tc = (1 / cps tc) / beatsPerCycle tc
 
 logicalBeatTime :: TempoClock -> Double -> IO Double
 logicalBeatTime tc b = return $ st + beatDelta'
-    where
-        sb = startBeat tc
-        st = startTime tc
-        beatDelta' = (b - sb) * (beatDelta tc)
+    where sb = startBeat tc
+          st = startTime tc
+          beatDelta' = (b - sb) * (beatDelta tc)
 
 ---------------------------------------------------------------------
 -- These functions are used to get values related to time 
