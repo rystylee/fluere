@@ -41,7 +41,7 @@ initPlayerMMap = do
 initPlayer :: IO Player
 initPlayer = do
     let n = "p1"
-        pa = "kick1"
+        pa = "kick"
         pp = "pattern1"
         ps = Playing
     return $ newPlayer n pa pp ps
@@ -53,9 +53,9 @@ initActionMMap = do
 
 initAction :: IO Action
 initAction = do
-    let n = "kick1"
+    let n = "kick"
         om = OscScLang { path = "/s_new"
-                       , scMessage = [string "kick2", string "freq", float 440]
+                       , scMessage = [string "kick", string "freq", float 440]
                        }
     return $ newAction (PlaySound n om)
 
@@ -67,5 +67,5 @@ initPatternMMap = do
 initPattern :: IO Pattern
 initPattern = do
     let n = "pattern1"
-        d = [1,0,1,1,0,0]
+        d = [1,0,0,0]
     return $ newPattern n d
