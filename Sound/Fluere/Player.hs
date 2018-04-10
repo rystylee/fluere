@@ -3,12 +3,18 @@ module Sound.Fluere.Player ( newPlayer
                            , addPlayer
                            , modifyPlayerStatus
                            , play
+                           , startPlayer
+                           , startPlayers
+                           , stopPlayer
+                           , stopPlayers
+                           , solo
                            ) where
 
 import Control.Monad (when)
 
 import Sound.Fluere.Data
 import Sound.Fluere.MutableMap (MutableMap, fromListM, insertM, lookupM)
+import Sound.Fluere.DataBase (getPlayerNames)
 import Sound.Fluere.Action (act)
 import Sound.Fluere.Pattern (nextPlayerNote)
 
@@ -46,8 +52,39 @@ modifyPlayerStatus :: DataBase -> String -> PlayerStatus -> IO ()
 modifyPlayerStatus db n newps = modifyPlayer db n modifyps
     where modifyps p = p { playerStatus = newps }
 
----------------------------------------------------------------------
+startPlayer :: DataBase -> String -> IO ()
+startPlayer db n = do
+    Just p <- lookupM n (playerMMap db)
+    if playerStatus p == Playing
+        then putStrLn $ "Player " ++ show n ++ " is already playing."
+        else do
+            modifyPlayerStatus db n Playing
+            putStrLn $ "Player " ++ show n ++ " starts playing."
 
+stopPlayer :: DataBase -> String -> IO ()
+stopPlayer db n = do
+    Just p <- lookupM n (playerMMap db)
+    if playerStatus p  == Stopping
+        then putStrLn $ "Player " ++ show n ++ " is already stopping."
+        else do
+            modifyPlayerStatus db n Stopping
+            putStrLn $ "Player " ++ show n ++ " starts stopping."
+
+startPlayers :: DataBase -> [String] -> IO ()
+startPlayers db ns = mapM_ (startPlayer db) ns
+
+stopPlayers :: DataBase -> [String] -> IO ()
+stopPlayers db ns = mapM_ (stopPlayer db) ns
+
+solo :: DataBase -> String -> IO ()
+solo db n = do
+    pnames <- getPlayerNames db
+    let ps = filter (\p -> p /= n) pnames
+    stopPlayers db ps
+    startPlayer db n
+
+---------------------------------------------------------------------
+-- Used to perform different actions 
 ---------------------------------------------------------------------
 
 play :: DataBase -> String -> Double -> IO ()
