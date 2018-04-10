@@ -40,9 +40,9 @@ initPlayerMMap = do
 
 initPlayer :: IO Player
 initPlayer = do
-    let n = "p1"
+    let n = "kick"
         pa = "kick"
-        pp = "pattern1"
+        pp = "kick"
         ps = Playing
     return $ newPlayer n pa pp ps
 
@@ -66,6 +66,6 @@ initPatternMMap = do
 
 initPattern :: IO Pattern
 initPattern = do
-    let n = "pattern1"
+    let n = "kick"
         d = [1,0,0,0]
     return $ newPattern n d

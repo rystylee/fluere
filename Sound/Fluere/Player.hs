@@ -36,7 +36,6 @@ newPlayerMMap p = fromListM [(playerName p, p)]
 addPlayer :: DataBase -> Player -> IO ()
 addPlayer db player = insertM (playerName player) player $ playerMMap db
 
-
 ---------------------------------------------------------------------
 -- Modify
 ---------------------------------------------------------------------
