@@ -38,8 +38,10 @@ modifyPattern db n f = do
     insertM n newp pmmap
 
 modifyDurations :: DataBase -> String -> [Double] -> IO ()
-modifyDurations db n newd = modifyPattern db n modifyds
-    where modifyds p = p { durations = newd, index = 0 }
+modifyDurations db n newd = do
+    let modifyds p = p { durations = newd, index = 0 }
+    modifyPattern db n modifyds
+    putStrLn $ show newd
 
 modifyIndex :: DataBase -> String -> Int -> IO ()
 modifyIndex db n newi = modifyPattern db n modifyi

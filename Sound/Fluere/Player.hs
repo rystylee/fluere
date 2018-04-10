@@ -51,6 +51,23 @@ modifyPlayerStatus :: DataBase -> String -> PlayerStatus -> IO ()
 modifyPlayerStatus db n newps = modifyPlayer db n modifyps
     where modifyps p = p { playerStatus = newps }
 
+---------------------------------------------------------------------
+-- Used to perform different actions 
+---------------------------------------------------------------------
+
+play :: DataBase -> String -> Double -> IO ()
+play db n t = do
+    Just p <- lookupM n $ playerMMap db
+    Just a <- lookupM (playerAction p) $ actionMMap db
+    nextNote <- nextPlayerNote db n
+    if playerStatus p == Playing
+        then when (nextNote == 1) $ act db p a t
+        else return ()
+
+---------------------------------------------------------------------
+-- Used to perform
+---------------------------------------------------------------------
+
 startPlayer :: DataBase -> String -> IO ()
 startPlayer db n = do
     Just p <- lookupM n (playerMMap db)
@@ -75,22 +92,19 @@ startPlayers db ns = mapM_ (startPlayer db) ns
 stopPlayers :: DataBase -> [String] -> IO ()
 stopPlayers db ns = mapM_ (stopPlayer db) ns
 
+startAll :: DataBase -> IO ()
+startAll db = do
+    pnames <- getPlayerNames db
+    startPlayers db pnames
+
+stopAll :: DataBase -> IO ()
+stopAll db = do
+    pnames <- getPlayerNames db
+    stopPlayers db pnames
+
 solo :: DataBase -> String -> IO ()
 solo db n = do
     pnames <- getPlayerNames db
     let ps = filter (\p -> p /= n) pnames
     stopPlayers db ps
     startPlayer db n
-
----------------------------------------------------------------------
--- Used to perform different actions 
----------------------------------------------------------------------
-
-play :: DataBase -> String -> Double -> IO ()
-play db n t = do
-    Just p <- lookupM n $ playerMMap db
-    Just a <- lookupM (playerAction p) $ actionMMap db
-    nextNote <- nextPlayerNote db n
-    if playerStatus p == Playing
-        then when (nextNote == 1) $ act db p a t
-        else return ()
