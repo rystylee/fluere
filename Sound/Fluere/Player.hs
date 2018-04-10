@@ -7,6 +7,8 @@ module Sound.Fluere.Player ( newPlayer
                            , startPlayers
                            , stopPlayer
                            , stopPlayers
+                           , startAll
+                           , stopAll
                            , solo
                            ) where
 
