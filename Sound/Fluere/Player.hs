@@ -9,7 +9,7 @@ module Sound.Fluere.Player ( newPlayer
                            , stopPlayers
                            , startAll
                            , stopAll
-                           , solo
+                           , soloPlay
                            ) where
 
 import Control.Monad (when)
@@ -83,10 +83,10 @@ stopPlayer :: DataBase -> String -> IO ()
 stopPlayer db n = do
     Just p <- lookupM n (playerMMap db)
     if playerStatus p  == Stopping
-        then putStrLn $ "Player " ++ show n ++ " is already stopping."
+        then putStrLn $ "Player " ++ show n ++ " has been stopped."
         else do
             modifyPlayerStatus db n Stopping
-            putStrLn $ "Player " ++ show n ++ " starts stopping."
+            putStrLn $ "Player " ++ show n ++ " stopped."
 
 startPlayers :: DataBase -> [String] -> IO ()
 startPlayers db ns = mapM_ (startPlayer db) ns
@@ -104,8 +104,8 @@ stopAll db = do
     pnames <- getPlayerNames db
     stopPlayers db pnames
 
-solo :: DataBase -> String -> IO ()
-solo db n = do
+soloPlay :: DataBase -> String -> IO ()
+soloPlay db n = do
     pnames <- getPlayerNames db
     let ps = filter (\p -> p /= n) pnames
     stopPlayers db ps

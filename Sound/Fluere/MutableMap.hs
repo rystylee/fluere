@@ -12,9 +12,7 @@ type MutableMap k a = TVar (M.Map k a)
 
 -- lookup of MutableMap version
 lookupM :: Ord k => k -> MutableMap k a -> IO (Maybe a)
-lookupM k mmap = do
-    mmap' <- readTVarIO mmap
-    return $ M.lookup k mmap'
+lookupM k mmap = withMMap mmap $ M.lookup k
 
 ---------------------------------------------------------------------
 -- Insertion
@@ -36,14 +34,10 @@ deleteM k mmap = modifyMMap' mmap $ M.delete k
 ---------------------------------------------------------------------
 
 keysM :: MutableMap k a -> IO [k]
-keysM mmap = do
-    mmap' <- readTVarIO mmap
-    return $ M.keys mmap'
+keysM mmap = withMMap mmap M.keys
 
 elemsM :: MutableMap k a -> IO [a]
-elemsM mmap = do
-    mmap' <- readTVarIO mmap
-    return $ M.elems mmap'
+elemsM mmap = withMMap mmap M.elems
 
 ---------------------------------------------------------------------
 -- Lists
@@ -56,6 +50,11 @@ fromListM kvs = newTVarIO $ M.fromList kvs
 ---------------------------------------------------------------------
 -- Utils
 ---------------------------------------------------------------------
+
+withMMap :: TVar t -> (t -> b) -> IO b
+withMMap mmap f = do
+    mmap' <- readTVarIO mmap
+    return $ f mmap'
 
 -- modifyTVarIO, strict function
 modifyMMap' :: TVar a -> (a -> a) -> IO ()
