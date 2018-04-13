@@ -33,8 +33,8 @@ data OscScLang = OscScLang { path :: String
 data Action = PlaySound { actionName :: String
                         , oscMessage :: OscScLang
                         }
-            | DisplayMessage { actionName :: String
-                             , displayMessage :: String
+            | ConductPlayers { actionName :: String
+                             , targetPlayers :: [String]
                              }
             deriving (Show)
 

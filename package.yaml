@@ -30,6 +30,7 @@ library:
   - stm
   - containers
   - split
+  - random
 
 # executables:
 #   fluere-exe:

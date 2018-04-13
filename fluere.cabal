@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d49975ab23f990c1321a17c1be1d5c2358ca04634948e175723580cf546b0b90
+-- hash: 5e35a9d3ba6cf45da47a7bda501bc519ab60c430827af8cfd8bb39f9455beb91
 
 name:           fluere
 version:        0.1.0.0
@@ -32,6 +32,7 @@ library
       base >=4.7 && <5
     , containers
     , hosc
+    , random
     , split
     , stm
     , time
@@ -48,7 +49,7 @@ library
       Sound.Rhythm.Generate
       Sound.Rhythm.Levenshtein
       Sound.Rhythm.LSystem
-      Sound.Rhythm.Pace
+      Sound.Rhythm.Stream
       Sound.Rhythm.Util
   other-modules:
       Paths_fluere

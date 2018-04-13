@@ -20,6 +20,7 @@ import Sound.Fluere.DataBase (getPlayerNames)
 import Sound.Fluere.Action (act)
 import Sound.Fluere.Pattern (nextPlayerNote)
 
+
 ---------------------------------------------------------------------
 -- Construction
 ---------------------------------------------------------------------
