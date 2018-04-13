@@ -1,4 +1,11 @@
-module Sound.Fluere.MutableMap where
+module Sound.Fluere.MutableMap ( MutableMap
+                               , lookupM
+                               , insertM
+                               , deleteM
+                               , keysM
+                               , elemsM
+                               , fromListM
+                               ) where
 
 import qualified Data.Map as M
 import Control.Concurrent.STM (TVar, newTVarIO, readTVarIO, atomically, modifyTVar')

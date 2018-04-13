@@ -1,0 +1,55 @@
+-- This file has been generated from package.yaml by hpack version 0.20.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: d49975ab23f990c1321a17c1be1d5c2358ca04634948e175723580cf546b0b90
+
+name:           fluere
+version:        0.1.0.0
+description:    Please see the README on Github at <https://github.com/rystylee/fluere#readme>
+homepage:       https://github.com/rystylee/fluere#readme
+bug-reports:    https://github.com/rystylee/fluere/issues
+author:         rystylee
+maintainer:     rystylee8@gmail.com
+copyright:      Copyright (c) 2018 rystylee
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+
+extra-source-files:
+    ChangeLog.md
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/rystylee/fluere
+
+library
+  hs-source-dirs:
+      ./.
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , hosc
+    , split
+    , stm
+    , time
+  exposed-modules:
+      Sound.Fluere.Action
+      Sound.Fluere.Data
+      Sound.Fluere.DataBase
+      Sound.Fluere.Init
+      Sound.Fluere.MutableMap
+      Sound.Fluere.Osc
+      Sound.Fluere.Pattern
+      Sound.Fluere.Player
+      Sound.Fluere.TempoClock
+      Sound.Rhythm.Generate
+      Sound.Rhythm.Levenshtein
+      Sound.Rhythm.LSystem
+      Sound.Rhythm.Pace
+      Sound.Rhythm.Util
+  other-modules:
+      Paths_fluere
+  default-language: Haskell2010
