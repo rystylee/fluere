@@ -7,7 +7,7 @@ module Sound.Fluere.MutableMap ( MutableMap
                                , fromListM
                                ) where
 
-import qualified Data.Map as M
+import qualified Data.Map.Strict as M
 import Control.Concurrent.STM (TVar, newTVarIO, readTVarIO, atomically, modifyTVar')
 
 type MutableMap k a = TVar (M.Map k a)

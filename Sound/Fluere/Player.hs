@@ -31,6 +31,7 @@ newPlayer n pa pp ps =
            , playerAction = pa
            , playerPattern = pp
            , playerStatus = ps
+           , playFlag = 0
            }
 
 newPlayerMMap :: Player -> IO (MutableMap String Player)
@@ -54,6 +55,10 @@ modifyPlayerStatus :: DataBase -> String -> PlayerStatus -> IO ()
 modifyPlayerStatus db n newps = modifyPlayer db n modifyps
     where modifyps p = p { playerStatus = newps }
 
+modifyPlayFlag :: DataBase -> String -> Double -> IO ()
+modifyPlayFlag db n newpf = modifyPlayer db n modifypf
+    where modifypf p = p { playFlag = newpf }
+
 ---------------------------------------------------------------------
 -- Used to perform different actions 
 ---------------------------------------------------------------------
@@ -64,7 +69,9 @@ play db n t = do
     Just a <- lookupM (playerAction p) $ actionMMap db
     nextNote <- nextPlayerNote db n
     if playerStatus p == Playing
-        then when (nextNote == 1) $ act db p a t
+        then if nextNote == 1
+                then modifyPlayFlag db n 1 >> act db p a t
+                else modifyPlayFlag db n 0
         else return ()
 
 ---------------------------------------------------------------------
@@ -75,19 +82,19 @@ startPlayer :: DataBase -> String -> IO ()
 startPlayer db n = do
     Just p <- lookupM n (playerMMap db)
     if playerStatus p == Playing
-        then putStrLn $ "Player " ++ show n ++ " is already playing."
+        then putStrLn $ "Player " ++ n ++ " is already playing."
         else do
             modifyPlayerStatus db n Playing
-            putStrLn $ "Player " ++ show n ++ " starts playing."
+            putStrLn $ "Player " ++ n ++ " starts playing."
 
 stopPlayer :: DataBase -> String -> IO ()
 stopPlayer db n = do
     Just p <- lookupM n (playerMMap db)
     if playerStatus p  == Stopping
-        then putStrLn $ "Player " ++ show n ++ " has been stopped."
+        then putStrLn $ "Player " ++ n ++ " has been stopped."
         else do
             modifyPlayerStatus db n Stopping
-            putStrLn $ "Player " ++ show n ++ " stopped."
+            putStrLn $ "Player " ++ n ++ " stopped."
 
 startPlayers :: DataBase -> [String] -> IO ()
 startPlayers db ns = mapM_ (startPlayer db) ns

@@ -24,6 +24,7 @@ data Player = Player { playerName :: String
                      , playerAction :: String
                      , playerPattern :: String
                      , playerStatus :: PlayerStatus
+                     , playFlag :: Double
                      } deriving (Show)
 
 data OscScLang = OscScLang { path :: String

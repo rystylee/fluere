@@ -2,6 +2,7 @@ module Sound.Fluere.TempoClock ( newTempoClock
                                , newTempoClockMMap
                                , cps'
                                , startTick
+                               , getDensity
                                , currentTime
                                ) where
 
@@ -9,7 +10,7 @@ import Data.Time.Clock.POSIX (getPOSIXTime)
 import Control.Concurrent (threadDelay, forkIO)
 
 import Sound.Fluere.Data
-import Sound.Fluere.DataBase (getPlayerNames)
+import Sound.Fluere.DataBase (getPlayerNames, getPlayers)
 import Sound.Fluere.MutableMap (MutableMap, fromListM, lookupM, insertM)
 import Sound.Fluere.Player (play)
 
@@ -108,31 +109,28 @@ tickLoop db = do
     pb <- physicalBeat tc
     lb <- logicalBeatTime tc pb
     let lo = lb + clockLatency tc
-    ps <- getPlayerNames db
-    let playPlayers = map (\p -> forkIO $ play db p lo) ps
-    sequence_ playPlayers
-    let delta = beatDelta tc
-    sleep delta
+    processPlayers db lo
+    density <- getDensity db
+    putStrLn $ "density is " ++ show density
+    sleep $ beatDelta tc
     tickLoop db
 
+processPlayers :: DataBase -> Double -> IO ()
+processPlayers db lo = do
+    pnames <- getPlayerNames db
+    let playPlayers = map (\p -> forkIO $ play db p lo) pnames
+    sequence_ playPlayers
+
 ---------------------------------------------------------------------
--- Utils
+-- Note density
 ---------------------------------------------------------------------
 
--- sleep means threadDelay which receive Double argument
--- ex.) sleep 0.5 means threadDelay 0.5 secnds
-sleep :: RealFrac a => a -> IO ()
-sleep t = threadDelay $ truncate $ t * 1000000
-
--- physical time between beats
-beatDelta :: TempoClock -> Double
-beatDelta tc = (1 / cps tc) / beatsPerCycle tc
-
-logicalBeatTime :: TempoClock -> Double -> IO Double
-logicalBeatTime tc b = return $ st + beatDelta'
-    where sb = startBeat tc
-          st = startTime tc
-          beatDelta' = (b - sb) * (beatDelta tc)
+getDensity :: DataBase -> IO Double
+getDensity db = do
+    players <- getPlayers db
+    let activePlayers = filter (\p -> playerStatus p == Playing) players
+        playFlags = map (\p -> playFlag p) activePlayers
+    return $ (sum playFlags) / fromIntegral (length playFlags)
 
 ---------------------------------------------------------------------
 -- These functions are used to get values related to time 
@@ -162,5 +160,24 @@ physicalBeat :: TempoClock -> IO Double
 physicalBeat tc = do
     pt <- physicalTime tc
     let sb = startBeat tc
-        beatDelta = (cps tc) * (beatsPerCycle  tc)
+        beatDelta = (cps tc) * (beatsPerCycle tc)
     return $ sb + beatDelta * pt
+
+---------------------------------------------------------------------
+-- Utils
+---------------------------------------------------------------------
+
+-- sleep means threadDelay which receive Double argument
+-- ex.) sleep 0.5 means threadDelay 0.5 secnds
+sleep :: RealFrac a => a -> IO ()
+sleep t = threadDelay $ truncate $ t * 1000000
+
+-- physical time between beats
+beatDelta :: TempoClock -> Double
+beatDelta tc = (1 / cps tc) / beatsPerCycle tc
+
+logicalBeatTime :: TempoClock -> Double -> IO Double
+logicalBeatTime tc b = return $ st + beatDelta'
+    where sb = startBeat tc
+          st = startTime tc
+          beatDelta' = (b - sb) * (beatDelta tc)
