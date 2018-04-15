@@ -111,7 +111,7 @@ tickLoop db = do
     let lo = lb + clockLatency tc
     processPlayers db lo
     density <- getDensity db
-    putStrLn $ "density is " ++ show density
+    --putStrLn $ "density is " ++ show density
     sleep $ beatDelta tc
     tickLoop db
 
@@ -129,6 +129,7 @@ getDensity :: DataBase -> IO Double
 getDensity db = do
     players <- getPlayers db
     let activePlayers = filter (\p -> playerStatus p == Playing) players
+        activePlayPlayers = filter (\p -> playerStatus p == Playing) activePlayers
         playFlags = map (\p -> playFlag p) activePlayers
     return $ (sum playFlags) / fromIntegral (length playFlags)
 

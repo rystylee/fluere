@@ -10,6 +10,7 @@ import Sound.Fluere.TempoClock (newTempoClockMMap, newTempoClock, currentTime)
 import Sound.Fluere.Player (newPlayerMMap, newPlayer)
 import Sound.Fluere.Action (newActionMMap, newAction)
 import Sound.Fluere.Pattern (newPatternMMap, newPattern)
+import Sound.Rhythm.ValueMap (newNoiseMap)
 
 
 initDataBase :: IO DataBase
@@ -67,5 +68,5 @@ initPatternMMap = do
 initPattern :: IO Pattern
 initPattern = do
     let n = "kick"
-        d = [1,0,0,0]
-    return $ newPattern n d
+    nm <- newNoiseMap 10 (1,4)
+    return $ newPattern n nm

@@ -50,10 +50,10 @@ conductPlayer db n = do
     if rand > 0.5
         then do
             modifyPlayerStatus' db n Stopping
-            putStrLn $ "Player " ++ n ++ " is already playing."
+            --putStrLn $ "Player " ++ n ++ " is already playing."
         else do
             modifyPlayerStatus' db n Playing
-            putStrLn $ "Player " ++ n ++ " starts playing."
+            --putStrLn $ "Player " ++ n ++ " starts playing."
 
 ---------------------------------------------------------------------
 -- ToDo

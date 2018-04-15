@@ -40,9 +40,19 @@ data Action = PlaySound { actionName :: String
             deriving (Show)
 
 data Pattern = Pattern { patternName :: String
-                       , durations :: [Double]
+                       , valueMap :: ValueMap
                        , index :: Int
                        } deriving (Show)
+
+data ValueMap = NoiseMap { mapLength :: Int
+                         , baseValues :: (Double, Double)
+                         , values :: [Double]
+                         }
+              | RandomMap { mapLength :: Int
+                          , baseValues :: (Double, Double)
+                          , values :: [Double]
+                          }
+              deriving (Show)
 
 data PlayerStatus = Playing
                   | Stopping
