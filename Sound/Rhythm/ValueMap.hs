@@ -6,6 +6,7 @@ import System.Random (getStdRandom, randomR)
 import Sound.Fluere.Data
 import Sound.Fluere.TempoClock (currentTime)
 import Sound.Rhythm.Simplex (noise2D)
+import Sound.Rhythm.LSystem (generateTree)
 
 
 ---------------------------------------------------------------------
@@ -27,20 +28,25 @@ newNoiseValue base = do
     let v = linearTransformation (noise2D now rand) (-1, 1) base
     return $ fromIntegral $ roundUpOn5 v
 
---newNoise :: (Double, Double) -> IO Double
---newNoise base = do
---    now <- currentTime
---    rand <- (getStdRandom $ randomR (0, 10) :: IO Double)
---    putStrLn $ show rand
---    return $ linearTransformation (noise2D now pi) (-1, 1) base
+---------------------------------------------------------------------
+-- LMap
+---------------------------------------------------------------------
 
-linearTransformation :: Double -> (Double, Double) -> (Double, Double) -> Double
-linearTransformation v (minSource, maxSource) (minTarget, maxTarget) = val
-    where val = (v - minSource) / (maxSource - minSource) * (maxTarget - minTarget) + minTarget
+newLMap :: ([Double], [Double]) -> String -> String -> Int -> Int -> IO ValueMap
+newLMap symbol rule initial n len = do
+    let tree = newTree symbol rule initial n len
+    return LMap { mapLength = len, symbolValues = symbol, values = tree }
+
+newTree :: ([Double], [Double]) -> String -> String -> Int -> Int -> [Double]
+newTree symbol rule initial n len = take len $ generateTree symbol rule initial n
 
 ---------------------------------------------------------------------
 -- Util
 ---------------------------------------------------------------------
+
+linearTransformation :: Double -> (Double, Double) -> (Double, Double) -> Double
+linearTransformation v (minSource, maxSource) (minTarget, maxTarget) = val
+    where val = (v - minSource) / (maxSource - minSource) * (maxTarget - minTarget) + minTarget
 
 roundUpOn5 :: (RealFrac a, Integral b) => a -> b
 roundUpOn5 x

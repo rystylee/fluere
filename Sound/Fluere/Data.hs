@@ -48,10 +48,10 @@ data ValueMap = NoiseMap { mapLength :: Int
                          , baseValues :: (Double, Double)
                          , values :: [Double]
                          }
-              | RandomMap { mapLength :: Int
-                          , baseValues :: (Double, Double)
-                          , values :: [Double]
-                          }
+              | LMap { mapLength :: Int
+                     , symbolValues :: ([Double], [Double])
+                     , values :: [Double]
+                     }
               deriving (Show)
 
 data PlayerStatus = Playing
