@@ -1,4 +1,7 @@
-module Sound.Rhythm.ValueMap where
+module Sound.Rhythm.ValueMap ( newNoiseMap
+                             , newLMap
+                             , newSimpleMap
+                             ) where
 
 import Control.Monad (replicateM)
 import System.Random (getStdRandom, randomR)
@@ -41,9 +44,22 @@ newTree :: ([Double], [Double]) -> String -> String -> Int -> Int -> [Double]
 newTree symbol rule initial n len = take len $ generateTree symbol rule initial n
 
 ---------------------------------------------------------------------
+-- SimpleMap
+---------------------------------------------------------------------
+
+newSimpleMap :: [[Double]] -> IO ValueMap
+newSimpleMap xs = do
+    let xs' = newSimpleValue xs
+    return $ SimpleMap { mapLength = length xs', values = xs' }
+
+newSimpleValue :: [[Double]] -> [Double]
+newSimpleValue xs = concat xs
+
+---------------------------------------------------------------------
 -- Util
 ---------------------------------------------------------------------
 
+-- Map the value
 linearTransformation :: Double -> (Double, Double) -> (Double, Double) -> Double
 linearTransformation v (minSource, maxSource) (minTarget, maxTarget) = val
     where val = (v - minSource) / (maxSource - minSource) * (maxTarget - minTarget) + minTarget

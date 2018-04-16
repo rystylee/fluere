@@ -1,7 +1,8 @@
-module Sound.Rhythm.LSystem where
+module Sound.Rhythm.LSystem (generateTree) where
 
 import Data.List.Split (splitOn)
 import qualified Data.Map as M
+
 
 ---------------------------------------------------------------------
 -- LSystem
