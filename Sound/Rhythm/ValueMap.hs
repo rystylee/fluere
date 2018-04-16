@@ -1,6 +1,6 @@
 module Sound.Rhythm.ValueMap ( newNoiseMap
                              , newLMap
-                             , newSimpleMap
+                             , newRegularMap
                              ) where
 
 import Control.Monad (replicateM)
@@ -11,6 +11,24 @@ import Sound.Fluere.TempoClock (currentTime)
 import Sound.Rhythm.Simplex (noise2D)
 import Sound.Rhythm.LSystem (generateTree)
 
+
+---------------------------------------------------------------------
+-- RegularMap
+---------------------------------------------------------------------
+
+newRegularMap :: [[Double]] -> IO ValueMap
+newRegularMap xs = do
+    let xs' = newRegularValue xs
+    return $ RegularMap { mapLength = length xs', values = xs' }
+
+newRegularValue :: [[Double]] -> [Double]
+newRegularValue xs = concat xs
+
+---------------------------------------------------------------------
+-- CycleMap
+---------------------------------------------------------------------
+
+newCycleMap = undefined
 
 ---------------------------------------------------------------------
 -- NoiseMap
@@ -35,25 +53,13 @@ newNoiseValue base = do
 -- LMap
 ---------------------------------------------------------------------
 
-newLMap :: ([Double], [Double]) -> String -> String -> Int -> Int -> IO ValueMap
-newLMap symbol rule initial n len = do
-    let tree = newTree symbol rule initial n len
+newLMap :: Int -> ([Double], [Double]) -> String -> String -> Int -> IO ValueMap
+newLMap len symbol rule initial n = do
+    let tree = newTree len symbol rule initial n
     return LMap { mapLength = len, symbolValues = symbol, values = tree }
 
-newTree :: ([Double], [Double]) -> String -> String -> Int -> Int -> [Double]
-newTree symbol rule initial n len = take len $ generateTree symbol rule initial n
-
----------------------------------------------------------------------
--- SimpleMap
----------------------------------------------------------------------
-
-newSimpleMap :: [[Double]] -> IO ValueMap
-newSimpleMap xs = do
-    let xs' = newSimpleValue xs
-    return $ SimpleMap { mapLength = length xs', values = xs' }
-
-newSimpleValue :: [[Double]] -> [Double]
-newSimpleValue xs = concat xs
+newTree :: Int -> ([Double], [Double]) -> String -> String -> Int -> [Double]
+newTree len symbol rule initial n = take len $ generateTree symbol rule initial n
 
 ---------------------------------------------------------------------
 -- Util
@@ -66,7 +72,7 @@ linearTransformation v (minSource, maxSource) (minTarget, maxTarget) = val
 
 roundUpOn5 :: (RealFrac a, Integral b) => a -> b
 roundUpOn5 x
-  | n <= -0.5 = m - 1
-  | n >= 0.5 = m + 1
-  | otherwise = m
-  where (m, n) = properFraction x
+    | n <= -0.5 = m - 1
+    | n >= 0.5 = m + 1
+    | otherwise = m
+    where (m, n) = properFraction x

@@ -52,9 +52,9 @@ data ValueMap = NoiseMap { mapLength :: Int
                      , symbolValues :: ([Double], [Double])
                      , values :: [Double]
                      }
-              | SimpleMap { mapLength :: Int
-                          , values :: [Double]
-                          }
+              | RegularMap { mapLength :: Int
+                           , values :: [Double]
+                           }
               deriving (Show)
 
 data PlayerStatus = Playing
