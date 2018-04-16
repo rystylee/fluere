@@ -15,25 +15,6 @@ import Sound.Fluere.MutableMap (MutableMap, fromListM, lookupM, insertM)
 import Sound.Fluere.Player (play)
 
 ---------------------------------------------------------------------
--- For debug
----------------------------------------------------------------------
-
-displayTempoClock :: DataBase -> TempoClock -> IO ()
-displayTempoClock db tc = do
-    Just tc <- lookupM "TempoClock" $ tempoClockMMap db
-    pt <- physicalTime tc
-    pBar <- physicalBar tc
-    pBeat <- physicalBeat tc
-    putStrLn "\n------------------------------------"
-    --putStrLn $ "tempoClockName : " ++ show (tempoClockName tc)
-    putStrLn $ "elapsedTime : " ++ show pt
-    putStrLn $ "physicalBar : " ++ show pBar
-    putStrLn $ "physicalBeat : " ++ show pBeat
-    putStrLn $ "BarDelta : " ++ show (pBar - startBar tc)
-    putStrLn $ "BeatDelta : " ++ show (pBeat - startBeat tc)
-    putStrLn "------------------------------------\n"
-
----------------------------------------------------------------------
 -- Construction
 ---------------------------------------------------------------------
 
@@ -96,12 +77,7 @@ startTick :: DataBase -> IO ()
 startTick db = do
     Just tc <- lookupM "TempoClock" $ tempoClockMMap db
     _ <- forkIO $ tickLoop db
-    pBar <- physicalBar tc
-    pBeat <- physicalBeat tc
-    putStrLn "\n------------------------------------"
-    putStrLn $ "TempoClock will start ticking at "
-    putStrLn $ "bar " ++ show pBar ++ " : beat " ++ show pBeat
-    putStrLn "------------------------------------\n"
+    return ()
 
 tickLoop :: DataBase -> IO ()
 tickLoop db = do
