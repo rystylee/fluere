@@ -123,6 +123,6 @@ solo db n = do
 startExcept :: DataBase -> String -> IO ()
 startExcept db n = do
     pnames <- getPlayerNames db
-    let ps = filter (\p -> p == n) pnames
-    stopPlayer db n
+    let ps = filter (\p -> p /= n) pnames
     startPlayers db ps
+    stopPlayer db n
