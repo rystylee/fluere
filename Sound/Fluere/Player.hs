@@ -9,7 +9,8 @@ module Sound.Fluere.Player ( newPlayer
                            , stopPlayers
                            , startAll
                            , stopAll
-                           , soloPlay
+                           , solo
+                           , startExcept
                            ) where
 
 import Control.Monad (when)
@@ -112,8 +113,8 @@ stopAll db = do
     pnames <- getPlayerNames db
     stopPlayers db pnames
 
-soloPlay :: DataBase -> String -> IO ()
-soloPlay db n = do
+solo :: DataBase -> String -> IO ()
+solo db n = do
     pnames <- getPlayerNames db
     let ps = filter (\p -> p /= n) pnames
     stopPlayers db ps
