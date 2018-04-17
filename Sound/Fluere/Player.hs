@@ -118,3 +118,10 @@ soloPlay db n = do
     let ps = filter (\p -> p /= n) pnames
     stopPlayers db ps
     startPlayer db n
+
+startExcept :: DataBase -> String -> IO ()
+startExcept db n = do
+    pnames <- getPlayerNames db
+    let ps = filter (\p -> p == n) pnames
+    stopPlayer db n
+    startPlayers db ps

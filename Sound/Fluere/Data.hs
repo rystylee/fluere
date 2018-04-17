@@ -44,7 +44,10 @@ data Pattern = Pattern { patternName :: String
                        , index :: Int
                        } deriving (Show)
 
-data ValueMap = NoiseMap { mapLength :: Int
+data ValueMap = RegularMap { mapLength :: Int
+                           , values :: [Double]
+                           }
+              | NoiseMap { mapLength :: Int
                          , baseValues :: (Double, Double)
                          , values :: [Double]
                          }
@@ -52,9 +55,6 @@ data ValueMap = NoiseMap { mapLength :: Int
                      , symbolValues :: ([Double], [Double])
                      , values :: [Double]
                      }
-              | RegularMap { mapLength :: Int
-                           , values :: [Double]
-                           }
               deriving (Show)
 
 data PlayerStatus = Playing
