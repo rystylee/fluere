@@ -2,7 +2,7 @@ module Sound.Fluere.Pattern ( newPattern
                             , newPatternMMap
                             , addPattern
                             , nextPlayerNote
-                            , modifyValueMap
+                            , swapValueMap
                             ) where
 
 import Sound.Fluere.Data
@@ -26,22 +26,22 @@ addPattern db pattern = insertM (patternName pattern) pattern $ patternMMap db
 -- Modify
 ---------------------------------------------------------------------
 
-modifyPattern :: DataBase -> String -> (Pattern -> Pattern) -> IO ()
-modifyPattern db n f = do
+swapPattern :: DataBase -> String -> (Pattern -> Pattern) -> IO ()
+swapPattern db n f = do
     let pmmap = patternMMap db
     Just p <- lookupM n pmmap
     let newp = f p
     insertM n newp pmmap
 
-modifyValueMap :: DataBase -> String -> ValueMap -> IO ()
-modifyValueMap db n newvm = do
-    let modifyvm p = p { valueMap = newvm, index = 0 }
-    modifyPattern db n modifyvm
+swapValueMap :: DataBase -> String -> ValueMap -> IO ()
+swapValueMap db n newvm = do
+    let swapvm p = p { valueMap = newvm, index = 0 }
+    swapPattern db n swapvm
     putStrLn $ show newvm
 
-modifyIndex :: DataBase -> String -> Int -> IO ()
-modifyIndex db n newi = modifyPattern db n modifyi
-    where modifyi p = p { index = newi }
+swapIndex :: DataBase -> String -> Int -> IO ()
+swapIndex db n newi = swapPattern db n swapi
+    where swapi p = p { index = newi }
 
 ---------------------------------------------------------------------
 -- used to get player's next note
@@ -55,9 +55,9 @@ nextPlayerNote db n = do
         i = index pattern
     if (i == (length ds - 1))
         then do
-            modifyIndex db (playerPattern p) 0
+            swapIndex db (playerPattern p) 0
         else do
-            modifyIndex db (playerPattern p) (i + 1)
+            swapIndex db (playerPattern p) (i + 1)
     return $ ds !! i
 
 -- ex.) [2,1,3] -> [1,0,1,1,0,0]

@@ -1,7 +1,7 @@
 module Sound.Fluere.Player ( newPlayer
                            , newPlayerMMap
                            , addPlayer
-                           , modifyPlayerStatus
+                           , swapPlayerStatus
                            , play
                            , startPlayer
                            , startPlayers
@@ -45,20 +45,20 @@ addPlayer db player = insertM (playerName player) player $ playerMMap db
 -- Modify
 ---------------------------------------------------------------------
 
-modifyPlayer :: DataBase -> String -> (Player -> Player) -> IO ()
-modifyPlayer db n f = do
+swapPlayer :: DataBase -> String -> (Player -> Player) -> IO ()
+swapPlayer db n f = do
     let pmmap = playerMMap db
     Just p <- lookupM n pmmap
     let newp = f p
     insertM n newp pmmap
 
-modifyPlayerStatus :: DataBase -> String -> PlayerStatus -> IO ()
-modifyPlayerStatus db n newps = modifyPlayer db n modifyps
-    where modifyps p = p { playerStatus = newps }
+swapPlayerStatus :: DataBase -> String -> PlayerStatus -> IO ()
+swapPlayerStatus db n newps = swapPlayer db n swapps
+    where swapps p = p { playerStatus = newps }
 
-modifyPlayFlag :: DataBase -> String -> Double -> IO ()
-modifyPlayFlag db n newpf = modifyPlayer db n modifypf
-    where modifypf p = p { playFlag = newpf }
+swapPlayFlag :: DataBase -> String -> Double -> IO ()
+swapPlayFlag db n newpf = swapPlayer db n swappf
+    where swappf p = p { playFlag = newpf }
 
 ---------------------------------------------------------------------
 -- Used to perform different actions 
@@ -71,8 +71,8 @@ play db n t = do
     nextNote <- nextPlayerNote db n
     if playerStatus p == Playing
         then if nextNote == 1
-                then modifyPlayFlag db n 1 >> act db p a t
-                else modifyPlayFlag db n 0
+                then swapPlayFlag db n 1 >> act db p a t
+                else swapPlayFlag db n 0
         else return ()
 
 ---------------------------------------------------------------------
@@ -85,7 +85,7 @@ startPlayer db n = do
     if playerStatus p == Playing
         then putStrLn $ "Player " ++ n ++ " is already playing."
         else do
-            modifyPlayerStatus db n Playing
+            swapPlayerStatus db n Playing
             putStrLn $ "Player " ++ n ++ " starts playing."
 
 stopPlayer :: DataBase -> String -> IO ()
@@ -94,7 +94,7 @@ stopPlayer db n = do
     if playerStatus p  == Stopping
         then putStrLn $ "Player " ++ n ++ " has been stopped."
         else do
-            modifyPlayerStatus db n Stopping
+            swapPlayerStatus db n Stopping
             putStrLn $ "Player " ++ n ++ " stopped."
 
 startPlayers :: DataBase -> [String] -> IO ()

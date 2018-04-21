@@ -43,15 +43,15 @@ newTempoClockMMap tc = fromListM [("TempoClock", tc)]
 -- Modify
 ---------------------------------------------------------------------
 
-modifyTempoClock :: DataBase -> (TempoClock -> TempoClock) -> IO ()
-modifyTempoClock db f = do
+swapTempoClock :: DataBase -> (TempoClock -> TempoClock) -> IO ()
+swapTempoClock db f = do
     let tcmmap = tempoClockMMap db
     Just tc <- lookupM "TempoClock" tcmmap
     let newtc = f tc
     insertM "TempoClock" newtc tcmmap
 
-modifyCps :: DataBase -> Double -> IO ()
-modifyCps db c = do
+swapCps :: DataBase -> Double -> IO ()
+swapCps db c = do
     Just tc <- lookupM "TempoClock" $ tempoClockMMap db
     now <- currentTime
     pBar <- physicalBar tc
@@ -64,10 +64,10 @@ modifyCps db c = do
                                 , startBeat = pBeat
                                 , clockLatency = clockLatency tc
                                 }
-    modifyTempoClock db changecps
+    swapTempoClock db changecps
 
 -- alias
-cps' = modifyCps
+cps' = swapCps
 
 ---------------------------------------------------------------------
 -- tick loop

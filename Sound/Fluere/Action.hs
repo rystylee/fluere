@@ -49,22 +49,22 @@ conductPlayer db n = do
     rand <- (getStdRandom $ randomR (0, 1) :: IO Double)
     if rand > 0.5
         then do
-            modifyPlayerStatus' db n Stopping
+            swapPlayerStatus' db n Stopping
         else do
-            modifyPlayerStatus' db n Playing
+            swapPlayerStatus' db n Playing
 
 ---------------------------------------------------------------------
 -- ToDo
 -- Solve circulation import, or find some other solution.
 ---------------------------------------------------------------------
 
-modifyPlayer' :: DataBase -> String -> (Player -> Player) -> IO ()
-modifyPlayer' db n f = do
+swapPlayer' :: DataBase -> String -> (Player -> Player) -> IO ()
+swapPlayer' db n f = do
     let pmmap = playerMMap db
     Just p <- lookupM n pmmap
     let newp = f p
     insertM n newp pmmap
 
-modifyPlayerStatus' :: DataBase -> String -> PlayerStatus -> IO ()
-modifyPlayerStatus' db n newps = modifyPlayer' db n modifyps
-    where modifyps p = p { playerStatus = newps }
+swapPlayerStatus' :: DataBase -> String -> PlayerStatus -> IO ()
+swapPlayerStatus' db n newps = swapPlayer' db n swapps
+    where swapps p = p { playerStatus = newps }
