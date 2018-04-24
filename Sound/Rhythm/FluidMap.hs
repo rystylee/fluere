@@ -1,4 +1,4 @@
-module Sound.Fluere.FluidMap where
+module Sound.Rhythm.FluidMap where
 
 
 data FluidMap = FluidMap { waveLength :: Double, waveAmp :: Double, waveCurve :: WaveCurve }

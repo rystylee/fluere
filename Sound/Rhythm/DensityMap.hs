@@ -1,4 +1,4 @@
-module Sound.Fluere.DensityMap where
+module Sound.Rhythm.DensityMap where
 
 import Data.List (sortBy, groupBy)
 import Data.Map (Map, fromList)

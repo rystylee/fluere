@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b3ac8c5f75f9828aebb9640b2b22613d0ec8afc890835e0987f26e7622d09c9e
+-- hash: 361ed43eeef7987ff983a4f1aa3d8fa5da99ff0fc0f58ed572726b25b97353de
 
 name:           fluere
 version:        0.1.0.0
@@ -40,12 +40,13 @@ library
       Sound.Fluere.Action
       Sound.Fluere.Data
       Sound.Fluere.DataBase
-      Sound.Fluere.DensityMap
       Sound.Fluere.MutableMap
       Sound.Fluere.Osc
       Sound.Fluere.Pattern
       Sound.Fluere.Player
       Sound.Fluere.TempoClock
+      Sound.Rhythm.DensityMap
+      Sound.Rhythm.FluidMap
       Sound.Rhythm.Levenshtein
       Sound.Rhythm.LSystem
       Sound.Rhythm.Simplex
