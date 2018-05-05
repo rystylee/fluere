@@ -1,16 +1,16 @@
-module Sound.Fluere.Osc (sendToSC) where
+module Sound.Fluere.Core.Osc (sendToSC) where
 
 import Sound.OSC.FD
 
-import Sound.Fluere.Data
+import Sound.Fluere.Core.BaseData
 
 
 -- Used to send osc message to SuperCollider, for sound
 sendToSC :: Double -> OscScLang -> IO ()
-sendToSC lo slang = do
+sendToSC lt slang = do
     client <- openUDP "127.0.0.1" 57110
     let m = createSCMessage $ scMessage slang
-    sendOSC client $ Bundle (ut_to_ntpr lo) [Message (path slang) m]
+    sendOSC client $ Bundle (ut_to_ntpr lt) [Message (path slang) m]
     close client
 
 -- Util for creating osc message with SuperCollider

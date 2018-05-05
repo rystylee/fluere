@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 361ed43eeef7987ff983a4f1aa3d8fa5da99ff0fc0f58ed572726b25b97353de
+-- hash: 032d93187b0374ed89c6931892297f2b6313ba802191281d37efac809f66fbc3
 
 name:           fluere
 version:        0.1.0.0
@@ -33,25 +33,22 @@ library
     , containers
     , hosc
     , random
-    , split
     , stm
     , time
   exposed-modules:
-      Sound.Fluere.Action
-      Sound.Fluere.Data
-      Sound.Fluere.DataBase
-      Sound.Fluere.MutableMap
-      Sound.Fluere.Osc
-      Sound.Fluere.Pattern
-      Sound.Fluere.Player
-      Sound.Fluere.TempoClock
-      Sound.Rhythm.DensityMap
-      Sound.Rhythm.FluidMap
-      Sound.Rhythm.Levenshtein
-      Sound.Rhythm.LSystem
-      Sound.Rhythm.Simplex
-      Sound.Rhythm.Util
-      Sound.Rhythm.ValueMap
+      Sound.Fluere.Bjorklund
+      Sound.Fluere.Core.Action
+      Sound.Fluere.Core.BaseData
+      Sound.Fluere.Core.Environment
+      Sound.Fluere.Core.Instrument
+      Sound.Fluere.Core.IOISet
+      Sound.Fluere.Core.MutableMap
+      Sound.Fluere.Core.Osc
+      Sound.Fluere.Core.Player
+      Sound.Fluere.Core.TempoClock
+      Sound.Fluere.Core.Time
+      Sound.Fluere.Init
+      Sound.Fluere.Stochastic.Indispensability
   other-modules:
       Paths_fluere
   default-language: Haskell2010

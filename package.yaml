@@ -25,11 +25,10 @@ dependencies:
 library:
   source-dirs: .
   dependencies:
-  - hosc
   - time
-  - stm
   - containers
-  - split
+  - stm
+  - hosc
   - random
 
 # executables:

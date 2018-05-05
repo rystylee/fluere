@@ -1,11 +1,4 @@
-module Sound.Fluere.MutableMap ( MutableMap
-                               , lookupM
-                               , insertM
-                               , deleteM
-                               , keysM
-                               , elemsM
-                               , fromListM
-                               ) where
+module Sound.Fluere.Core.MutableMap where
 
 import qualified Data.Map.Strict as M
 import Control.Concurrent.STM (TVar, newTVarIO, readTVarIO, atomically, modifyTVar')
@@ -33,6 +26,7 @@ insertM k v mmap = modifyMMap' mmap $ M.insert k v
 -- Delete/Update
 ---------------------------------------------------------------------
 
+-- delete of MutableMap version
 deleteM :: Ord k => k -> MutableMap k a -> IO ()
 deleteM k mmap = modifyMMap' mmap $ M.delete k
 
@@ -40,9 +34,11 @@ deleteM k mmap = modifyMMap' mmap $ M.delete k
 -- Conversion
 ---------------------------------------------------------------------
 
+-- keys of MutableMap version
 keysM :: MutableMap k a -> IO [k]
 keysM mmap = withMMap mmap M.keys
 
+-- elems of MutableMap version
 elemsM :: MutableMap k a -> IO [a]
 elemsM mmap = withMMap mmap M.elems
 
