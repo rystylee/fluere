@@ -68,4 +68,3 @@ snare = newInstrument "snare" $ M.fromList [("name", [string "snare"]), ("freq",
 
 hihat :: Instrument
 hihat = newInstrument "hihat" $ M.fromList [("name", [string "hihat"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]
-

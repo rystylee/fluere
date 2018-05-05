@@ -58,7 +58,7 @@ swapIOIMetricalFactor e n newmf = do
     let newwl = weightList (ioiTimeSignature ioi) (ioiSubdivisionStep ioi) $ ioiWeightFactor ioi
         newpl = probabilityList newmf (ioiDensity ioi) newwl
         swapmf ioi = ioi { ioiSetName = n
-                         , ioiSetLength = length newwl
+                         , ioiSetLength = length newpl
                          , ioiMetricalFactor = newmf
                          , ioiDensity = ioiDensity ioi
                          , ioiWeightFactor = ioiWeightFactor ioi
@@ -76,7 +76,7 @@ swapIOIDensity e n newd = do
     let newwl = weightList (ioiTimeSignature ioi) (ioiSubdivisionStep ioi) $ ioiWeightFactor ioi
         newpl = probabilityList (ioiMetricalFactor ioi) newd newwl
         swapd ioi = ioi { ioiSetName = n
-                        , ioiSetLength = length newwl
+                        , ioiSetLength = length newpl
                         , ioiMetricalFactor = ioiMetricalFactor ioi
                         , ioiDensity = newd
                         , ioiWeightFactor = ioiWeightFactor ioi
@@ -94,7 +94,7 @@ swapIOIWeightFactor e n newwf = do
     let newwl = weightList (ioiTimeSignature ioi) (ioiSubdivisionStep ioi) newwf
         newpl = probabilityList (ioiMetricalFactor ioi) (ioiDensity ioi) newwl
         swapwf ioi = ioi { ioiSetName = n
-                         , ioiSetLength = length newwl
+                         , ioiSetLength = length newpl
                          , ioiMetricalFactor = ioiMetricalFactor ioi
                          , ioiDensity = ioiDensity ioi
                          , ioiWeightFactor = newwf
@@ -112,7 +112,7 @@ swapIOITimeSignature e n newts = do
     let newwl = weightList newts (ioiSubdivisionStep ioi) (ioiWeightFactor ioi)
         newpl = probabilityList (ioiMetricalFactor ioi) (ioiDensity ioi) newwl
         swapts ioi = ioi { ioiSetName = n
-                         , ioiSetLength = length newwl
+                         , ioiSetLength = length newpl
                          , ioiMetricalFactor = ioiMetricalFactor ioi
                          , ioiDensity = ioiDensity ioi
                          , ioiWeightFactor = ioiWeightFactor ioi
@@ -130,7 +130,7 @@ swapIOISubdivisionStep e n newstep = do
     let newwl = weightList (ioiTimeSignature ioi) newstep (ioiWeightFactor ioi)
         newpl = probabilityList (ioiMetricalFactor ioi) (ioiDensity ioi) newwl
         swapstep ioi = ioi { ioiSetName = n
-                           , ioiSetLength = length newwl
+                           , ioiSetLength = length newpl
                            , ioiMetricalFactor = ioiMetricalFactor ioi
                            , ioiDensity = ioiDensity ioi
                            , ioiWeightFactor = ioiWeightFactor ioi

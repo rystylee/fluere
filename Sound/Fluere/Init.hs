@@ -83,7 +83,7 @@ initAction = do
 
 initIOISet :: IO IOISet
 initIOISet = do
-    let l = length wl
+    let l = length pl
         mf = 1
         d = 1.0
         wf = 0.6

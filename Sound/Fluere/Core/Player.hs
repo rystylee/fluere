@@ -15,6 +15,11 @@ import Sound.Fluere.Core.Osc (sendToSC)
 -- Debug
 ---------------------------------------------------------------------
 
+showAlllPlayersIOISet :: Environment -> IO ()
+showAlllPlayersIOISet e = do
+    pnames <- getPlayerNames e
+    sequence_ $ map (\n -> showPlayerIOISet e n) pnames
+
 showPlayerIOISet :: Environment -> String -> IO ()
 showPlayerIOISet e n = do
     Just p <- lookupM n $ playerMMap e
