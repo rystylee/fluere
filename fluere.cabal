@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ed079e8ed9881e8a44ceaa05289edd40472a97498ac7439d13fb9ba760dc89d9
+-- hash: a8cacd39edd644214d402c237534529aa5e2f7420230755f2e71bd39519e3dad
 
 name:           fluere
 version:        0.1.0.0
@@ -37,7 +37,6 @@ library
     , stm
     , time
   exposed-modules:
-      Sound.Fluere.Bjorklund
       Sound.Fluere.Core.Action
       Sound.Fluere.Core.BaseData
       Sound.Fluere.Core.Environment

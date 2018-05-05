@@ -95,6 +95,10 @@ type InstrumentParameterMap = M.Map String [Datum]
 -- OSC
 ---------------------------------------------------------------------
 
-data OscScLang = OscScLang { path :: String
+data OscScLang = OscScLang { scPath :: String
                            , scMessage :: [Datum]
+                           } deriving (Show)
+
+data OscOFLang = OscOFLang { oFPath :: String
+                           , oFMessage :: [Datum]
                            } deriving (Show)

@@ -8,7 +8,7 @@ import Sound.Fluere.Core.BaseData
 import Sound.Fluere.Core.Environment (getPlayerNames)
 import Sound.Fluere.Core.IOISet (nextProb, swapIOICounter)
 import Sound.Fluere.Core.Instrument (convertToOscScLang)
-import Sound.Fluere.Core.Osc (sendToSC)
+import Sound.Fluere.Core.Osc (sendToSC, convertToOscOFLang, sendToOF)
 
 
 ---------------------------------------------------------------------
@@ -82,8 +82,11 @@ act e p (PlaySound _ hi) lt = do
     if rand <= np
         then do
             Just i <- lookupM hi $ instrumentMMap e
-            om <- convertToOscScLang $ instrumentParameter i
-            sendToSC lt om
+            slang <- convertToOscScLang $ instrumentParameter i
+            sendToSC lt slang
+            Just ioi <- lookupM (playerIOISet p) $ ioiSetMMap e
+            oflang <- convertToOscOFLang ioi
+            sendToOF lt oflang
         else return ()
 
 ---------------------------------------------------------------------

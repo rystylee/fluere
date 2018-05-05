@@ -52,7 +52,7 @@ convertToOscScLang ipmap = return om
     where Just name = M.lookup "name" ipmap
           mapWithoutName = M.filterWithKey (\k _ -> k /= "name") ipmap
           es = Prelude.foldl (++) [] $ M.elems mapWithoutName
-          om = OscScLang { path = "/s_new"
+          om = OscScLang { scPath = "/s_new"
                          , scMessage = name ++ es
                          }
 
