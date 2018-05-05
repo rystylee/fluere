@@ -90,7 +90,7 @@ initIOISet = do
         ts = (8,8)
         step = 16
         wl = weightList ts step wf
-        pl = probabilityList mf wl d
+        pl = probabilityList mf d wl
     return $ newIOISet "kick" l mf d wf ts step wl pl 0
 
 initIOISetMMap :: IO (MutableMap String IOISet)

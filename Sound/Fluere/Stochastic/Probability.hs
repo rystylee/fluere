@@ -5,11 +5,11 @@ module Sound.Fluere.Stochastic.Probability where
 -- Probability of event
 ---------------------------------------------------------------------
 
-probabilityList :: Double -> [Double] -> Double -> [Double]
-probabilityList mf wl d = Prelude.map (\w -> calcProb mf wl d w) wl
+probabilityList :: Double -> Double -> [Double] -> [Double]
+probabilityList mf d wl = Prelude.map (\w -> calcProb mf d wl w) wl
 
-calcProb :: Double -> [Double] -> Double -> Double -> Double
-calcProb mf wl d w = d * n * ((w + delta) ** mf)
+calcProb :: Double -> Double -> [Double] -> Double -> Double
+calcProb mf d wl w = d * n * ((w + delta) ** mf)
     where n = calcN mf wl delta
           delta = 0.02
 

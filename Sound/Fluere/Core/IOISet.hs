@@ -38,6 +38,9 @@ newIOISet n l mf d wf ts step wl pl c =
 newIOISetMMap :: IOISet -> IO (MutableMap String IOISet)
 newIOISetMMap ioi = fromListM [(ioiSetName ioi, ioi)]
 
+addIOISet :: Environment -> IOISet -> IO ()
+addIOISet e ioi = insertM (ioiSetName ioi) ioi $ ioiSetMMap e
+
 ---------------------------------------------------------------------
 -- Swap
 ---------------------------------------------------------------------
@@ -53,7 +56,7 @@ swapIOIMetricalFactor :: Environment -> String -> Double -> IO ()
 swapIOIMetricalFactor e n newmf = do
     Just ioi <- lookupM n $ ioiSetMMap e
     let newwl = weightList (ioiTimeSignature ioi) (ioiSubdivisionStep ioi) $ ioiWeightFactor ioi
-        newpl = probabilityList newmf newwl $ ioiDensity ioi
+        newpl = probabilityList newmf (ioiDensity ioi) newwl
         swapmf ioi = ioi { ioiSetName = n
                          , ioiSetLength = length newwl
                          , ioiMetricalFactor = newmf
@@ -71,7 +74,7 @@ swapIOIDensity :: Environment -> String -> Double -> IO ()
 swapIOIDensity e n newd = do
     Just ioi <- lookupM n $ ioiSetMMap e
     let newwl = weightList (ioiTimeSignature ioi) (ioiSubdivisionStep ioi) $ ioiWeightFactor ioi
-        newpl = probabilityList (ioiMetricalFactor ioi) newwl newd
+        newpl = probabilityList (ioiMetricalFactor ioi) newd newwl
         swapd ioi = ioi { ioiSetName = n
                         , ioiSetLength = length newwl
                         , ioiMetricalFactor = ioiMetricalFactor ioi
@@ -89,7 +92,7 @@ swapIOIWeightFactor :: Environment -> String -> Double -> IO ()
 swapIOIWeightFactor e n newwf = do
     Just ioi <- lookupM n $ ioiSetMMap e
     let newwl = weightList (ioiTimeSignature ioi) (ioiSubdivisionStep ioi) newwf
-        newpl = probabilityList (ioiMetricalFactor ioi) newwl $ ioiDensity ioi
+        newpl = probabilityList (ioiMetricalFactor ioi) (ioiDensity ioi) newwl
         swapwf ioi = ioi { ioiSetName = n
                          , ioiSetLength = length newwl
                          , ioiMetricalFactor = ioiMetricalFactor ioi
@@ -107,7 +110,7 @@ swapIOITimeSignature :: Environment -> String -> (Int, Int) -> IO ()
 swapIOITimeSignature e n newts = do
     Just ioi <- lookupM n $ ioiSetMMap e
     let newwl = weightList newts (ioiSubdivisionStep ioi) (ioiWeightFactor ioi)
-        newpl = probabilityList (ioiMetricalFactor ioi) newwl $ ioiDensity ioi
+        newpl = probabilityList (ioiMetricalFactor ioi) (ioiDensity ioi) newwl
         swapts ioi = ioi { ioiSetName = n
                          , ioiSetLength = length newwl
                          , ioiMetricalFactor = ioiMetricalFactor ioi
@@ -125,7 +128,7 @@ swapIOISubdivisionStep :: Environment -> String -> Int -> IO ()
 swapIOISubdivisionStep e n newstep = do
     Just ioi <- lookupM n $ ioiSetMMap e
     let newwl = weightList (ioiTimeSignature ioi) newstep (ioiWeightFactor ioi)
-        newpl = probabilityList (ioiMetricalFactor ioi) newwl $ ioiDensity ioi
+        newpl = probabilityList (ioiMetricalFactor ioi) (ioiDensity ioi) newwl
         swapstep ioi = ioi { ioiSetName = n
                            , ioiSetLength = length newwl
                            , ioiMetricalFactor = ioiMetricalFactor ioi
@@ -158,7 +161,6 @@ nextProb e p = do
         else do
             swapIOICounter e (playerIOISet p) (c + 1)
     return $ pl !! c
-
 
 
 
