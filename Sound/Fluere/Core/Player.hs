@@ -111,6 +111,9 @@ stopPlayer e n = do
             swapPlayerStatus e n Stopping
             putStrLn $ "Player " ++ n ++ " stopped."
 
+---------------------------------------------------------------------
+-- batch manipulation
+
 startPlayers :: Environment -> [String] -> IO ()
 startPlayers e ns = mapM_ (startPlayer e) ns
 

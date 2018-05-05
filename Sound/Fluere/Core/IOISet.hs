@@ -2,6 +2,7 @@ module Sound.Fluere.Core.IOISet where
 
 import Sound.Fluere.Core.MutableMap (MutableMap, fromListM, lookupM, insertM)
 import Sound.Fluere.Core.BaseData
+import Sound.Fluere.Core.Environment (getIOISetNames)
 
 import Sound.Fluere.Stochastic.MetricalWeight (weightList)
 import Sound.Fluere.Stochastic.Probability (probabilityList)
@@ -146,8 +147,52 @@ swapIOICounter :: Environment -> String -> Int -> IO ()
 swapIOICounter e n newc = swapIOISet e n swapc
     where swapc ioi = ioi { ioiCounter = newc }
 
+
 ---------------------------------------------------------------------
--- Probability of event
+-- batch manipulation
+
+swapIOIMetricalFactors :: Environment -> [String] -> Double -> IO ()
+swapIOIMetricalFactors e ns mf = sequence_ $ map (\n -> swapIOIWeightFactor e n mf) ns
+
+swapAllIOIMetricalFactors :: Environment -> Double -> IO ()
+swapAllIOIMetricalFactors e mf = do
+    ioinames <- getIOISetNames e
+    swapIOIMetricalFactors e ioinames mf
+
+swapIOIDensities :: Environment -> [String] -> Double -> IO ()
+swapIOIDensities e ns d = sequence_ $ map (\n -> swapIOIDensity e n d) ns
+
+swapAllIOIDensities :: Environment -> Double -> IO ()
+swapAllIOIDensities e d = do
+    ioinames <- getIOISetNames e
+    swapIOIDensities e ioinames d
+
+swapIOIWeightFactors :: Environment -> [String] -> Double -> IO ()
+swapIOIWeightFactors e ns wf = sequence_ $ map (\n -> swapIOIWeightFactor e n wf) ns
+
+swapAllIOIWeightFactors :: Environment -> Double -> IO ()
+swapAllIOIWeightFactors e wf = do
+    ioinames <- getIOISetNames e
+    swapIOIWeightFactors e ioinames wf
+
+swapIOITimeSignatures :: Environment -> [String] -> (Int, Int) -> IO ()
+swapIOITimeSignatures e ns ts = sequence_ $ map (\n -> swapIOITimeSignature e n ts) ns
+
+swapAllIOITimeSignatures :: Environment -> (Int, Int) -> IO ()
+swapAllIOITimeSignatures e ts = do
+    ioinames <- getIOISetNames e
+    swapIOITimeSignatures e ioinames ts
+
+swapIOISubdivisionSteps :: Environment -> [String] -> Int -> IO ()
+swapIOISubdivisionSteps e ns step = sequence_ $ map (\n -> swapIOISubdivisionStep e n step) ns
+
+swapAllIOISubdivisionSteps :: Environment -> Int -> IO ()
+swapAllIOISubdivisionSteps e step = do
+    ioinames <- getIOISetNames e
+    swapIOISubdivisionSteps e ioinames step
+
+---------------------------------------------------------------------
+-- Get probability of next event
 ---------------------------------------------------------------------
 
 nextProb :: Environment -> Player -> IO Double
@@ -161,28 +206,3 @@ nextProb e p = do
         else do
             swapIOICounter e (playerIOISet p) (c + 1)
     return $ pl !! c
-
-
-
----- debug
---calcProbs ioi = Prelude.map (\w -> calcProb ioi w) $ ioiWeightList ioi
---
---calcProb :: IOISet -> Double -> Double
---calcProb ioi w = d * n * ((w + delta) ** mf)
---    where mf = ioiMetricalFactor ioi
---          d = ioiDensity ioi
---          n = calcN ioi delta
---          delta = 0.02
---
---calcN :: IOISet -> Double -> Double
---calcN ioi delta = top / tp
---    where tp = calcTotalProb ioi delta
---          top = calcOrgTotalProb ioi
---
---calcTotalProb :: IOISet -> Double -> Double
---calcTotalProb ioi delta = sum $ Prelude.map (\w -> (w + delta) ** mf) wl
---    where mf = ioiMetricalFactor ioi 
---          wl = ioiWeightList ioi
---
---calcOrgTotalProb :: IOISet -> Double
---calcOrgTotalProb ioi = sum $ ioiWeightList ioi
