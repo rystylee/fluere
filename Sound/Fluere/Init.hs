@@ -13,6 +13,9 @@ import Sound.Fluere.Core.Action (newActionMMap, newAction)
 import Sound.Fluere.Core.IOISet (newIOISetMMap, newIOISet)
 import Sound.Fluere.Core.Instrument (newInstrumentMMap, newInstrument, kick, snare, hihat)
 
+import Sound.Fluere.Stochastic.MetricalWeight (weightList)
+import Sound.Fluere.Stochastic.Probability (probabilityList)
+
 
 ---------------------------------------------------------------------
 -- Environment
@@ -80,9 +83,15 @@ initAction = do
 
 initIOISet :: IO IOISet
 initIOISet = do
-    let pl = [1, 0.2, 0.6, 0.3, 0.8, 0.3, 0.5, 0.2]
-        l = length pl
-    return $ newIOISet "kick" l pl 0
+    let l = length wl
+        mf = 1
+        d = 1.0
+        wf = 0.6
+        ts = (8,8)
+        step = 16
+        wl = weightList ts step wf
+        pl = probabilityList mf wl d
+    return $ newIOISet "kick" l mf d wf ts step wl pl 0
 
 initIOISetMMap :: IO (MutableMap String IOISet)
 initIOISetMMap = do

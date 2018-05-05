@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f2b56fee5a732e287d9518c5fe88e144c647aff08bb5cddff0da18926ffbf6e3
+-- hash: ed079e8ed9881e8a44ceaa05289edd40472a97498ac7439d13fb9ba760dc89d9
 
 name:           fluere
 version:        0.1.0.0
@@ -50,6 +50,9 @@ library
       Sound.Fluere.Core.Time
       Sound.Fluere.Init
       Sound.Fluere.Stochastic.Indispensability
+      Sound.Fluere.Stochastic.MetricalWeight
+      Sound.Fluere.Stochastic.Probability
+      Sound.Fluere.Stochastic.Util
   other-modules:
       Paths_fluere
   default-language: Haskell2010

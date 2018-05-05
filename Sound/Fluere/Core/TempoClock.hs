@@ -52,15 +52,15 @@ swapCps e n c = do
     now <- currentTime
     pBar <- physicalBar tc
     pBeat <- physicalBeat tc
-    let changecps newtc = newtc { tempoClockName = n
-                                , cps = c
-                                , bpc = bpc tc
-                                , startTime = now
-                                , startBar = pBar
-                                , startBeat = pBeat
-                                , clockLatency = clockLatency tc
-                                }
-    swapTempoClock e n changecps
+    let swapcps newtc = newtc { tempoClockName = n
+                              , cps = c
+                              , bpc = bpc tc
+                              , startTime = now
+                              , startBar = pBar
+                              , startBeat = pBeat
+                              , clockLatency = clockLatency tc
+                              }
+    swapTempoClock e n swapcps
 
 swapBpc :: Environment -> String -> Double -> IO ()
 swapBpc e n b = do
@@ -68,15 +68,15 @@ swapBpc e n b = do
     now <- currentTime
     pBar <- physicalBar tc
     pBeat <- physicalBeat tc
-    let changebps newtc = newtc { tempoClockName = n
-                                , cps = cps tc
-                                , bpc = b
-                                , startTime = now
-                                , startBar = pBar
-                                , startBeat = pBeat
-                                , clockLatency = clockLatency tc
-                                }
-    swapTempoClock e n changebps
+    let swapbps newtc = newtc { tempoClockName = n
+                              , cps = cps tc
+                              , bpc = b
+                              , startTime = now
+                              , startBar = pBar
+                              , startBeat = pBeat
+                              , clockLatency = clockLatency tc
+                              }
+    swapTempoClock e n swapbps
 
 -- alias
 cps' = swapCps

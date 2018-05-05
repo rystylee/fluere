@@ -12,6 +12,16 @@ import Sound.Fluere.Core.Osc (sendToSC)
 
 
 ---------------------------------------------------------------------
+-- Debug
+---------------------------------------------------------------------
+
+showPlayerIOISet :: Environment -> String -> IO ()
+showPlayerIOISet e n = do
+    Just p <- lookupM n $ playerMMap e
+    Just ioi <- lookupM (playerIOISet p) $ ioiSetMMap e
+    putStrLn $ show ioi
+
+---------------------------------------------------------------------
 -- Construction
 ---------------------------------------------------------------------
 

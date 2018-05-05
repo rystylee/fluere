@@ -62,8 +62,13 @@ data Action = ConductPlayers { actionName :: String
 
 data IOISet = IOISet { ioiSetName :: String
                      , ioiSetLength :: Int
---                     , ioiBaseList :: [Beat]
-                     , ioiProbList :: [Double]
+                     , ioiMetricalFactor :: Double
+                     , ioiDensity :: Double
+                     , ioiWeightFactor :: Double
+                     , ioiTimeSignature :: (Int, Int)
+                     , ioiSubdivisionStep :: Int
+                     , ioiWeightList :: [Double]
+                     , ioiProbabilityList :: [Double]
                      , ioiCounter :: Int
                      } deriving (Show)
 
