@@ -26,7 +26,7 @@ createSCMessage :: [Datum] -> [Datum]
 createSCMessage sm = instrument ++ defaultArgs ++ scArgs
     where instrument = [head sm]
           defaultArgs = [int32 (-1), int32 0, int32 1]
-          scArgs = sm
+          scArgs = tail sm
 
 createOFMessage :: [Datum] -> [Datum]
 createOFMessage om = om
