@@ -1,6 +1,7 @@
 module Sound.Fluere.Stochastic.Indispensability where
 
 import Data.List as L
+import Data.List.Split as S
 import Data.Map as M
 
 
@@ -15,13 +16,8 @@ import Data.Map as M
 -- Indispensability Value
 ---------------------------------------------------------------------
 
-indispensabilityProbs :: (Int, Int) -> Int -> [Double]
-indispensabilityProbs (tsNum, tsDenom) subdivisionStep = Prelude.map (\x -> (fromIntegral x) / s) ids
-    where ids = indispensabilities (tsNum, tsDenom) subdivisionStep
-          s = fromIntegral $ sum ids
 
-
--- indispensabilities (3, 4) 16 => [[1,2,3],[3,2,2]]
+-- indispensabilities (3, 4) 16 => [11,0,6,3,9,1,7,4,10,2,8,5]
 indispensabilities :: (Int, Int) -> Int -> [Int]
 indispensabilities (tsNum, tsDenom) subdivisionStep = indispensabilities' numPulse sls pfs
     where numPulse = calcNumPulse (tsNum, tsDenom) subdivisionStep
@@ -119,21 +115,39 @@ power x n
 -- Weight
 ---------------------------------------------------------------------
 
-calcWeights w xs = undefined
+weightList :: (Int, Int) -> Int -> Double -> [Double]
+weightList (tsNum, tsDenom) subdivisionStep r = weightList' numPulse ids sls pfs r
+    where ids = indispensabilities (tsNum, tsDenom) subdivisionStep
+          numPulse = calcNumPulse (tsNum, tsDenom) subdivisionStep
+          pfs = primeFactors (tsNum, tsDenom) numPulse
+          sls = subdivisionLevels pfs
 
---calcWeights numPulse sls pfs ids mws r = ws
---    where ws = Prelude.map (\sl -> calcWeight sl r) sls
---          dws = dividedMetricalWeights numPulse sls pfs
 
+weightList' :: Int -> [Int] -> [Int] -> [Int] -> Double -> [Double]
+weightList' numPulse ids sls pfs r = Prelude.map (\id -> calcWeight wmap id) ids
+    where wmap = weightMap numPulse ids sls pfs r
 
-calcWeight :: Int -> Double -> (Double, Double)
-calcWeight sl r = (max', min')
+calcWeight :: M.Map Int Double -> Int -> Double
+calcWeight wmap id = w
+    where Just w = M.lookup id wmap
+
+-- dmw = [[0,4,8],[2,6,10],[1,3,5,7,9,11]]
+-- wvs = [[1.0,0.8666666666666667,0.7333333333333333],[0.6,0.52,0.44],[0.36,0.33599999999999997,0.312,0.288,0.264,0.24]]
+weightMap :: Int -> [Int] -> [Int] -> [Int] -> Double -> M.Map Int Double
+weightMap numPulse ids sls pfs r = listToMap ids' wvs
+    where dmw = dividedMetricalWeights numPulse sls pfs
+          dmwLens = Prelude.map (\x -> length x) dmw
+          ws = Prelude.map (\sl -> weight sl r) sls
+          wvs = weightValues ws dmwLens
+          ids' = S.splitPlaces dmwLens $ downSort ids
+
+weight :: Int -> Double -> (Double, Double)
+weight sl r = (max', min')
     where max' = r ^ (sl - 1)
           min' = r ^sl
 
-dividedMetricalWeights numPulse sls pfs = dmws
+dividedMetricalWeights numPulse sls pfs = Prelude.map (\m -> M.keys m) mwmaps
     where mwmaps = dividedMetricalWeightMap numPulse sls pfs
-          dmws = Prelude.map (\m -> M.keys m) mwmaps
 
 dividedMetricalWeightMap numPulse sls pfs = dmwmaps
     where mwmap = metricalWeightMap numPulse sls pfs
@@ -144,12 +158,11 @@ metricalWeightMap numPulse sls pfs = M.fromList $ zip [0..] mws
     where mws = metricalWeights numPulse sls pfs
 
 metricalWeights :: Int -> [Int]-> [Int] -> [Int]
-metricalWeights numPulse sls pfs = mws'
-    where mws = Prelude.map (\sl -> metricalWeight' numPulse sl pfs) sls
-          mws' = sumUp mws
+metricalWeights numPulse sls pfs = sumUp mws
+    where mws = Prelude.map (\sl -> metricalWeight numPulse sl pfs) sls
 
-metricalWeight' :: Int -> Int -> [Int] -> [Int]
-metricalWeight' numPulse sl pfs = Prelude.map selectW [n..(n + numPulse - 1)]
+metricalWeight :: Int -> Int -> [Int] -> [Int]
+metricalWeight numPulse sl pfs = Prelude.map selectW [n..(n + numPulse - 1)]
     where pf = L.foldl' (*) 1 (take sl pfs)
           n = numPulse `div` pf
           selectW = (\x -> if x `mod` n == 0 then 1 else 0)
@@ -158,12 +171,24 @@ metricalWeight' numPulse sl pfs = Prelude.map selectW [n..(n + numPulse - 1)]
 -- Util
 ---------------------------------------------------------------------
 
-weightValues :: (Double, Double) -> [Int] -> [Double]
-weightValues (max', min') xs = [max'] ++ downSort deltas
-    where l = fromIntegral $ (length xs)
+-- weightValues [(1, 0.6), (0.6, 0.36), (0.36, 0.216)] [3, 3, 6]
+-- => [ [1.0,0.8666666666666667,0.7333333333333333]
+--     ,[0.6,0.52,0.44]
+--     ,[0.36,0.33599999999999997,0.312,0.288,0.264,0.24]
+--    ]
+weightValues :: [(Double, Double)] -> [Int] -> [[Double]]
+weightValues ranges ls = Prelude.map (\x -> weightValues' x) $ zip ranges ls
+
+weightValues' :: ((Double, Double), Int) -> [Double]
+weightValues' ((max', min'), l) = [max'] ++ downSort deltas
+    where l' = fromIntegral l
           diff = max' - min'
-          delta = diff / l
-          deltas = Prelude.map (+ min') [x * delta | x <- [1..(l - 1)]]
+          delta = diff / l'
+          deltas = Prelude.map (+ min') [x * delta | x <- [1..(l' - 1)]]
+
+listToMap :: [[Int]] -> [[Double]] -> M.Map Int Double
+listToMap xs ys = M.fromList ls
+    where ls = concat $ zipWith zip xs ys
 
 findElems :: M.Map Int Int -> Int -> M.Map Int Int
 findElems m n = M.filter (== n) m

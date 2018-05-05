@@ -27,6 +27,7 @@ library:
   dependencies:
   - time
   - containers
+  - split
   - stm
   - hosc
   - random

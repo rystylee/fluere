@@ -55,18 +55,21 @@ play :: Environment -> String -> Double -> IO ()
 play e n lt = do
     Just p <- lookupM n $ playerMMap e
     Just a <- lookupM (playerAction p) $ actionMMap e
-    np <- nextProb e n
-    rand <- (getStdRandom $ randomR (0,1) :: IO Double)
     if playerStatus p == Playing
-        then if rand <= np then act e a lt else return ()
+        then act e p a lt
         else return ()
 
 -- action
-act :: Environment -> Action -> Double -> IO ()
-act e (PlaySound _ hi) lt = do
-    Just i <- lookupM hi $ instrumentMMap e
-    om <- convertToOscScLang $ instrumentParameter i
-    sendToSC lt om
+act :: Environment -> Player -> Action -> Double -> IO ()
+act e p (PlaySound _ hi) lt = do
+    np <- nextProb e p
+    rand <- (getStdRandom $ randomR (0,1) :: IO Double)
+    if rand <= np
+        then do
+            Just i <- lookupM hi $ instrumentMMap e
+            om <- convertToOscScLang $ instrumentParameter i
+            sendToSC lt om
+        else return ()
 
 ---------------------------------------------------------------------
 -- Used to perform

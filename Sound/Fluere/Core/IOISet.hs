@@ -44,9 +44,8 @@ swapIOICounter e n newc = swapIOISet e n swapc
 -- 
 ---------------------------------------------------------------------
 
-nextProb :: Environment -> String -> IO Double
-nextProb e n = do
-    Just p <- lookupM n $ playerMMap e
+nextProb :: Environment -> Player -> IO Double
+nextProb e p = do
     Just ioi <- lookupM (playerIOISet p) (ioiSetMMap e)
     let pl = ioiProbList ioi
         c = ioiCounter ioi

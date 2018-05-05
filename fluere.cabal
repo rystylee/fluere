@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 032d93187b0374ed89c6931892297f2b6313ba802191281d37efac809f66fbc3
+-- hash: f2b56fee5a732e287d9518c5fe88e144c647aff08bb5cddff0da18926ffbf6e3
 
 name:           fluere
 version:        0.1.0.0
@@ -33,6 +33,7 @@ library
     , containers
     , hosc
     , random
+    , split
     , stm
     , time
   exposed-modules:
