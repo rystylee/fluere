@@ -66,8 +66,8 @@ kick = newInstrument "kick" $ M.fromList [("name", [string "kick"]), ("freq", [s
 snare :: Instrument
 snare = newInstrument "snare" $ M.fromList [("name", [string "snare"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]
 
-closehat :: Instrument
-closehat = newInstrument "closehat" $ M.fromList [("name", [string "closehat"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]
+closehihat :: Instrument
+closehihat = newInstrument "closehihat" $ M.fromList [("name", [string "closehihat"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]
 
 cowbell :: Instrument
 cowbell = newInstrument "cowbell" $ M.fromList [("name", [string "cowbell"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]
@@ -77,3 +77,6 @@ clap = newInstrument "clap" $ M.fromList [("name", [string "clap"]), ("freq", [s
 
 cymbal :: Instrument
 cymbal = newInstrument "cymbal" $ M.fromList [("name", [string "cymbal"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]
+
+claves :: Instrument
+claves = newInstrument "claves" $ M.fromList [("name", [string "claves"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]

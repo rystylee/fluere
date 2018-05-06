@@ -152,7 +152,7 @@ swapIOICounter e n newc = swapIOISet e n swapc
 -- batch manipulation
 
 swapIOIMetricalFactors :: Environment -> [String] -> Double -> IO ()
-swapIOIMetricalFactors e ns mf = sequence_ $ map (\n -> swapIOIWeightFactor e n mf) ns
+swapIOIMetricalFactors e ns mf = sequence_ $ map (\n -> swapIOIMetricalFactor e n mf) ns
 
 swapAllIOIMetricalFactors :: Environment -> Double -> IO ()
 swapAllIOIMetricalFactors e mf = do

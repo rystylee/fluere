@@ -11,7 +11,7 @@ import Sound.Fluere.Core.TempoClock (newTempoClockMMap, newTempoClock)
 import Sound.Fluere.Core.Player (newPlayerMMap, newPlayer)
 import Sound.Fluere.Core.Action (newActionMMap, newAction)
 import Sound.Fluere.Core.IOISet (newIOISetMMap, newIOISet)
-import Sound.Fluere.Core.Instrument (newInstrumentMMap, newInstrument, kick, snare, closehat)
+import Sound.Fluere.Core.Instrument (newInstrumentMMap, newInstrument, kick, snare, closehihat)
 
 import Sound.Fluere.Stochastic.MetricalWeight (weightList)
 import Sound.Fluere.Stochastic.Probability (probabilityList)
@@ -104,7 +104,7 @@ initIOISetMMap = do
 
 --initDrum1 :: IO [Instrument]
 --initDrum1 = do
---    return $ [kick, snare, closehat]
+--    return $ [kick, snare, closehihat]
 --
 --initInstrumentMMap :: IO (MutableMap String Instrument)
 --initInstrumentMMap = do
