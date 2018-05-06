@@ -191,6 +191,14 @@ swapAllIOISubdivisionSteps e step = do
     ioinames <- getIOISetNames e
     swapIOISubdivisionSteps e ioinames step
 
+resetIOICounters :: Environment -> [String] -> IO ()
+resetIOICounters e ns = sequence_ $ map (\n -> swapIOICounter e n 0) ns
+
+resetAllIOICounters :: Environment -> IO ()
+resetAllIOICounters e = do
+    ioinames <- getIOISetNames e
+    resetIOICounters e ioinames
+
 ---------------------------------------------------------------------
 -- Get probability of next event
 ---------------------------------------------------------------------
