@@ -11,7 +11,7 @@ import Sound.Fluere.Core.TempoClock (newTempoClockMMap, newTempoClock)
 import Sound.Fluere.Core.Player (newPlayerMMap, newPlayer)
 import Sound.Fluere.Core.Action (newActionMMap, newAction)
 import Sound.Fluere.Core.IOISet (newIOISetMMap, newIOISet)
-import Sound.Fluere.Core.Instrument (newInstrumentMMap, newInstrument, kick, snare, closehihat)
+import Sound.Fluere.Core.SynthDef (newSynthDefMMap, newSynthDef, kick, snare, closehihat)
 
 import Sound.Fluere.Stochastic.MetricalWeight (weightList)
 import Sound.Fluere.Stochastic.Probability (probabilityList)
@@ -27,8 +27,8 @@ initEnvironment = do
     pmmap <- initPlayerMMap
     ammap <- initActionMMap
     ioimmap <- initIOISetMMap
-    immap <- initInstrumentMMap
-    return $ newEnvironment "Environment" tcmmap pmmap ammap ioimmap immap
+    sdmmap<- initSynthDefMMap
+    return $ newEnvironment "Environment" tcmmap pmmap ammap ioimmap sdmmap
 
 ---------------------------------------------------------------------
 -- TempoClock
@@ -99,25 +99,14 @@ initIOISetMMap = do
     newIOISetMMap ioi
 
 ---------------------------------------------------------------------
--- Instrument
+-- SynthDef
 ---------------------------------------------------------------------
 
---initDrum1 :: IO [Instrument]
---initDrum1 = do
---    return $ [kick, snare, closehihat]
---
---initInstrumentMMap :: IO (MutableMap String Instrument)
---initInstrumentMMap = do
---    is <- initDrum1
---    immap <- newInstrumentMMap $ head is
---    sequence_ $ Prelude.map (\i -> insertM (instrumentName i) i immap) is
---    return immap
-
-initInstrument :: IO Instrument
-initInstrument = do
+initSynthDef :: IO SynthDef
+initSynthDef = do
     return kick
 
-initInstrumentMMap :: IO (MutableMap String Instrument)
-initInstrumentMMap = do
-    i <- initInstrument
-    newInstrumentMMap i
+initSynthDefMMap :: IO (MutableMap String SynthDef)
+initSynthDefMMap = do
+    s <- initSynthDef
+    newSynthDefMMap s

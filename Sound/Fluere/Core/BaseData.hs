@@ -15,7 +15,7 @@ data Environment = Environment { environmentName :: String
                                , playerMMap :: MutableMap String Player
                                , actionMMap :: MutableMap String Action
                                , ioiSetMMap :: MutableMap String IOISet
-                               , instrumentMMap :: MutableMap String Instrument
+                               , synthDefMMap :: MutableMap String SynthDef
                                }
 
 ---------------------------------------------------------------------
@@ -52,7 +52,7 @@ data Action = ConductPlayers { actionName :: String
                              , handlePlayers :: [String]
                              }
             | PlaySound { actionName :: String
-                        , handleInstrument :: String
+                        , handleSynthDef :: String
                         }
             deriving (Show)
 
@@ -82,14 +82,14 @@ data BeatType = OnBeat | OffBeat
               deriving (Eq, Show)
 
 ---------------------------------------------------------------------
--- Instrument
+-- SynthDef
 ---------------------------------------------------------------------
 
-data Instrument = Instrument { instrumentName :: String
-                             , instrumentParameter :: InstrumentParameterMap
-                             } deriving (Show)
+data SynthDef = SynthDef { synthDefName :: String
+                         , synthDefParameter :: SynthDefParameterMap
+                         } deriving (Show)
 
-type InstrumentParameterMap = M.Map String [Datum]
+type SynthDefParameterMap = M.Map String [Datum]
 
 ---------------------------------------------------------------------
 -- OSC

@@ -13,15 +13,15 @@ newEnvironment :: String
                -> MutableMap String Player
                -> MutableMap String Action
                -> MutableMap String IOISet
-               -> MutableMap String Instrument
+               -> MutableMap String SynthDef
                -> Environment
-newEnvironment n tcmmap pmmap ammap ioimmap immap =
+newEnvironment n tcmmap pmmap ammap ioimmap sdmmap =
     Environment { environmentName = n
                 , tempoClockMMap = tcmmap
                 , playerMMap = pmmap
                 , actionMMap = ammap
                 , ioiSetMMap = ioimmap
-                , instrumentMMap = immap
+                , synthDefMMap = sdmmap
                 }
 
 ---------------------------------------------------------------------
@@ -43,5 +43,5 @@ getActionNames e = keysM $ actionMMap e
 getIOISetNames :: Environment -> IO [String]
 getIOISetNames e = keysM $ ioiSetMMap e
 
-getInstrumentNames :: Environment -> IO [String]
-getInstrumentNames e = keysM $ instrumentMMap e
+getSynthDefNames :: Environment -> IO [String]
+getSynthDefNames e = keysM $ synthDefMMap e

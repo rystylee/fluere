@@ -9,10 +9,10 @@ import Sound.Fluere.Core.BaseData
 ---------------------------------------------------------------------
 
 newAction :: Action -> Action
-newAction (PlaySound n hi) = PlaySound { actionName = n, handleInstrument = hi }
+newAction (PlaySound n hsd) = PlaySound { actionName = n, handleSynthDef = hsd }
 
 newActionMMap :: Action -> IO (MutableMap String Action)
-newActionMMap (PlaySound n hi) = fromListM [(n, (PlaySound n hi))]
+newActionMMap (PlaySound n hsd) = fromListM [(n, (PlaySound n hsd))]
 
 addAction :: Environment -> Action -> IO ()
-addAction e (PlaySound n hi) = insertM n (PlaySound n hi) $ actionMMap e
+addAction e (PlaySound n hsd) = insertM n (PlaySound n hsd) $ actionMMap e

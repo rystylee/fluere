@@ -7,7 +7,7 @@ import Sound.Fluere.Core.MutableMap (MutableMap, fromListM, insertM, lookupM)
 import Sound.Fluere.Core.BaseData
 import Sound.Fluere.Core.Environment (getPlayerNames)
 import Sound.Fluere.Core.IOISet (nextProb, swapIOICounter)
-import Sound.Fluere.Core.Instrument (convertToOscScLang)
+import Sound.Fluere.Core.SynthDef (convertToOscScLang)
 import Sound.Fluere.Core.Osc (sendToSC, convertToOscOFLang, sendToOF)
 
 
@@ -76,13 +76,13 @@ play e n lt = do
 
 -- action
 act :: Environment -> Player -> Action -> Double -> IO ()
-act e p (PlaySound _ hi) lt = do
+act e p (PlaySound _ hsd) lt = do
     np <- nextProb e p
     rand <- (getStdRandom $ randomR (0,1) :: IO Double)
     if rand <= np
         then do
-            Just i <- lookupM hi $ instrumentMMap e
-            slang <- convertToOscScLang $ instrumentParameter i
+            Just s <- lookupM hsd $ synthDefMMap e
+            slang <- convertToOscScLang $ synthDefParameter s
             sendToSC lt slang
             Just ioi <- lookupM (playerIOISet p) $ ioiSetMMap e
             oflang <- convertToOscOFLang ioi
