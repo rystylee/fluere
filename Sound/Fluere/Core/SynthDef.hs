@@ -43,6 +43,18 @@ swapAmp e n newa = do
     let newsdmap = M.insert "amp" [string "amp", float newa] $ synthDefParameter s
     swapSynthDefParameter e n newsdmap
 
+swapPan :: Environment -> String -> Int -> IO ()
+swapPan e n newp = do
+    Just s <- lookupM n $ synthDefMMap e
+    let newsdmap = M.insert "pan" [string "pan", int32 newp] $ synthDefParameter s
+    swapSynthDefParameter e n newsdmap
+
+swapFreq :: Environment -> String -> Double -> IO ()
+swapFreq e n newf = do
+    Just s <- lookupM n $ synthDefMMap e
+    let newsdmap = M.insert "freq" [string "freq", float newf] $ synthDefParameter s
+    swapSynthDefParameter e n newsdmap
+
 ---------------------------------------------------------------------
 -- Convert SynthDefParameter to OscScLang
 ---------------------------------------------------------------------

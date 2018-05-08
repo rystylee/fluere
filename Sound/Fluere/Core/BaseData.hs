@@ -48,12 +48,18 @@ data Status = Playing | Stopping
 -- Action
 ---------------------------------------------------------------------
 
-data Action = ConductPlayers { actionName :: String
-                             , handlePlayers :: [String]
-                             }
-            | PlaySound { actionName :: String
+data Action = PlaySound { actionName :: String
                         , handleSynthDef :: String
                         }
+            | TuneFreq { actionName :: String
+                       , handleSynthDef :: String
+                       , freqs :: [Double]
+                       , actionCounter :: Int
+                       }
+            | RepeatAction { actionName :: String
+                           , handleActions :: [String]
+                           , actionCounter :: Int
+                           }
             deriving (Show)
 
 ---------------------------------------------------------------------

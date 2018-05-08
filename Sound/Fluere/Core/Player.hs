@@ -6,8 +6,9 @@ import System.Random (getStdRandom, randomR)
 import Sound.Fluere.Core.MutableMap (MutableMap, fromListM, insertM, lookupM)
 import Sound.Fluere.Core.BaseData
 import Sound.Fluere.Core.Environment (getPlayerNames)
+import Sound.Fluere.Core.Action (nextAction, nextFreq)
 import Sound.Fluere.Core.IOISet (nextProb, swapIOICounter)
-import Sound.Fluere.Core.SynthDef (convertToOscScLang)
+import Sound.Fluere.Core.SynthDef (convertToOscScLang, swapFreq)
 import Sound.Fluere.Core.Osc (sendToSC, convertToOscOFLang, sendToOF)
 
 
@@ -76,6 +77,7 @@ play e n lt = do
 
 -- action
 act :: Environment -> Player -> Action -> Double -> IO ()
+--
 act e p (PlaySound _ hsd) lt = do
     np <- nextProb e p
     rand <- (getStdRandom $ randomR (0,1) :: IO Double)
@@ -88,8 +90,17 @@ act e p (PlaySound _ hsd) lt = do
             oflang <- convertToOscOFLang ioi
             sendToOF lt oflang
         else return ()
+--
+act e p (TuneFreq n hsd fs ac) lt = do
+    nf <- nextFreq e (TuneFreq n hsd fs ac)
+    swapFreq e (handleSynthDef (TuneFreq n hsd fs ac)) nf
+--
+act e p (RepeatAction n ha ac) lt = do
+    na <- nextAction e (RepeatAction n ha ac)
+    act e p na lt
 
----------------------------------------------------------------------
+
+--------------------------------------------------------------------
 -- Used to perform
 ---------------------------------------------------------------------
 
