@@ -38,14 +38,22 @@ swapAction e n f = do
     let newa = f a
     insertM n newa ammap
 
+-- for Action: TuneFreq
+swapFreqs :: Environment -> String -> [Double] -> IO ()
+swapFreqs e n newfs = do
+    let swapfs a = a { freqs = newfs, actionCounter = 0 }
+    swapAction e n swapfs
+
+-- for Action: RepeatAction
 swapActionCounter :: Environment -> String -> Int -> IO ()
 swapActionCounter e n newac = swapAction e n swapac
     where swapac a = a { actionCounter = newac }
 
-
+---------------------------------------------------------------------
+-- Used to get counter
 ---------------------------------------------------------------------
 
-
+-- for Action : TuneFreq 
 nextFreq :: Environment -> Action -> IO Double
 nextFreq e a = do
     let fs = freqs a
@@ -57,6 +65,7 @@ nextFreq e a = do
             swapActionCounter e (actionName a) (ac + 1)
     return $ fs !! ac
 
+-- for Action : RepeatAction
 nextAction :: Environment -> Action -> IO Action
 nextAction e a = do
     let ha = handleActions a
