@@ -14,14 +14,16 @@ newEnvironment :: String
                -> MutableMap String Action
                -> MutableMap String IOISet
                -> MutableMap String SynthDef
+               -> MutableMap String Density
                -> Environment
-newEnvironment n tcmmap pmmap ammap ioimmap sdmmap =
+newEnvironment n tcmmap pmmap ammap ioimmap sdmmap dmmap =
     Environment { environmentName = n
                 , tempoClockMMap = tcmmap
                 , playerMMap = pmmap
                 , actionMMap = ammap
                 , ioiSetMMap = ioimmap
                 , synthDefMMap = sdmmap
+                , densityMMap = dmmap
                 }
 
 ---------------------------------------------------------------------

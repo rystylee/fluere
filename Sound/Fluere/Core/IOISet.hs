@@ -1,8 +1,10 @@
 module Sound.Fluere.Core.IOISet where
 
+import Sound.Fluere.Core.Time (physicalBeat)
 import Sound.Fluere.Core.MutableMap (MutableMap, fromListM, lookupM, insertM)
 import Sound.Fluere.Core.BaseData
 import Sound.Fluere.Core.Environment (getIOISetNames)
+import Sound.Fluere.Core.Density (currentDensity)
 
 import Sound.Fluere.Stochastic.MetricalWeight (weightList)
 import Sound.Fluere.Stochastic.Probability (probabilityList)
@@ -14,6 +16,7 @@ import Sound.Fluere.Stochastic.Probability (probabilityList)
 
 newIOISet :: String
           -> Int
+          -> String
           -> Double
           -> Double
           -> Double
@@ -23,9 +26,10 @@ newIOISet :: String
           -> [Double]
           -> Int
           -> IOISet
-newIOISet n l mf d wf ts step wl pl c =
+newIOISet n l gd mf d wf ts step wl pl c =
     IOISet { ioiSetName = n
            , ioiSetLength = l
+           , ioiGlobalDensity = gd
            , ioiMetricalFactor = mf
            , ioiDensity = d
            , ioiWeightFactor = wf
@@ -53,6 +57,10 @@ swapIOISet e n f = do
     let newioi = f ioi
     insertM n newioi ioimmap
 
+swapIOIGlobalDensity :: Environment -> String -> String -> IO ()
+swapIOIGlobalDensity e n newgd = swapIOISet e n swapgd
+    where swapgd ioi = ioi { ioiGlobalDensity = newgd }
+
 swapIOIMetricalFactor :: Environment -> String -> Double -> IO ()
 swapIOIMetricalFactor e n newmf = do
     Just ioi <- lookupM n $ ioiSetMMap e
@@ -60,6 +68,7 @@ swapIOIMetricalFactor e n newmf = do
         newpl = probabilityList newmf (ioiDensity ioi) newwl
         swapmf ioi = ioi { ioiSetName = n
                          , ioiSetLength = length newpl
+                         , ioiGlobalDensity =  ioiGlobalDensity ioi
                          , ioiMetricalFactor = newmf
                          , ioiDensity = ioiDensity ioi
                          , ioiWeightFactor = ioiWeightFactor ioi
@@ -78,6 +87,7 @@ swapIOIDensity e n newd = do
         newpl = probabilityList (ioiMetricalFactor ioi) newd newwl
         swapd ioi = ioi { ioiSetName = n
                         , ioiSetLength = length newpl
+                        , ioiGlobalDensity =  ioiGlobalDensity ioi
                         , ioiMetricalFactor = ioiMetricalFactor ioi
                         , ioiDensity = newd
                         , ioiWeightFactor = ioiWeightFactor ioi
@@ -96,6 +106,7 @@ swapIOIWeightFactor e n newwf = do
         newpl = probabilityList (ioiMetricalFactor ioi) (ioiDensity ioi) newwl
         swapwf ioi = ioi { ioiSetName = n
                          , ioiSetLength = length newpl
+                         , ioiGlobalDensity =  ioiGlobalDensity ioi
                          , ioiMetricalFactor = ioiMetricalFactor ioi
                          , ioiDensity = ioiDensity ioi
                          , ioiWeightFactor = newwf
@@ -114,6 +125,7 @@ swapIOITimeSignature e n newts = do
         newpl = probabilityList (ioiMetricalFactor ioi) (ioiDensity ioi) newwl
         swapts ioi = ioi { ioiSetName = n
                          , ioiSetLength = length newpl
+                         , ioiGlobalDensity =  ioiGlobalDensity ioi
                          , ioiMetricalFactor = ioiMetricalFactor ioi
                          , ioiDensity = ioiDensity ioi
                          , ioiWeightFactor = ioiWeightFactor ioi
@@ -132,6 +144,7 @@ swapIOISubdivisionStep e n newstep = do
         newpl = probabilityList (ioiMetricalFactor ioi) (ioiDensity ioi) newwl
         swapstep ioi = ioi { ioiSetName = n
                            , ioiSetLength = length newpl
+                           , ioiGlobalDensity =  ioiGlobalDensity ioi
                            , ioiMetricalFactor = ioiMetricalFactor ioi
                            , ioiDensity = ioiDensity ioi
                            , ioiWeightFactor = ioiWeightFactor ioi
@@ -206,6 +219,7 @@ resetAllIOICounters e = do
 nextProb :: Environment -> Player -> IO Double
 nextProb e p = do
     Just ioi <- lookupM (playerIOISet p) (ioiSetMMap e)
+    gd <- currentDensity e $ ioiGlobalDensity ioi
     let pl = ioiProbabilityList ioi
         c = ioiCounter ioi
     if (c == (length pl - 1))
@@ -213,4 +227,4 @@ nextProb e p = do
             swapIOICounter e (playerIOISet p) 0
         else do
             swapIOICounter e (playerIOISet p) (c + 1)
-    return $ pl !! c
+    return $ gd * (pl !! c)

@@ -16,6 +16,7 @@ data Environment = Environment { environmentName :: String
                                , actionMMap :: MutableMap String Action
                                , ioiSetMMap :: MutableMap String IOISet
                                , synthDefMMap :: MutableMap String SynthDef
+                               , densityMMap :: MutableMap String Density
                                }
 
 ---------------------------------------------------------------------
@@ -68,6 +69,7 @@ data Action = PlaySound { actionName :: String
 
 data IOISet = IOISet { ioiSetName :: String
                      , ioiSetLength :: Int
+                     , ioiGlobalDensity :: String
                      , ioiMetricalFactor :: Double
                      , ioiDensity :: Double
                      , ioiWeightFactor :: Double
@@ -96,6 +98,17 @@ data SynthDef = SynthDef { synthDefName :: String
                          } deriving (Show)
 
 type SynthDefParameterMap = M.Map String [Datum]
+
+---------------------------------------------------------------------
+-- Density
+---------------------------------------------------------------------
+
+data Density = Density { densityName :: String
+                       , densityRange :: Double
+                       , densityMap :: DensityMap
+                       } deriving (Show)
+
+type DensityMap = M.Map Int Double
 
 ---------------------------------------------------------------------
 -- OSC
