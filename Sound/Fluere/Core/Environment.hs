@@ -15,8 +15,9 @@ newEnvironment :: String
                -> MutableMap String IOISet
                -> MutableMap String SynthDef
                -> MutableMap String Density
+               -> MutableMap String Complexity
                -> Environment
-newEnvironment n tcmmap pmmap ammap ioimmap sdmmap dmmap =
+newEnvironment n tcmmap pmmap ammap ioimmap sdmmap dmmap cmmap =
     Environment { environmentName = n
                 , tempoClockMMap = tcmmap
                 , playerMMap = pmmap
@@ -24,6 +25,7 @@ newEnvironment n tcmmap pmmap ammap ioimmap sdmmap dmmap =
                 , ioiSetMMap = ioimmap
                 , synthDefMMap = sdmmap
                 , densityMMap = dmmap
+                , complexityMMap = cmmap
                 }
 
 ---------------------------------------------------------------------

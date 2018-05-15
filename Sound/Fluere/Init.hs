@@ -13,6 +13,7 @@ import Sound.Fluere.Core.Action (newActionMMap, newAction)
 import Sound.Fluere.Core.IOISet (newIOISetMMap, newIOISet)
 import Sound.Fluere.Core.SynthDef (newSynthDefMMap, newSynthDef, kick, snare, closehihat)
 import Sound.Fluere.Core.Density (newDensityMMap, newDensity, sinDensityMap)
+import Sound.Fluere.Core.Complexity (newComplexityMMap, newComplexity, sinComplexityMap)
 
 import Sound.Fluere.Stochastic.MetricalWeight (weightList)
 import Sound.Fluere.Stochastic.Probability (probabilityList)
@@ -30,7 +31,8 @@ initEnvironment = do
     ioimmap <- initIOISetMMap
     sdmmap <- initSynthDefMMap
     dmmap <- initDensityMMap
-    return $ newEnvironment "Environment" tcmmap pmmap ammap ioimmap sdmmap dmmap
+    cmmap <- initComplexityMMap
+    return $ newEnvironment "Environment" tcmmap pmmap ammap ioimmap sdmmap dmmap cmmap
 
 ---------------------------------------------------------------------
 -- TempoClock
@@ -87,6 +89,7 @@ initIOISet :: IO IOISet
 initIOISet = do
     let l = length pl
         gd = "GlobalDensity"
+        gc = "GlobalComplexity"
         mf = 1
         d = 1.0
         wf = 0.6
@@ -94,7 +97,7 @@ initIOISet = do
         step = 16
         wl = weightList ts step wf
         pl = probabilityList mf d wl
-    return $ newIOISet "kick" l gd mf d wf ts step wl pl 0
+    return $ newIOISet "kick" l gd gc mf d wf ts step wl pl 0
 
 initIOISetMMap :: IO (MutableMap String IOISet)
 initIOISetMMap = do
@@ -127,3 +130,17 @@ initDensity :: IO Density
 initDensity = do
     let dm = sinDensityMap 200
     return $ newDensity "GlobalDensity" 200 dm
+
+---------------------------------------------------------------------
+-- Complexity
+---------------------------------------------------------------------
+
+initComplexityMMap :: IO (MutableMap String Complexity)
+initComplexityMMap = do
+    c <- initComplexity
+    newComplexityMMap c
+
+initComplexity :: IO Complexity
+initComplexity = do
+    let cm = sinDensityMap 200
+    return $ newComplexity "GlobalComplexity" 200 cm

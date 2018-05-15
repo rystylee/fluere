@@ -17,6 +17,7 @@ import Sound.Fluere.Stochastic.Probability (probabilityList)
 newIOISet :: String
           -> Int
           -> String
+          -> String
           -> Double
           -> Double
           -> Double
@@ -26,10 +27,11 @@ newIOISet :: String
           -> [Double]
           -> Int
           -> IOISet
-newIOISet n l gd mf d wf ts step wl pl c =
+newIOISet n l gd gc mf d wf ts step wl pl c =
     IOISet { ioiSetName = n
            , ioiSetLength = l
            , ioiGlobalDensity = gd
+           , ioiGlobalComplexity = gc
            , ioiMetricalFactor = mf
            , ioiDensity = d
            , ioiWeightFactor = wf
@@ -61,6 +63,10 @@ swapIOIGlobalDensity :: Environment -> String -> String -> IO ()
 swapIOIGlobalDensity e n newgd = swapIOISet e n swapgd
     where swapgd ioi = ioi { ioiGlobalDensity = newgd }
 
+swapIOIGlobalComplexity :: Environment -> String -> String -> IO ()
+swapIOIGlobalComplexity e n newgc = swapIOISet e n swapgc
+    where swapgc ioi = ioi { ioiGlobalComplexity = newgc }
+
 swapIOIMetricalFactor :: Environment -> String -> Double -> IO ()
 swapIOIMetricalFactor e n newmf = do
     Just ioi <- lookupM n $ ioiSetMMap e
@@ -69,6 +75,7 @@ swapIOIMetricalFactor e n newmf = do
         swapmf ioi = ioi { ioiSetName = n
                          , ioiSetLength = length newpl
                          , ioiGlobalDensity =  ioiGlobalDensity ioi
+                         , ioiGlobalComplexity =  ioiGlobalComplexity ioi
                          , ioiMetricalFactor = newmf
                          , ioiDensity = ioiDensity ioi
                          , ioiWeightFactor = ioiWeightFactor ioi
@@ -88,6 +95,7 @@ swapIOIDensity e n newd = do
         swapd ioi = ioi { ioiSetName = n
                         , ioiSetLength = length newpl
                         , ioiGlobalDensity =  ioiGlobalDensity ioi
+                        , ioiGlobalComplexity =  ioiGlobalComplexity ioi
                         , ioiMetricalFactor = ioiMetricalFactor ioi
                         , ioiDensity = newd
                         , ioiWeightFactor = ioiWeightFactor ioi
@@ -107,6 +115,7 @@ swapIOIWeightFactor e n newwf = do
         swapwf ioi = ioi { ioiSetName = n
                          , ioiSetLength = length newpl
                          , ioiGlobalDensity =  ioiGlobalDensity ioi
+                         , ioiGlobalComplexity =  ioiGlobalComplexity ioi
                          , ioiMetricalFactor = ioiMetricalFactor ioi
                          , ioiDensity = ioiDensity ioi
                          , ioiWeightFactor = newwf
@@ -126,6 +135,7 @@ swapIOITimeSignature e n newts = do
         swapts ioi = ioi { ioiSetName = n
                          , ioiSetLength = length newpl
                          , ioiGlobalDensity =  ioiGlobalDensity ioi
+                         , ioiGlobalComplexity =  ioiGlobalComplexity ioi
                          , ioiMetricalFactor = ioiMetricalFactor ioi
                          , ioiDensity = ioiDensity ioi
                          , ioiWeightFactor = ioiWeightFactor ioi
@@ -145,6 +155,7 @@ swapIOISubdivisionStep e n newstep = do
         swapstep ioi = ioi { ioiSetName = n
                            , ioiSetLength = length newpl
                            , ioiGlobalDensity =  ioiGlobalDensity ioi
+                           , ioiGlobalComplexity =  ioiGlobalComplexity ioi
                            , ioiMetricalFactor = ioiMetricalFactor ioi
                            , ioiDensity = ioiDensity ioi
                            , ioiWeightFactor = ioiWeightFactor ioi

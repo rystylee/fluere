@@ -5,12 +5,13 @@ import System.Random (getStdRandom, randomR)
 
 import Sound.Fluere.Core.MutableMap (MutableMap, fromListM, insertM, lookupM)
 import Sound.Fluere.Core.BaseData
-import Sound.Fluere.Core.Environment (getPlayerNames)
+import Sound.Fluere.Core.Environment (getPlayerNames, getIOISetNames)
 import Sound.Fluere.Core.Action (nextAction, nextFreq)
-import Sound.Fluere.Core.IOISet (nextProb, swapIOICounter)
+import Sound.Fluere.Core.IOISet (nextProb, swapIOICounter, swapIOIMetricalFactors)
 import Sound.Fluere.Core.SynthDef (convertToOscScLang, swapFreq)
 import Sound.Fluere.Core.Osc (sendToSC, convertToOscOFLang, sendToOF)
 
+import Sound.Fluere.Core.Complexity (currentComplexity)
 
 ---------------------------------------------------------------------
 -- Debug
@@ -99,6 +100,10 @@ act e p (RepeatAction n ha ac) lt = do
     na <- nextAction e (RepeatAction n ha ac)
     act e p na lt
 
+act e p (ControlComplexity n ha) lt = do
+    cp <- currentComplexity e ha
+    ioinames <- getIOISetNames e 
+    swapIOIMetricalFactors e ioinames cp
 
 --------------------------------------------------------------------
 -- Used to perform

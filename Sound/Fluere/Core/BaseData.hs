@@ -17,6 +17,7 @@ data Environment = Environment { environmentName :: String
                                , ioiSetMMap :: MutableMap String IOISet
                                , synthDefMMap :: MutableMap String SynthDef
                                , densityMMap :: MutableMap String Density
+                               , complexityMMap :: MutableMap String Complexity
                                }
 
 ---------------------------------------------------------------------
@@ -61,6 +62,9 @@ data Action = PlaySound { actionName :: String
                            , handleActions :: [String]
                            , actionCounter :: Int
                            }
+            | ControlComplexity { actionName :: String
+                                , handleComplexity :: String
+                                }
             deriving (Show)
 
 ---------------------------------------------------------------------
@@ -70,6 +74,7 @@ data Action = PlaySound { actionName :: String
 data IOISet = IOISet { ioiSetName :: String
                      , ioiSetLength :: Int
                      , ioiGlobalDensity :: String
+                     , ioiGlobalComplexity :: String
                      , ioiMetricalFactor :: Double
                      , ioiDensity :: Double
                      , ioiWeightFactor :: Double
@@ -109,6 +114,19 @@ data Density = Density { densityName :: String
                        } deriving (Show)
 
 type DensityMap = M.Map Int Double
+
+
+---------------------------------------------------------------------
+-- Complexity
+---------------------------------------------------------------------
+
+data Complexity = Complexity { complexityName :: String
+                             , complexityRange :: Double
+                             , complexityMap :: ComplexityMap
+                             } deriving (Show)
+
+type ComplexityMap = M.Map Int Double
+
 
 ---------------------------------------------------------------------
 -- OSC

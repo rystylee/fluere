@@ -16,16 +16,20 @@ newAction (TuneFreq n hsd fs ac) =
     TuneFreq { actionName = n, handleSynthDef = hsd, freqs = fs, actionCounter = ac }
 newAction (RepeatAction n ha ac) =
     RepeatAction { actionName = n, handleActions = ha, actionCounter = 0 }
+newAction (ControlComplexity n hc) =
+    ControlComplexity { actionName = n, handleComplexity = hc }
 
 newActionMMap :: Action -> IO (MutableMap String Action)
 newActionMMap (PlaySound n hsd) = fromListM [(n, (PlaySound n hsd))]
 newActionMMap (TuneFreq n hsd fs ac) = fromListM [(n, (TuneFreq n hsd fs ac))]
 newActionMMap (RepeatAction n ha ac) = fromListM [(n, (RepeatAction n ha ac))]
+newActionMMap (ControlComplexity n hc) = fromListM [(n, (ControlComplexity n hc))]
 
 addAction :: Environment -> Action -> IO ()
 addAction e (PlaySound n hsd) = insertM n (PlaySound n hsd) $ actionMMap e
 addAction e (TuneFreq n hsd fs ac) = insertM n (TuneFreq n hsd fs ac) $ actionMMap e
 addAction e (RepeatAction n ha ac) = insertM n (RepeatAction n ha ac) $ actionMMap e
+addAction e (ControlComplexity n hc) = insertM n (ControlComplexity n hc) $ actionMMap e
 
 ---------------------------------------------------------------------
 -- Swap
