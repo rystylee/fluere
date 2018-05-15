@@ -81,9 +81,6 @@ snare = newSynthDef "snare" $ M.fromList [("name", [string "snare"]), ("freq", [
 closehihat :: SynthDef
 closehihat = newSynthDef "closehihat" $ M.fromList [("name", [string "closehihat"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]
 
-cowbell :: SynthDef
-cowbell = newSynthDef "cowbell" $ M.fromList [("name", [string "cowbell"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]
-
 clap :: SynthDef
 clap = newSynthDef "clap" $ M.fromList [("name", [string "clap"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]
 
@@ -92,3 +89,21 @@ cymbal = newSynthDef "cymbal" $ M.fromList [("name", [string "cymbal"]), ("freq"
 
 claves :: SynthDef
 claves = newSynthDef "claves" $ M.fromList [("name", [string "claves"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]
+
+cowbell :: SynthDef
+cowbell = newSynthDef "cowbell" $ M.fromList [("name", [string "cowbell"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]
+
+lowconga :: SynthDef
+lowconga = newSynthDef "lowconga" $ M.fromList [("name", [string "lowconga"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]
+
+middleconga :: SynthDef
+middleconga = newSynthDef "middleconga" $ M.fromList [("name", [string "middleconga"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]
+
+highconga :: SynthDef
+highconga = newSynthDef "highconga" $ M.fromList [("name", [string "highconga"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]
+
+maracas :: SynthDef
+maracas = newSynthDef "maracas" $ M.fromList [("name", [string "maracas"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]
+
+rimshot :: SynthDef
+rimshot = newSynthDef "rimshot" $ M.fromList [("name", [string "rimshot"]), ("freq", [string "freq", float 440]), ("amp", [string "amp", float 0.8]), ("pan", [string "pan", int32 0])]
