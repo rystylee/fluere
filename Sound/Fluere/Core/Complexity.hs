@@ -20,11 +20,12 @@ showGlobalComplexityMap e n = do
 -- Construction
 ---------------------------------------------------------------------
 
-newComplexity :: String -> Double -> ComplexityMap -> Complexity
-newComplexity n cr cm = Complexity { complexityName = n
-                                   , complexityRange = cr
-                                   , complexityMap = cm
-                                   }
+newComplexity :: String -> Int -> (Double, Double) -> ComplexityMap -> Complexity
+newComplexity n l cr cm = Complexity { complexityName = n
+                                     , complexityMapLength = l
+                                     , complexityRange = cr
+                                     , complexityMap = cm
+                                     }
 
 newComplexityMMap :: Complexity -> IO (MutableMap String Complexity)
 newComplexityMMap c = fromListM [(complexityName c, c)]
@@ -45,8 +46,7 @@ swapComplexity e n f = do
 
 swapComplexityMap :: Environment -> String -> ComplexityMap -> IO ()
 swapComplexityMap e n newcm = swapComplexity e n swapcm
-    where cr = fromIntegral $ size newcm
-          swapcm c = c { complexityRange = cr, complexityMap = newcm }
+    where swapcm c = c { complexityMapLength = size newcm, complexityMap = newcm }
 
 ---------------------------------------------------------------------
 -- 
@@ -55,34 +55,22 @@ swapComplexityMap e n newcm = swapComplexity e n swapcm
 currentComplexity :: Environment -> String -> IO Double
 currentComplexity e n = do
     Just c <- lookupM n $ complexityMMap e
-    let cmap = complexityMap c
     Just tc <- lookupM "TempoClock" $ tempoClockMMap e
     pb <- physicalBeat tc
-    let val = (floor pb) `mod` floor (complexityRange c)
-    let Just v = M.lookup val cmap
+    let val = (floor pb) `mod` complexityMapLength c
+    let Just v = M.lookup val $ complexityMap c
     --putStrLn $ show v
     return $ v
 
 
-linearComplexityMap :: Double -> ComplexityMap
-linearComplexityMap range = M.fromList $ zip [0,1..floor range] $ Prelude.map (\r -> scale r 0 range 0 1) [0,1..range]
+linearComplexityMap :: Int -> (Double, Double) -> ComplexityMap
+linearComplexityMap l (min', max') = M.fromList $ zip [0,1..l] $ Prelude.map (\v -> scale v 0 (fromIntegral l) min' max') [0,1..fromIntegral l]
 
-sinComplexityMap :: Double -> ComplexityMap
-sinComplexityMap range = M.fromList $ zip [0,1..floor range] $ Prelude.map (\r -> sinVal r range) [0,1..range]
-
-
-currentDensity :: Environment -> String -> IO Double
-currentDensity e n = do
-    Just d <- lookupM n $ complexityMMap e
-    let dmap = complexityMap d
-    Just tc <- lookupM "TempoClock" $ tempoClockMMap e
-    pb <- physicalBeat tc
-    let val = (floor pb) `mod` floor (complexityRange d)
-    let Just v = M.lookup val dmap
-    --putStrLn $ show v
-    return $ v
+sinComplexityMap :: Int -> (Double, Double) -> ComplexityMap
+sinComplexityMap l (min', max') = M.fromList $ zip [0,1..l] $ Prelude.map (\r -> sinVal r (fromIntegral l)) [0,1..fromIntegral l]
 
 
+-- Utils
 scale :: Double -> Double -> Double -> Double -> Double -> Double
 scale v from to from' to' = (v - from) / (to - from) * (to' - from') + from'
 

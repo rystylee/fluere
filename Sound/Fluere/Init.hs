@@ -13,7 +13,7 @@ import Sound.Fluere.Core.Action (newActionMMap, newAction)
 import Sound.Fluere.Core.IOISet (newIOISetMMap, newIOISet)
 import Sound.Fluere.Core.SynthDef (newSynthDefMMap, newSynthDef, kick, snare, closehihat)
 import Sound.Fluere.Core.Density (newDensityMMap, newDensity, sinDensityMap)
-import Sound.Fluere.Core.Complexity (newComplexityMMap, newComplexity, sinComplexityMap)
+import Sound.Fluere.Core.Complexity (newComplexityMMap, newComplexity, linearComplexityMap)
 
 import Sound.Fluere.Stochastic.MetricalWeight (weightList)
 import Sound.Fluere.Stochastic.Probability (probabilityList)
@@ -128,8 +128,8 @@ initDensityMMap = do
 
 initDensity :: IO Density
 initDensity = do
-    let dm = sinDensityMap 200
-    return $ newDensity "GlobalDensity" 200 dm
+    let dm = sinDensityMap 400 (0, 1)
+    return $ newDensity "GlobalDensity" 400 (0, 1) dm
 
 ---------------------------------------------------------------------
 -- Complexity
@@ -142,5 +142,5 @@ initComplexityMMap = do
 
 initComplexity :: IO Complexity
 initComplexity = do
-    let cm = sinDensityMap 200
-    return $ newComplexity "GlobalComplexity" 200 cm
+    let cm = linearComplexityMap 400 (0, 1)
+    return $ newComplexity "GlobalComplexity" 400 (0, 1) cm

@@ -109,7 +109,8 @@ type SynthDefParameterMap = M.Map String [Datum]
 ---------------------------------------------------------------------
 
 data Density = Density { densityName :: String
-                       , densityRange :: Double
+                       , densityMapLength :: Int
+                       , densityRange :: (Double, Double)
                        , densityMap :: DensityMap
                        } deriving (Show)
 
@@ -121,12 +122,12 @@ type DensityMap = M.Map Int Double
 ---------------------------------------------------------------------
 
 data Complexity = Complexity { complexityName :: String
-                             , complexityRange :: Double
+                             , complexityMapLength :: Int
+                             , complexityRange :: (Double, Double)
                              , complexityMap :: ComplexityMap
                              } deriving (Show)
 
 type ComplexityMap = M.Map Int Double
-
 
 ---------------------------------------------------------------------
 -- OSC
