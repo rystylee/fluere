@@ -16,6 +16,15 @@ showGlobalDensityMap e n = do
     Just d <- lookupM n $ densityMMap e
     putStrLn $ show $ densityMap d
 
+showCurrentDensity :: Environment -> String -> IO ()
+showCurrentDensity e n = do
+    Just d <- lookupM n $ densityMMap e
+    Just tc <- lookupM "TempoClock" $ tempoClockMMap e
+    pb <- physicalBeat tc
+    let val = (floor pb) `mod` densityMapLength d
+    let Just v = M.lookup val $ densityMap d
+    putStrLn $ show v
+
 ---------------------------------------------------------------------
 -- Construction
 ---------------------------------------------------------------------

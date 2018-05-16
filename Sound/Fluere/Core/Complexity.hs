@@ -16,6 +16,15 @@ showGlobalComplexityMap e n = do
     Just d <- lookupM n $ complexityMMap e
     putStrLn $ show $ complexityMap d
 
+showCurrentComplexity :: Environment -> String -> IO ()
+showCurrentComplexity e n = do
+    Just c <- lookupM n $ complexityMMap e
+    Just tc <- lookupM "TempoClock" $ tempoClockMMap e
+    pb <- physicalBeat tc
+    let val = (floor pb) `mod` complexityMapLength c
+    let Just v = M.lookup val $ complexityMap c
+    putStrLn $ show v
+
 ---------------------------------------------------------------------
 -- Construction
 ---------------------------------------------------------------------
